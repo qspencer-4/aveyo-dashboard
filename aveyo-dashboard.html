@@ -70,37 +70,41 @@
   .cards { padding: 0 0.75rem; }
   .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.625rem; cursor: pointer; }
   .card:active { border-color: var(--blue); }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 2px; }
+  .card-id { font-size: 10px; color: var(--text3); font-weight: 500; letter-spacing: 0.03em; margin-bottom: 2px; }
   .card-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+  .card-addr { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
   .badge { font-size: 11px; padding: 3px 8px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
   .badge-blue { background: var(--blue-light); color: var(--blue-dark); }
   .badge-green { background: var(--green-light); color: var(--green-dark); }
   .badge-amber { background: var(--amber-light); color: var(--amber-dark); }
   .badge-red { background: var(--red-light); color: var(--red-dark); }
   .badge-gray { background: var(--gray-light); color: var(--gray-dark); }
-  .card-addr { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-  .card-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .card-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
   .meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
   .meta svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-  .card-note { font-size: 11px; color: var(--amber-dark); background: var(--amber-light); border-radius: var(--radius); padding: 4px 8px; margin-top: 7px; }
-  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
-  .tag { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
+  .meta.warn { color: var(--amber-dark); }
+  .card-note { font-size: 11px; color: var(--text2); background: var(--bg2); border-radius: var(--radius); padding: 6px 8px; margin-top: 7px; line-height: 1.5; border-left: 2px solid var(--blue); }
   .detail-back { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--blue); cursor: pointer; margin: 0.75rem; font-weight: 500; }
   .detail-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
   .detail-header { margin: 0 0.75rem 0.75rem; }
-  .detail-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .detail-id { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+  .detail-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .detail-addr { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
   .detail-section { background: var(--bg); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; border: 0.5px solid var(--border); overflow: hidden; }
   .detail-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; padding: 0.75rem 1rem 0.5rem; border-bottom: 0.5px solid var(--border); }
   .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 1rem; border-bottom: 0.5px solid var(--border); font-size: 13px; gap: 12px; }
   .detail-row:last-child { border-bottom: none; }
-  .detail-key { color: var(--text2); flex-shrink: 0; max-width: 40%; }
-  .detail-val { color: var(--text); text-align: right; word-break: break-word; max-width: 58%; }
+  .detail-key { color: var(--text2); flex-shrink: 0; max-width: 45%; }
+  .detail-val { color: var(--text); text-align: right; word-break: break-word; max-width: 53%; }
+  .notes-box { background: var(--bg); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; border: 0.5px solid var(--border); padding: 1rem; font-size: 13px; line-height: 1.6; color: var(--text2); }
+  .notes-box strong { color: var(--text); }
   .loading { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
   .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 14px; line-height: 1.6; }
   .progress-wrap { width: 200px; margin: 10px auto 0; background: rgba(0,0,0,0.1); border-radius: 99px; height: 4px; overflow: hidden; }
-  .progress-bar { height: 4px; background: white; border-radius: 99px; transition: width 0.3s; }
+  .progress-bar { height: 4px; background: var(--blue); border-radius: 99px; transition: width 0.3s; }
   .view { display: none; }
   .view.active { display: block; }
   .info-banner { border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.5; margin-bottom: 0; }
@@ -118,7 +122,7 @@
       <div class="header-sub" id="header-sub">My projects</div>
     </div>
     <div class="header-right">
-      <button class="header-btn" id="btn-refresh" onclick="loadAllProjects()" style="display:none;">Refresh</button>
+      <button class="header-btn" id="btn-refresh" onclick="loadProjects()" style="display:none;">Refresh</button>
       <button class="header-btn" id="btn-logout" onclick="logout()" style="display:none;">Sign out</button>
     </div>
   </div>
@@ -140,7 +144,7 @@
     <div class="search-wrap">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="search-input" placeholder="Search projects..." oninput="renderCards()" />
+        <input type="text" id="search-input" placeholder="Search by name, address, status..." oninput="renderCards()" />
       </div>
     </div>
     <div class="stats-row" id="stats-row"></div>
@@ -175,26 +179,27 @@ const PODIO = {
   cid:    'google-sheets-sync-kqxsb2',
   csec:   'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',
   user:   'q.spencer@aveyo.com',
-  pass:   'Clippers332!',
-  fields: {
-    title:         266489981,
-    status:        266489985,
-    milestoneStatus: 269930958,
-    projectManager: 271938240,
-    lastReview:    275467370,
-    notes:         275751845,
-    comments:      266495555,
-    fundingStatus: 268433601,
-    lender:        266828352,
-    financeType:   274492780,
-    daysSinceReview: 276204428
-  }
+  pass:   'Clippers332!'
+};
+
+// Confirmed field IDs from VPS output
+const F = {
+  status:        266489985,
+  milestoneStatus: 269930958,
+  lastReview:    275467370,
+  notes:         275751845,
+  fundingStatus: 268433601,
+  lender:        266828352,
+  financeType:   274492780,
+  daysSince:     276204428,
+  customerInfo:  266491090,  // calculation field with name/address/phone/email
+  projectId:     266489980   // calculation field with project number e.g. "03359"
 };
 
 let S = { token: null, items: [], filter: 'All' };
 
-function persist() { try { localStorage.setItem('aveyo_v12', JSON.stringify({ token: S.token })); } catch(e) {} }
-function loadPersist() { try { const d = JSON.parse(localStorage.getItem('aveyo_v12') || '{}'); if (d.token) S.token = d.token; } catch(e) {} }
+function persist() { try { localStorage.setItem('aveyo_v13', JSON.stringify({ token: S.token })); } catch(e) {} }
+function loadPersist() { try { const d = JSON.parse(localStorage.getItem('aveyo_v13') || '{}'); if (d.token) S.token = d.token; } catch(e) {} }
 
 function showView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
@@ -205,7 +210,7 @@ function showView(v) {
 
 function logout() {
   S = { token: null, items: [], filter: 'All' };
-  try { localStorage.removeItem('aveyo_v12'); } catch(e) {}
+  try { localStorage.removeItem('aveyo_v13'); } catch(e) {}
   document.getElementById('auth-user').value = PODIO.user;
   document.getElementById('auth-pass').value = PODIO.pass;
   showView('auth');
@@ -227,14 +232,14 @@ async function connectPodio() {
     if (!data.access_token) throw new Error(data.error_description || 'Sign in failed');
     S.token = data.access_token;
     persist();
-    await loadAllProjects();
+    await loadProjects();
   } catch(e) {
     msg.className = 'msg msg-error'; msg.textContent = e.message;
     btn.disabled = false;
   }
 }
 
-async function loadAllProjects() {
+async function loadProjects() {
   showView('dashboard');
   document.getElementById('cards-loading').style.display = 'block';
   document.getElementById('cards-list').innerHTML = '';
@@ -253,11 +258,8 @@ async function loadAllProjects() {
 
       const res = await fetch(`https://api.podio.com/item/app/${PODIO.appId}/filter/${PODIO.viewId}/`, {
         method: 'POST',
-        headers: {
-          Authorization: 'OAuth2 ' + S.token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ limit, offset })
+        headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit, offset, sort_by: 'last_edit_on', sort_desc: true })
       });
 
       if (!res.ok) {
@@ -269,7 +271,6 @@ async function loadAllProjects() {
       if (data.total !== undefined && total === null) total = data.total;
       const batch = data.items || [];
       all = all.concat(batch);
-
       if (batch.length < limit || (total !== null && all.length >= total)) break;
       offset += limit;
     }
@@ -277,7 +278,7 @@ async function loadAllProjects() {
     document.getElementById('progress-bar').style.width = '100%';
     S.items = all.map(parseItem);
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
-    document.getElementById('dash-info').textContent = `${S.items.length} active projects — Quentin Spencer`;
+    document.getElementById('dash-info').textContent = `${S.items.length} projects — Quentin Spencer`;
     renderStats(); renderChips(); renderCards();
 
   } catch(e) {
@@ -287,33 +288,65 @@ async function loadAllProjects() {
   }
 }
 
-// Extract a field value by field ID
-function getFieldById(item, fieldId) {
+// Get field value by field_id (numeric)
+function fv(item, fieldId) {
   const f = (item.fields || []).find(f => f.field_id === fieldId);
   if (!f || !f.values || !f.values.length) return '';
   const v = f.values[0];
+  // Category field
+  if (v.value && v.value.text) return v.value.text;
+  // Date field
+  if (v.start_date) return v.start_date;
+  if (v.start) return v.start.split(' ')[0];
+  // Text/calculation field
   if (v.value !== undefined) {
-    if (typeof v.value === 'object' && v.value !== null) {
-      return v.value.text || v.value.name || (v.value.start ? v.value.start.split(' ')[0] : '') || v.value.title || '';
-    }
+    if (typeof v.value === 'object' && v.value !== null) return v.value.text || v.value.name || '';
     return String(v.value);
   }
   return v.text || '';
 }
 
+// Get numeric value
+function fnum(item, fieldId) {
+  const f = (item.fields || []).find(f => f.field_id === fieldId);
+  if (!f || !f.values || !f.values.length) return null;
+  const v = f.values[0];
+  if (v.value !== undefined) return Math.round(parseFloat(v.value));
+  return null;
+}
+
+// Parse the title: "#03359 Luke Vaccaro - 1464 Fieldstone Dr, Mount Joy PA 17552"
+function parseTitle(title) {
+  const match = title.match(/^(#\S+)\s+(.+?)\s+-\s+(.+)$/);
+  if (match) return { projectNum: match[1], name: match[2], address: match[3] };
+  return { projectNum: '', name: title, address: '' };
+}
+
+// Strip HTML tags from notes
+function stripHtml(html) {
+  return (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function parseItem(raw) {
-  const F = PODIO.fields;
+  const title = raw.title || '';
+  const { projectNum, name, address } = parseTitle(title);
+  const days = fnum(raw, F.daysSince);
+  const notesRaw = fv(raw, F.notes);
+
   return {
-    id:              raw.item_id,
-    title:           getFieldById(raw, F.title) || raw.title || ('Item #' + raw.item_id),
-    status:          getFieldById(raw, F.status),
-    milestoneStatus: getFieldById(raw, F.milestoneStatus),
-    lastReview:      getFieldById(raw, F.lastReview),
-    notes:           getFieldById(raw, F.notes),
-    fundingStatus:   getFieldById(raw, F.fundingStatus),
-    lender:          getFieldById(raw, F.lender),
-    financeType:     getFieldById(raw, F.financeType),
-    daysSince:       getFieldById(raw, F.daysSinceReview),
+    id: raw.item_id,
+    projectNum,
+    name,
+    address,
+    title,
+    status: fv(raw, F.status),
+    milestoneStatus: fv(raw, F.milestoneStatus),
+    lastReview: fv(raw, F.lastReview),
+    notes: stripHtml(notesRaw),
+    fundingStatus: fv(raw, F.fundingStatus),
+    lender: fv(raw, F.lender),
+    financeType: fv(raw, F.financeType),
+    daysSince: days,
     raw
   };
 }
@@ -321,26 +354,26 @@ function parseItem(raw) {
 function badgeClass(s) {
   s = (s || '').toLowerCase();
   if (!s) return 'badge-gray';
-  if (s.includes('complet') || s.includes('done') || s.includes('install') || s.includes('final') || s.includes('funded')) return 'badge-green';
-  if (s.includes('progress') || s.includes('active') || s.includes('schedul') || s.includes('approv') || s.includes('submit')) return 'badge-blue';
+  if (s.includes('complet') || s.includes('done') || s.includes('install') || s.includes('pto') || s.includes('funded')) return 'badge-green';
+  if (s.includes('active') || s.includes('progress') || s.includes('schedul') || s.includes('approv') || s.includes('submit')) return 'badge-blue';
   if (s.includes('pending') || s.includes('wait') || s.includes('review') || s.includes('hold') || s.includes('stip')) return 'badge-amber';
-  if (s.includes('cancel') || s.includes('reject') || s.includes('issue') || s.includes('fail') || s.includes('denied')) return 'badge-red';
+  if (s.includes('cancel') || s.includes('reject') || s.includes('denied') || s.includes('fail')) return 'badge-red';
   return 'badge-gray';
 }
 
 function renderStats() {
   const items = S.items;
-  const completed = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('complet')||s.includes('install')||s.includes('funded'); }).length;
-  const pending = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('pending')||s.includes('review')||s.includes('wait'); }).length;
+  const overdue = items.filter(i => i.daysSince !== null && i.daysSince > 7).length;
+  const active = items.filter(i => (i.status || '').toLowerCase().includes('active')).length;
   document.getElementById('stats-row').innerHTML = `
     <div class="stat"><div class="stat-num">${items.length}</div><div class="stat-lbl">Total</div></div>
-    <div class="stat"><div class="stat-num" style="color:#3B6D11">${completed}</div><div class="stat-lbl">Complete</div></div>
-    <div class="stat"><div class="stat-num" style="color:#633806">${pending}</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat"><div class="stat-num" style="color:#185FA5">${active}</div><div class="stat-lbl">Active</div></div>
+    <div class="stat"><div class="stat-num" style="color:#633806">${overdue}</div><div class="stat-lbl">Review &gt;7d</div></div>
   `;
 }
 
 function renderChips() {
-  const statuses = ['All', ...new Set(S.items.map(i => i.status).filter(Boolean))].slice(0, 12);
+  const statuses = ['All', ...new Set(S.items.map(i => i.milestoneStatus).filter(Boolean))].slice(0, 12);
   document.getElementById('filter-chips').innerHTML = statuses.map(s =>
     `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter(${JSON.stringify(s)})">${esc(s)}</button>`
   ).join('');
@@ -351,29 +384,27 @@ function setFilter(f) { S.filter = f; renderChips(); renderCards(); }
 function renderCards() {
   const q = (document.getElementById('search-input').value || '').toLowerCase();
   let items = S.items;
-  if (S.filter !== 'All') items = items.filter(i => i.status === S.filter);
-  if (q) items = items.filter(i => [i.title, i.status, i.milestoneStatus, i.notes, i.lender, i.fundingStatus].join(' ').toLowerCase().includes(q));
+  if (S.filter !== 'All') items = items.filter(i => i.milestoneStatus === S.filter);
+  if (q) items = items.filter(i => [i.name, i.address, i.status, i.milestoneStatus, i.notes, i.projectNum].join(' ').toLowerCase().includes(q));
   if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects match your search.</div>'; return; }
 
-  document.getElementById('cards-list').innerHTML = items.map(item => `
-    <div class="card" onclick="showDetail(${item.id})">
-      <div class="card-top">
-        <div class="card-name">${esc(item.title)}</div>
-        <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
-      </div>
-      ${item.milestoneStatus ? `<div style="font-size:11px;color:var(--text2);margin-bottom:4px;">${esc(item.milestoneStatus)}</div>` : ''}
-      <div class="card-meta">
-        ${item.lastReview ? `<span class="meta"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Reviewed ${esc(item.lastReview)}</span>` : ''}
-        ${item.daysSince ? `<span class="meta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>${esc(item.daysSince)}d ago</span>` : ''}
-      </div>
-      <div class="card-tags">
-        ${item.fundingStatus ? `<span class="tag">${esc(item.fundingStatus)}</span>` : ''}
-        ${item.lender ? `<span class="tag">${esc(item.lender)}</span>` : ''}
-        ${item.financeType ? `<span class="tag">${esc(item.financeType)}</span>` : ''}
-      </div>
-      ${item.notes ? `<div class="card-note">${esc(item.notes.substring(0, 120))}${item.notes.length > 120 ? '...' : ''}</div>` : ''}
-    </div>
-  `).join('');
+  document.getElementById('cards-list').innerHTML = items.map(item => {
+    const overdueWarn = item.daysSince !== null && item.daysSince > 7;
+    return `
+      <div class="card" onclick="showDetail(${item.id})">
+        <div class="card-id">${esc(item.projectNum)}</div>
+        <div class="card-top">
+          <div class="card-name">${esc(item.name)}</div>
+          <span class="badge ${badgeClass(item.milestoneStatus)}">${esc(item.milestoneStatus) || esc(item.status) || '—'}</span>
+        </div>
+        ${item.address ? `<div class="card-addr">${esc(item.address)}</div>` : ''}
+        <div class="card-meta">
+          ${item.lastReview ? `<span class="meta ${overdueWarn ? 'warn' : ''}"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Reviewed ${esc(item.lastReview)}${item.daysSince !== null ? ' (' + item.daysSince + 'd ago)' : ''}</span>` : ''}
+          ${item.lender ? `<span class="meta"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${esc(item.lender)}</span>` : ''}
+        </div>
+        ${item.notes ? `<div class="card-note">${esc(item.notes.substring(0, 140))}${item.notes.length > 140 ? '...' : ''}</div>` : ''}
+      </div>`;
+  }).join('');
 }
 
 function showDetail(itemId) {
@@ -382,24 +413,35 @@ function showDetail(itemId) {
 
   const rows = [
     { k: 'Project status', v: item.status },
-    { k: 'Milestone status', v: item.milestoneStatus },
+    { k: 'Milestone', v: item.milestoneStatus },
     { k: 'Funding status', v: item.fundingStatus },
     { k: 'Lender', v: item.lender },
     { k: 'Finance type', v: item.financeType },
     { k: 'Last review', v: item.lastReview },
-    { k: 'Days since review', v: item.daysSince ? item.daysSince + ' days' : '' },
-    { k: 'Notes', v: item.notes },
-    { k: 'Podio ID', v: item.id }
+    { k: 'Days since review', v: item.daysSince !== null ? item.daysSince + ' days' : '' },
+    { k: 'Podio item ID', v: item.id }
   ].filter(r => r.v);
 
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-header">
-      <div class="detail-name">${esc(item.title)}</div>
-      <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
+      <div class="detail-id">${esc(item.projectNum)}</div>
+      <div class="detail-name">${esc(item.name)}</div>
+      ${item.address ? `<div class="detail-addr">${esc(item.address)}</div>` : ''}
+      <span class="badge ${badgeClass(item.milestoneStatus)}">${esc(item.milestoneStatus) || esc(item.status) || '—'}</span>
     </div>
     <div class="detail-section">
       <div class="detail-section-title">Project details</div>
       ${rows.map(r => `<div class="detail-row"><span class="detail-key">${esc(r.k)}</span><span class="detail-val">${esc(String(r.v))}</span></div>`).join('')}
+    </div>
+    ${item.notes ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Project notes</div>
+      <div style="padding:0.875rem 1rem;font-size:13px;line-height:1.6;color:var(--text2);">${esc(item.notes)}</div>
+    </div>` : ''}
+    <div style="padding:0 0.75rem;margin-top:0.5rem;">
+      <a href="https://podio.com/aveyo/projects/apps/project/items/${esc(String(item.id).replace(/[^0-9]/g,''))}" target="_blank">
+        <button class="btn btn-secondary" style="font-size:12px;">Open in Podio</button>
+      </a>
     </div>
   `;
   showView('detail');
@@ -411,7 +453,7 @@ loadPersist();
 document.getElementById('auth-user').value = PODIO.user;
 document.getElementById('auth-pass').value = PODIO.pass;
 
-if (S.token) { loadAllProjects(); } else { showView('auth'); }
+if (S.token) { loadProjects(); } else { showView('auth'); }
 </script>
 </body>
 </html>
