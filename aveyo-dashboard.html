@@ -11,113 +11,64 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --blue: #185FA5;
-    --blue-light: #E6F1FB;
-    --blue-dark: #0C447C;
-    --green-light: #EAF3DE;
-    --green-dark: #27500A;
-    --amber-light: #FAEEDA;
-    --amber-dark: #633806;
-    --red-light: #FCEBEB;
-    --red-dark: #791F1F;
-    --gray-light: #F1EFE8;
-    --gray-dark: #444441;
-    --bg: #ffffff;
-    --bg2: #f5f5f3;
-    --bg3: #eeede8;
-    --text: #1a1a18;
-    --text2: #5f5e5a;
-    --text3: #888780;
-    --border: rgba(0,0,0,0.12);
-    --border2: rgba(0,0,0,0.2);
-    --radius: 8px;
-    --radius-lg: 12px;
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+    --green-light: #EAF3DE; --green-dark: #27500A;
+    --amber-light: #FAEEDA; --amber-dark: #633806;
+    --red-light: #FCEBEB; --red-dark: #791F1F;
+    --gray-light: #F1EFE8; --gray-dark: #444441;
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
+    --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.2);
+    --radius: 8px; --radius-lg: 12px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1a;
-      --bg2: #262624;
-      --bg3: #2e2e2b;
-      --text: #f0efea;
-      --text2: #a8a79f;
-      --text3: #6e6d67;
-      --border: rgba(255,255,255,0.1);
-      --border2: rgba(255,255,255,0.18);
-      --blue-light: #0c3d6b;
-      --blue-dark: #90c4f0;
-      --green-light: #1a3a0a;
-      --green-dark: #a8d870;
-      --amber-light: #3d2a05;
-      --amber-dark: #f5c060;
-      --red-light: #3d1010;
-      --red-dark: #f09090;
-      --gray-light: #2e2e2b;
-      --gray-dark: #c8c7bf;
+      --bg: #1c1c1a; --bg2: #262624; --bg3: #2e2e2b;
+      --text: #f0efea; --text2: #a8a79f; --text3: #6e6d67;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+      --blue-light: #0c3d6b; --blue-dark: #90c4f0;
+      --green-light: #1a3a0a; --green-dark: #a8d870;
+      --amber-light: #3d2a05; --amber-dark: #f5c060;
+      --red-light: #3d1010; --red-dark: #f09090;
+      --gray-light: #2e2e2b; --gray-dark: #c8c7bf;
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
   #app { max-width: 480px; margin: 0 auto; background: var(--bg3); min-height: 100vh; padding-bottom: 2rem; }
-
-  /* Header */
   .header { background: var(--blue); color: white; padding: 1rem 1rem 0.875rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
   .header-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .header-logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
   .header-title { font-size: 16px; font-weight: 600; }
   .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
   .header-right { margin-left: auto; }
-  .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; }
-
-  /* Cards / sections */
+  .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; font-family: inherit; }
   .section { background: var(--bg); border-radius: var(--radius-lg); margin: 0.75rem; padding: 1.25rem; border: 0.5px solid var(--border); }
   .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.875rem; }
-
-  /* Form fields */
   .field { margin-bottom: 0.875rem; }
-  .field:last-child { margin-bottom: 0; }
   .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
-  .field input, .field select {
-    width: 100%; padding: 10px 12px; font-size: 14px;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    background: var(--bg2); color: var(--text); outline: none;
-    -webkit-appearance: none; appearance: none;
-  }
-  .field input:focus, .field select:focus { border-color: var(--blue); }
-
-  /* Buttons */
-  .btn { width: 100%; padding: 11px; border-radius: var(--radius); border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
-  .btn:active { opacity: 0.8; }
+  .field input { width: 100%; padding: 10px 12px; font-size: 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); outline: none; font-family: inherit; }
+  .field input:focus { border-color: var(--blue); }
+  .btn { width: 100%; padding: 11px; border-radius: var(--radius); border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-primary { background: var(--blue); color: white; }
   .btn-secondary { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); margin-top: 8px; }
-
-  /* Status message */
   .msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
-  .msg-error { color: #c0392b; }
-  .msg-success { color: #27ae60; }
-  .msg-info { color: var(--text2); }
-
-  /* Search */
+  .msg-error { color: #c0392b; } .msg-success { color: #27ae60; } .msg-info { color: var(--text2); }
   .search-wrap { margin: 0.75rem; }
   .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 10px 14px; }
   .search-box svg { width: 16px; height: 16px; stroke: var(--text3); fill: none; stroke-width: 2; flex-shrink: 0; }
-  .search-box input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--text); outline: none; }
+  .search-box input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--text); outline: none; font-family: inherit; }
   .search-box input::placeholder { color: var(--text3); }
-
-  /* Stats */
   .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0.75rem 0.75rem; }
   .stat { background: var(--bg); border-radius: var(--radius); padding: 0.75rem; text-align: center; border: 0.5px solid var(--border); }
   .stat-num { font-size: 24px; font-weight: 700; color: var(--text); }
   .stat-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
-
-  /* Filter chips */
   .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0.75rem 0.75rem; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { flex-shrink: 0; font-size: 12px; padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); cursor: pointer; white-space: nowrap; font-family: inherit; }
   .chip.active { background: var(--blue); color: white; border-color: var(--blue); }
-
-  /* Project cards */
   .cards { padding: 0 0.75rem; }
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.625rem; cursor: pointer; transition: border-color 0.15s; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.625rem; cursor: pointer; }
   .card:active { border-color: var(--blue); }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
   .card-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
@@ -132,8 +83,6 @@
   .meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
   .meta svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
   .card-note { font-size: 11px; color: var(--amber-dark); background: var(--amber-light); border-radius: var(--radius); padding: 4px 8px; margin-top: 7px; }
-
-  /* Detail view */
   .detail-back { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--blue); cursor: pointer; margin: 0.75rem; font-weight: 500; }
   .detail-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
   .detail-header { margin: 0 0.75rem 0.75rem; }
@@ -144,31 +93,19 @@
   .detail-row:last-child { border-bottom: none; }
   .detail-key { color: var(--text2); flex-shrink: 0; }
   .detail-val { color: var(--text); text-align: right; word-break: break-word; max-width: 65%; }
-
-  /* Loading / empty */
   .loading { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
   .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
-
-  /* Field mapping */
   .map-group { margin-bottom: 0.75rem; }
   .map-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 3px; }
   .map-group select { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); -webkit-appearance: none; appearance: none; outline: none; font-family: inherit; }
-
-  /* Views */
   .view { display: none; }
   .view.active { display: block; }
-
-  /* PWA install banner */
-  .install-banner { background: var(--blue-light); color: var(--blue-dark); border-radius: var(--radius); margin: 0 0.75rem 0.75rem; padding: 10px 14px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 0.5px solid rgba(24,95,165,0.2); }
-  .install-banner button { background: var(--blue); color: white; border: none; border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="header-logo">
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -182,33 +119,22 @@
     </div>
   </div>
 
-  <!-- AUTH VIEW -->
   <div id="view-auth" class="view active">
     <div class="section" style="margin-top:0.75rem;">
-      <div class="section-title">Connect to Podio</div>
-      <div class="field">
-        <label>Client ID</label>
-        <input type="text" id="auth-cid" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-      </div>
-      <div class="field">
-        <label>Client secret</label>
-        <input type="password" id="auth-csec" autocomplete="off" />
-      </div>
-      <div class="field">
-        <label>App ID</label>
-        <input type="text" id="auth-appid" autocomplete="off" inputmode="numeric" />
-      </div>
-      <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Connect to Podio</button>
+      <div class="section-title">Sign in to Podio</div>
+      <div class="field"><label>Username (email)</label><input type="email" id="auth-user" autocomplete="email" /></div>
+      <div class="field"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password" /></div>
+      <div class="field"><label>App ID</label><input type="text" id="auth-appid" inputmode="numeric" /></div>
+      <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Sign in</button>
       <div class="msg msg-info" id="auth-msg"></div>
     </div>
-    <p style="font-size:11px;color:var(--text3);text-align:center;padding:0 1rem;">Credentials are saved locally on your device only.</p>
+    <p style="font-size:11px;color:var(--text3);text-align:center;padding:0 1rem;margin-top:8px;">Credentials are saved locally on your device only.</p>
   </div>
 
-  <!-- FIELD MAPPING VIEW -->
   <div id="view-mapping" class="view">
     <div class="section" style="margin-top:0.75rem;">
       <div class="section-title">Map your Podio fields</div>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:0.875rem;">We found your fields — match them to dashboard sections:</p>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:0.875rem;">Match your Podio fields to dashboard sections:</p>
       <div class="map-group"><label>Customer name</label><select id="map-name"></select></div>
       <div class="map-group"><label>Address</label><select id="map-address"></select></div>
       <div class="map-group"><label>Status / stage</label><select id="map-status"></select></div>
@@ -220,12 +146,7 @@
     </div>
   </div>
 
-  <!-- DASHBOARD VIEW -->
   <div id="view-dashboard" class="view">
-    <div id="install-banner" class="install-banner" style="display:none;margin-top:0.75rem;">
-      <span>Add to your home screen for quick access</span>
-      <button onclick="triggerInstall()">Install app</button>
-    </div>
     <div class="search-wrap" style="margin-top:0.75rem;">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -234,13 +155,15 @@
     </div>
     <div class="stats-row" id="stats-row"></div>
     <div class="chips" id="filter-chips"></div>
-    <div class="cards" id="cards-area">
+    <div class="cards">
       <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div>Loading your projects...</div>
       <div id="cards-list"></div>
     </div>
+    <div style="padding: 0 0.75rem; margin-top: 0.5rem;">
+      <button class="btn btn-secondary" style="font-size:12px;" onclick="showView('mapping')">Edit field mapping</button>
+    </div>
   </div>
 
-  <!-- DETAIL VIEW -->
   <div id="view-detail" class="view">
     <div class="detail-back" onclick="showView('dashboard')">
       <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
@@ -248,28 +171,24 @@
     </div>
     <div id="detail-body"></div>
   </div>
-
 </div>
 
 <script>
 const DEFAULTS = {
+  user: 'q.spencer@aveyo.com',
+  pass: 'Clippers332!',
   cid: 'google-sheets-sync-kqxsb2',
   csec: 'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',
   appId: '29839792'
 };
 
 let S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' };
-let deferredInstall = null;
 
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; document.getElementById('install-banner').style.display = 'flex'; });
-
-function triggerInstall() { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.then(() => { document.getElementById('install-banner').style.display = 'none'; }); } }
-
-function persist() { try { localStorage.setItem('aveyo_v2', JSON.stringify({ token: S.token, appId: S.appId, mapping: S.mapping })); } catch(e) {} }
+function persist() { try { localStorage.setItem('aveyo_v3', JSON.stringify({ token: S.token, appId: S.appId, mapping: S.mapping })); } catch(e) {} }
 
 function loadPersist() {
   try {
-    const d = JSON.parse(localStorage.getItem('aveyo_v2') || '{}');
+    const d = JSON.parse(localStorage.getItem('aveyo_v3') || '{}');
     if (d.token) S.token = d.token;
     if (d.appId) S.appId = d.appId;
     if (d.mapping) S.mapping = d.mapping;
@@ -282,33 +201,45 @@ function showView(v) {
   document.getElementById('btn-logout').style.display = (v !== 'auth') ? 'block' : 'none';
 }
 
-function logout() { S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' }; try { localStorage.removeItem('aveyo_v2'); } catch(e) {} populateAuthForm(); showView('auth'); }
+function logout() {
+  S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' };
+  try { localStorage.removeItem('aveyo_v3'); } catch(e) {}
+  populateAuthForm(); showView('auth');
+}
 
 function populateAuthForm() {
-  document.getElementById('auth-cid').value = DEFAULTS.cid;
-  document.getElementById('auth-csec').value = DEFAULTS.csec;
+  document.getElementById('auth-user').value = DEFAULTS.user;
+  document.getElementById('auth-pass').value = DEFAULTS.pass;
   document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
 }
 
 async function connectPodio() {
-  const cid = document.getElementById('auth-cid').value.trim();
-  const csec = document.getElementById('auth-csec').value.trim();
+  const username = document.getElementById('auth-user').value.trim();
+  const password = document.getElementById('auth-pass').value;
   const appId = document.getElementById('auth-appid').value.trim();
   const msg = document.getElementById('auth-msg');
   const btn = document.getElementById('btn-connect');
 
-  msg.className = 'msg msg-info'; msg.textContent = 'Connecting to Podio...'; btn.disabled = true;
+  msg.className = 'msg msg-info'; msg.textContent = 'Signing in to Podio...'; btn.disabled = true;
 
   try {
-    const body = new URLSearchParams({ grant_type: 'app', app_id: appId, app_token: csec, client_id: cid, client_secret: csec });
-    const res = await fetch('https://podio.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+    const res = await fetch('https://podio.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'password',
+        username, password,
+        client_id: DEFAULTS.cid,
+        client_secret: DEFAULTS.csec
+      })
+    });
     const data = await res.json();
-    if (!data.access_token) throw new Error(data.error_description || data.error || 'Authentication failed');
+    if (!data.access_token) throw new Error(data.error_description || data.error || 'Sign in failed');
     S.token = data.access_token; S.appId = appId;
-    msg.className = 'msg msg-success'; msg.textContent = 'Connected! Discovering fields...';
+    msg.className = 'msg msg-success'; msg.textContent = 'Signed in! Discovering fields...';
     await discoverFields();
   } catch(e) {
-    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Connection failed. Check your credentials.';
+    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Sign in failed. Check your credentials.';
     btn.disabled = false;
   }
 }
@@ -317,7 +248,7 @@ async function discoverFields() {
   const msg = document.getElementById('auth-msg');
   try {
     const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
-    if (!res.ok) throw new Error('Could not load app fields (HTTP ' + res.status + ')');
+    if (!res.ok) throw new Error('Could not load fields (HTTP ' + res.status + ')');
     const data = await res.json();
     S.fields = (data.fields || []).map(f => ({ id: f.field_id, label: f.label, type: f.type, ext: f.external_id }));
     populateMappingSelects(); persist(); showView('mapping');
@@ -328,15 +259,20 @@ async function discoverFields() {
 }
 
 function populateMappingSelects() {
-  const maps = { name: ['name','customer','title','client','contact'], address: ['address','addr','location','street','city'], status: ['status','stage','state','phase','step'], date: ['date','install','milestone','schedule','completion'], notes: ['note','flag','comment','remark','issue'] };
-  Object.entries(maps).forEach(([k, hints]) => {
+  const hints = {
+    name: ['name','customer','title','client','contact'],
+    address: ['address','addr','location','street','city'],
+    status: ['status','stage','state','phase','step'],
+    date: ['date','install','milestone','schedule','completion'],
+    notes: ['note','flag','comment','remark','issue']
+  };
+  Object.entries(hints).forEach(([k, h]) => {
     const sel = document.getElementById('map-' + k);
     sel.innerHTML = '<option value="">— not mapped —</option>';
     S.fields.forEach(f => { const o = document.createElement('option'); o.value = f.ext; o.textContent = f.label + ' (' + f.type + ')'; sel.appendChild(o); });
-    const saved = S.mapping[k];
-    if (saved) { sel.value = saved; }
+    if (S.mapping[k]) sel.value = S.mapping[k];
     else {
-      const auto = S.fields.find(f => hints.some(h => f.label.toLowerCase().includes(h) || f.ext.toLowerCase().includes(h)));
+      const auto = S.fields.find(f => h.some(kw => f.label.toLowerCase().includes(kw) || f.ext.toLowerCase().includes(kw)));
       if (auto) sel.value = auto.ext;
     }
   });
@@ -351,7 +287,7 @@ async function loadDashboard() {
   showView('dashboard');
   document.getElementById('cards-loading').style.display = 'block';
   document.getElementById('cards-list').innerHTML = '';
-  document.getElementById('header-sub').textContent = 'App ' + S.appId;
+  document.getElementById('header-sub').textContent = 'Loading...';
   try {
     let all = []; let offset = 0;
     while (true) {
@@ -367,7 +303,7 @@ async function loadDashboard() {
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
     renderStats(); renderChips(); renderCards();
   } catch(e) {
-    document.getElementById('cards-list').innerHTML = '<div class="empty">Error: ' + e.message + '<br><br><small>Try signing out and reconnecting.</small></div>';
+    document.getElementById('cards-list').innerHTML = '<div class="empty">Error loading projects: ' + e.message + '<br><br><small>Try signing out and back in.</small></div>';
   } finally {
     document.getElementById('cards-loading').style.display = 'none';
   }
@@ -379,33 +315,22 @@ function getVal(item, extId) {
   if (!f || !f.values || !f.values.length) return '';
   const v = f.values[0];
   if (v.value !== undefined) {
-    if (typeof v.value === 'object' && v.value !== null) {
-      return v.value.text || v.value.name || v.value.start?.split(' ')[0] || v.value.title || '';
-    }
+    if (typeof v.value === 'object' && v.value !== null) return v.value.text || v.value.name || (v.value.start ? v.value.start.split(' ')[0] : '') || v.value.title || '';
     return String(v.value);
   }
-  if (v.text) return v.text;
-  return '';
+  return v.text || '';
 }
 
 function parseItem(raw) {
   const m = S.mapping;
-  return {
-    id: raw.item_id,
-    title: raw.title || getVal(raw, m.name) || ('Item #' + raw.item_id),
-    address: getVal(raw, m.address),
-    status: getVal(raw, m.status),
-    date: getVal(raw, m.date),
-    notes: getVal(raw, m.notes),
-    raw
-  };
+  return { id: raw.item_id, title: raw.title || getVal(raw, m.name) || ('Item #' + raw.item_id), address: getVal(raw, m.address), status: getVal(raw, m.status), date: getVal(raw, m.date), notes: getVal(raw, m.notes), raw };
 }
 
 function badgeClass(status) {
   const s = (status || '').toLowerCase();
   if (!s) return 'badge-gray';
   if (s.includes('complet') || s.includes('done') || s.includes('install') || s.includes('final')) return 'badge-green';
-  if (s.includes('progress') || s.includes('active') || s.includes('schedul') || s.includes('approved')) return 'badge-blue';
+  if (s.includes('progress') || s.includes('active') || s.includes('schedul') || s.includes('approv')) return 'badge-blue';
   if (s.includes('pending') || s.includes('wait') || s.includes('review') || s.includes('hold')) return 'badge-amber';
   if (s.includes('cancel') || s.includes('reject') || s.includes('issue') || s.includes('fail')) return 'badge-red';
   return 'badge-gray';
@@ -424,9 +349,7 @@ function renderStats() {
 
 function renderChips() {
   const statuses = ['All', ...new Set(S.items.map(i => i.status).filter(Boolean))].slice(0, 10);
-  document.getElementById('filter-chips').innerHTML = statuses.map(s =>
-    `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter('${s.replace(/'/g,"\\'")})">${s}</button>`
-  ).join('');
+  document.getElementById('filter-chips').innerHTML = statuses.map(s => `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter(${JSON.stringify(s)})">${esc(s)}</button>`).join('');
 }
 
 function setFilter(f) { S.filter = f; renderChips(); renderCards(); }
@@ -439,10 +362,7 @@ function renderCards() {
   if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects match your search.</div>'; return; }
   document.getElementById('cards-list').innerHTML = items.map(item => `
     <div class="card" onclick="showDetail(${item.id})">
-      <div class="card-top">
-        <div class="card-name">${esc(item.title)}</div>
-        <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
-      </div>
+      <div class="card-top"><div class="card-name">${esc(item.title)}</div><span class="badge ${badgeClass(item.status)}">${esc(item.status)||'—'}</span></div>
       ${item.address ? `<div class="card-addr">${esc(item.address)}</div>` : ''}
       <div class="card-meta">
         ${item.date ? `<span class="meta"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${esc(item.date)}</span>` : ''}
@@ -460,10 +380,8 @@ function showDetail(itemId) {
     let val = '';
     if (f.values && f.values.length) {
       const v = f.values[0];
-      if (v.value !== undefined) {
-        if (typeof v.value === 'object' && v.value !== null) val = v.value.text || v.value.name || v.value.start?.split(' ')[0] || v.value.title || '';
-        else val = String(v.value);
-      } else if (v.text) val = v.text;
+      if (v.value !== undefined) { val = (typeof v.value === 'object' && v.value) ? (v.value.text || v.value.name || (v.value.start ? v.value.start.split(' ')[0] : '') || v.value.title || '') : String(v.value); }
+      else if (v.text) val = v.text;
     }
     return { label: f.label, val };
   }).filter(f => f.val);
@@ -471,7 +389,7 @@ function showDetail(itemId) {
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-header">
       <div class="detail-name">${esc(item.title)}</div>
-      <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
+      <span class="badge ${badgeClass(item.status)}">${esc(item.status)||'—'}</span>
     </div>
     <div class="detail-section">
       <div class="detail-section-title">Key details</div>
@@ -492,13 +410,9 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 loadPersist();
 populateAuthForm();
-if (S.token && Object.keys(S.mapping).length > 0) {
-  discoverFields().then(() => saveMapping());
-} else if (S.token) {
-  discoverFields();
-} else {
-  showView('auth');
-}
+if (S.token && Object.keys(S.mapping).length > 0) { discoverFields().then(() => saveMapping()); }
+else if (S.token) { discoverFields(); }
+else { showView('auth'); }
 </script>
 </body>
 </html>
