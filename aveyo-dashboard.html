@@ -103,13 +103,7 @@
   .view.active { display: block; }
   .info-banner { border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.5; }
   .info-green { background: var(--green-light); color: var(--green-dark); border: 0.5px solid rgba(59,109,17,0.2); }
-  .info-amber { background: var(--amber-light); color: var(--amber-dark); border: 0.5px solid rgba(186,117,23,0.2); }
-  .result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; gap: 8px; }
-  .result-row:last-child { border-bottom: none; }
-  .result-key { color: var(--text2); }
-  .result-val { color: var(--text); font-weight: 500; text-align: right; }
-  .result-val.success { color: var(--green-dark); }
-  .result-val.fail { color: #c0392b; }
+  .info-red { background: var(--red-light); color: var(--red-dark); border: 0.5px solid rgba(163,45,45,0.2); }
 </style>
 </head>
 <body>
@@ -134,25 +128,14 @@
       <div class="section-title">Sign in to Podio</div>
       <div class="field"><label>Username</label><input type="email" id="auth-user" autocomplete="email" /></div>
       <div class="field"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password" /></div>
-      <div class="field"><label>App ID</label><input type="text" id="auth-appid" inputmode="numeric" /></div>
       <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Sign in</button>
       <div class="msg msg-info" id="auth-msg"></div>
     </div>
   </div>
 
-  <!-- DIAGNOSTIC VIEW -->
-  <div id="view-diag" class="view">
-    <div class="section" style="margin-top:0.75rem;">
-      <div class="section-title">Running diagnostics...</div>
-      <div id="diag-rows"></div>
-      <div class="msg msg-info" id="diag-msg" style="text-align:left;margin-top:0.75rem;"></div>
-      <button class="btn btn-secondary" style="margin-top:1rem;" onclick="logout()">Sign out</button>
-    </div>
-  </div>
-
   <!-- DASHBOARD -->
   <div id="view-dashboard" class="view">
-    <div class="info-banner info-green" style="margin-top:0.75rem;" id="dash-info">Projects managed by Quentin Spencer</div>
+    <div class="info-banner info-green" style="margin-top:0.75rem;">Projects managed by Quentin Spencer</div>
     <div class="search-wrap">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -170,7 +153,7 @@
       <div id="cards-list"></div>
     </div>
     <div style="padding:0 0.75rem;margin-top:0.5rem;">
-      <button class="btn btn-secondary" style="font-size:12px;" onclick="runDiagnostics()">Run diagnostics</button>
+      <button class="btn btn-secondary" style="font-size:12px;" onclick="logout()">Sign out</button>
     </div>
   </div>
 
@@ -193,59 +176,34 @@ const DEFAULTS = {
   appId: '29839792'
 };
 
-// Quentin Spencer's confirmed identifiers
-const QUENTIN = {
-  userId: 76946137,
-  pmItemId: 6        // Item ID 6 in the Project Managers app
-};
+// Confirmed from VPS server output
+const PM_FIELD = 'project-manager';   // external_id of PM field
+const PM_FILTER_ID = 6;               // Quentin Spencer's item ID in Project Managers app
 
-let S = {
-  token: null, appId: DEFAULTS.appId,
-  pmField: null,     // external_id of the PM field in the projects app
-  pmFilterId: null,  // ID to filter by (item ID 6)
-  items: [], filter: 'All'
-};
+let S = { token: null, items: [], filter: 'All' };
 
-function persist() {
-  try { localStorage.setItem('aveyo_v10', JSON.stringify({ token: S.token, appId: S.appId, pmField: S.pmField, pmFilterId: S.pmFilterId })); } catch(e) {}
-}
-function loadPersist() {
-  try {
-    const d = JSON.parse(localStorage.getItem('aveyo_v10') || '{}');
-    if (d.token) S.token = d.token;
-    if (d.appId) S.appId = d.appId;
-    if (d.pmField) S.pmField = d.pmField;
-    if (d.pmFilterId) S.pmFilterId = d.pmFilterId;
-  } catch(e) {}
-}
+function persist() { try { localStorage.setItem('aveyo_v11', JSON.stringify({ token: S.token })); } catch(e) {} }
+function loadPersist() { try { const d = JSON.parse(localStorage.getItem('aveyo_v11') || '{}'); if (d.token) S.token = d.token; } catch(e) {} }
+
 function showView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('btn-logout').style.display = v !== 'auth' ? 'block' : 'none';
   document.getElementById('btn-refresh').style.display = v === 'dashboard' ? 'block' : 'none';
-  document.getElementById('header-sub').textContent = v === 'diag' ? 'Diagnostics' : v === 'dashboard' ? 'My projects' : 'Sign in';
-}
-function logout() {
-  S = { token: null, appId: DEFAULTS.appId, pmField: null, pmFilterId: null, items: [], filter: 'All' };
-  try { localStorage.removeItem('aveyo_v10'); } catch(e) {}
-  document.getElementById('auth-user').value = DEFAULTS.user;
-  document.getElementById('auth-pass').value = DEFAULTS.pass;
-  document.getElementById('auth-appid').value = DEFAULTS.appId;
-  showView('auth');
+  document.getElementById('header-sub').textContent = v === 'dashboard' ? 'My projects' : 'Sign in';
 }
 
-function addDiagRow(label, value, status) {
-  const container = document.getElementById('diag-rows');
-  const row = document.createElement('div');
-  row.className = 'result-row';
-  row.innerHTML = `<span class="result-key">${esc(label)}</span><span class="result-val ${status || ''}">${esc(String(value))}</span>`;
-  container.appendChild(row);
+function logout() {
+  S = { token: null, items: [], filter: 'All' };
+  try { localStorage.removeItem('aveyo_v11'); } catch(e) {}
+  document.getElementById('auth-user').value = DEFAULTS.user;
+  document.getElementById('auth-pass').value = DEFAULTS.pass;
+  showView('auth');
 }
 
 async function connectPodio() {
   const user = document.getElementById('auth-user').value.trim();
   const pass = document.getElementById('auth-pass').value;
-  const appId = document.getElementById('auth-appid').value.trim();
   const msg = document.getElementById('auth-msg');
   const btn = document.getElementById('btn-connect');
   msg.className = 'msg msg-info'; msg.textContent = 'Signing in...'; btn.disabled = true;
@@ -257,130 +215,13 @@ async function connectPodio() {
     });
     const data = await res.json();
     if (!data.access_token) throw new Error(data.error_description || 'Sign in failed');
-    S.token = data.access_token; S.appId = appId;
+    S.token = data.access_token;
     persist();
-    await runDiagnostics();
+    msg.className = 'msg msg-success'; msg.textContent = 'Signed in!';
+    await loadAllProjects();
   } catch(e) {
     msg.className = 'msg msg-error'; msg.textContent = e.message;
     btn.disabled = false;
-  }
-}
-
-async function runDiagnostics() {
-  showView('diag');
-  document.getElementById('diag-rows').innerHTML = '';
-  document.getElementById('diag-msg').textContent = 'Running...';
-
-  addDiagRow('App ID', S.appId, '');
-  addDiagRow('Quentin user ID', QUENTIN.userId, '');
-  addDiagRow('Quentin PM item ID', QUENTIN.pmItemId, '');
-
-  // Step 1: Auto-detect the PM field by scanning app fields
-  let pmField = S.pmField;
-  try {
-    const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
-    const data = await res.json();
-    const fields = data.fields || [];
-    // Look for an app-reference field that likely references the PM app
-    const appFields = fields.filter(f => f.type === 'app' || f.type === 'contact' || f.type === 'member');
-    addDiagRow('App-type fields found', appFields.map(f => f.label).join(', ') || 'none', appFields.length ? 'success' : 'fail');
-
-    // Try to auto-pick the PM field
-    if (!pmField) {
-      const pmCandidate = appFields.find(f =>
-        f.label.toLowerCase().includes('project manager') ||
-        f.label.toLowerCase().includes('pm') ||
-        f.external_id.toLowerCase().includes('project-manager') ||
-        f.external_id.toLowerCase().includes('project_manager')
-      ) || appFields[0];
-      if (pmCandidate) {
-        pmField = pmCandidate.external_id;
-        addDiagRow('Auto-detected PM field', `${pmCandidate.label} (${pmField})`, 'success');
-      } else {
-        addDiagRow('PM field auto-detect', 'Not found', 'fail');
-      }
-    } else {
-      addDiagRow('PM field (saved)', pmField, 'success');
-    }
-  } catch(e) {
-    addDiagRow('App field fetch', 'Failed: ' + e.message, 'fail');
-  }
-
-  if (!pmField) {
-    document.getElementById('diag-msg').textContent = 'Could not find PM field. Check your App ID.';
-    return;
-  }
-
-  // Step 2: Try all candidate filter IDs including item ID 6
-  const candidates = [
-    { id: QUENTIN.pmItemId, label: 'PM item ID 6' },
-    { id: QUENTIN.userId, label: 'User ID 76946137' }
-  ];
-
-  let workingField = null;
-  let workingId = null;
-  let workingCount = 0;
-
-  for (const candidate of candidates) {
-    try {
-      document.getElementById('diag-msg').textContent = `Testing filter: ${candidate.label}...`;
-      const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
-        method: 'POST',
-        headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filters: { [pmField]: [candidate.id] }, limit: 1, offset: 0 })
-      });
-      const data = await res.json();
-      const count = data.total || (data.items || []).length;
-      addDiagRow(`Filter by ${candidate.label}`, count + ' projects found', count > 0 ? 'success' : 'fail');
-      if (count > 0 && !workingId) {
-        workingField = pmField;
-        workingId = candidate.id;
-        workingCount = count;
-      }
-    } catch(e) {
-      addDiagRow(`Filter by ${candidate.label}`, 'Error: ' + e.message, 'fail');
-    }
-  }
-
-  // Step 3: If nothing worked, try all app-type fields with item ID 6
-  if (!workingId) {
-    try {
-      const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
-      const data = await res.json();
-      const allFields = (data.fields || []).filter(f => f.type === 'app' || f.type === 'contact' || f.type === 'member');
-      for (const f of allFields) {
-        for (const cid of [QUENTIN.pmItemId, QUENTIN.userId]) {
-          try {
-            const r2 = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
-              method: 'POST',
-              headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ filters: { [f.external_id]: [cid] }, limit: 1, offset: 0 })
-            });
-            const d2 = await r2.json();
-            const count = d2.total || (d2.items || []).length;
-            if (count > 0) {
-              workingField = f.external_id;
-              workingId = cid;
-              workingCount = count;
-              addDiagRow(`Found match!`, `Field "${f.label}" + ID ${cid} = ${count} projects`, 'success');
-              break;
-            }
-          } catch(e) {}
-        }
-        if (workingId) break;
-      }
-    } catch(e) {}
-  }
-
-  if (workingField && workingId) {
-    S.pmField = workingField;
-    S.pmFilterId = workingId;
-    persist();
-    document.getElementById('diag-msg').textContent = `✓ Found ${workingCount} projects! Loading dashboard...`;
-    setTimeout(() => loadAllProjects(), 1000);
-  } else {
-    document.getElementById('diag-msg').textContent = 'Could not find matching projects. See results above for clues.';
-    addDiagRow('Result', 'No matching filter found', 'fail');
   }
 }
 
@@ -389,6 +230,7 @@ async function loadAllProjects() {
   document.getElementById('cards-loading').style.display = 'block';
   document.getElementById('cards-list').innerHTML = '';
   document.getElementById('header-sub').textContent = 'Loading...';
+  document.getElementById('progress-bar').style.width = '5%';
 
   try {
     let all = [];
@@ -397,37 +239,45 @@ async function loadAllProjects() {
     let total = null;
 
     while (true) {
-      const loaded = all.length;
-      document.getElementById('loading-msg').textContent = `Loading projects... (${loaded}${total ? ' of ' + total : ''})`;
-      if (total) document.getElementById('progress-bar').style.width = Math.min(95, Math.round((loaded / total) * 100)) + '%';
+      document.getElementById('loading-msg').textContent = `Loading projects... (${all.length}${total ? ' of ' + total : ''})`;
+      if (total) document.getElementById('progress-bar').style.width = Math.min(90, Math.round((all.length / total) * 100)) + '%';
 
-      const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+      const res = await fetch(`https://api.podio.com/item/app/${DEFAULTS.appId}/filter/`, {
         method: 'POST',
-        headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+        headers: {
+          Authorization: 'OAuth2 ' + S.token,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          filters: { [S.pmField]: [S.pmFilterId] },
-          limit, offset,
+          filters: { [PM_FIELD]: [PM_FILTER_ID] },
+          limit,
+          offset,
           sort_by: 'last_edit_on',
           sort_desc: true
         })
       });
 
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error_description || err.error || 'HTTP ' + res.status);
+      }
+
       const data = await res.json();
-      if (data.total && !total) total = data.total;
+      if (data.total !== undefined && total === null) total = data.total;
       const batch = data.items || [];
       all = all.concat(batch);
-      if (batch.length < limit || (total && all.length >= total)) break;
+
+      if (batch.length < limit || (total !== null && all.length >= total)) break;
       offset += limit;
     }
 
     document.getElementById('progress-bar').style.width = '100%';
     S.items = all.map(parseItem);
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
-    document.getElementById('dash-info').textContent = `${S.items.length} projects — Quentin Spencer (PM)`;
     renderStats(); renderChips(); renderCards();
+
   } catch(e) {
-    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}<br><br><small>Try "Run diagnostics" below.</small></div>`;
+    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}<br><br><small>Try signing out and back in.</small></div>`;
   } finally {
     document.getElementById('cards-loading').style.display = 'none';
   }
@@ -447,7 +297,7 @@ function getVal(item, hints) {
 function parseItem(raw) {
   return {
     id: raw.item_id,
-    title: raw.title || getVal(raw, ['name','customer','client']) || ('Item #' + raw.item_id),
+    title: raw.title || getVal(raw, ['name','customer','client','title']) || ('Item #' + raw.item_id),
     address: getVal(raw, ['address','addr','location','street','city']),
     status: getVal(raw, ['status','stage','state','phase','step']),
     date: getVal(raw, ['install','milestone','date','schedule','completion']),
@@ -494,13 +344,16 @@ function renderCards() {
   if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects match your search.</div>'; return; }
   document.getElementById('cards-list').innerHTML = items.map(item => `
     <div class="card" onclick="showDetail(${item.id})">
-      <div class="card-top"><div class="card-name">${esc(item.title)}</div><span class="badge ${badgeClass(item.status)}">${esc(item.status)||'—'}</span></div>
+      <div class="card-top">
+        <div class="card-name">${esc(item.title)}</div>
+        <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
+      </div>
       ${item.address ? `<div class="card-addr">${esc(item.address)}</div>` : ''}
       <div class="card-meta">
         ${item.date ? `<span class="meta"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${esc(item.date)}</span>` : ''}
         <span class="meta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>ID ${item.id}</span>
       </div>
-      ${item.notes ? `<div class="card-note">${esc(item.notes.substring(0,120))}${item.notes.length>120?'...':''}</div>` : ''}
+      ${item.notes ? `<div class="card-note">${esc(item.notes.substring(0, 120))}${item.notes.length > 120 ? '...' : ''}</div>` : ''}
     </div>
   `).join('');
 }
@@ -521,7 +374,7 @@ function showDetail(itemId) {
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-header">
       <div class="detail-name">${esc(item.title)}</div>
-      <span class="badge ${badgeClass(item.status)}">${esc(item.status)||'—'}</span>
+      <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
     </div>
     <div class="detail-section">
       <div class="detail-section-title">Key details</div>
@@ -538,20 +391,13 @@ function showDetail(itemId) {
   showView('detail');
 }
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
 loadPersist();
 document.getElementById('auth-user').value = DEFAULTS.user;
 document.getElementById('auth-pass').value = DEFAULTS.pass;
-document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
 
-if (S.token && S.pmField && S.pmFilterId) {
-  loadAllProjects();
-} else if (S.token) {
-  runDiagnostics();
-} else {
-  showView('auth');
-}
+if (S.token) { loadAllProjects(); } else { showView('auth'); }
 </script>
 </body>
 </html>
