@@ -40,7 +40,7 @@
   .header-logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
   .header-title { font-size: 16px; font-weight: 600; }
   .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
-  .header-right { margin-left: auto; }
+  .header-right { margin-left: auto; display: flex; gap: 6px; }
   .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; font-family: inherit; }
   .section { background: var(--bg); border-radius: var(--radius-lg); margin: 0.75rem; padding: 1.25rem; border: 0.5px solid var(--border); }
   .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.875rem; }
@@ -96,12 +96,18 @@
   .loading { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
   .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; line-height: 1.6; }
   .map-group { margin-bottom: 0.75rem; }
   .map-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 3px; }
   .map-group select { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); -webkit-appearance: none; appearance: none; outline: none; font-family: inherit; }
+  .map-highlight { border: 1.5px solid var(--blue) !important; background: var(--blue-light) !important; }
   .view { display: none; }
   .view.active { display: block; }
+  .info-banner { border-radius: var(--radius); margin: 0 0.75rem 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.5; }
+  .info-blue { background: var(--blue-light); color: var(--blue-dark); border: 0.5px solid rgba(24,95,165,0.2); }
+  .info-amber { background: var(--amber-light); color: var(--amber-dark); border: 0.5px solid rgba(186,117,23,0.2); }
+  .user-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); border-radius: 99px; padding: 3px 10px 3px 6px; font-size: 11px; }
+  .user-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #7ed87e; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -115,10 +121,12 @@
       <div class="header-sub" id="header-sub">Project dashboard</div>
     </div>
     <div class="header-right">
+      <button class="header-btn" id="btn-refresh" onclick="refreshDashboard()" style="display:none;">Refresh</button>
       <button class="header-btn" id="btn-logout" onclick="logout()" style="display:none;">Sign out</button>
     </div>
   </div>
 
+  <!-- AUTH VIEW -->
   <div id="view-auth" class="view active">
     <div class="section" style="margin-top:0.75rem;">
       <div class="section-title">Sign in to Podio</div>
@@ -131,6 +139,7 @@
     <p style="font-size:11px;color:var(--text3);text-align:center;padding:0 1rem;margin-top:8px;">Credentials are saved locally on your device only.</p>
   </div>
 
+  <!-- FIELD MAPPING VIEW -->
   <div id="view-mapping" class="view">
     <div class="section" style="margin-top:0.75rem;">
       <div class="section-title">Map your Podio fields</div>
@@ -140,23 +149,31 @@
       <div class="map-group"><label>Status / stage</label><select id="map-status"></select></div>
       <div class="map-group"><label>Install / milestone date</label><select id="map-date"></select></div>
       <div class="map-group"><label>Notes / flags</label><select id="map-notes"></select></div>
+      <div class="map-group">
+        <label style="color:var(--blue-dark);font-weight:600;">⚑ Project Manager field (required for fast loading)</label>
+        <select id="map-pm" class="map-highlight"></select>
+        <p style="font-size:11px;color:var(--text3);margin-top:3px;">Pick the contact/member field that stores who the PM is.</p>
+      </div>
       <button class="btn btn-primary" onclick="saveMapping()">Save &amp; open dashboard</button>
       <button class="btn btn-secondary" onclick="showView('auth')">Back</button>
       <div class="msg msg-info" id="map-msg"></div>
     </div>
   </div>
 
+  <!-- DASHBOARD VIEW -->
   <div id="view-dashboard" class="view">
+    <div id="user-banner" class="info-banner info-blue" style="display:none;margin-top:0.75rem;"></div>
+    <div id="warn-banner" class="info-banner info-amber" style="display:none;"></div>
     <div class="search-wrap" style="margin-top:0.75rem;">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="search-input" placeholder="Search projects..." oninput="renderCards()" />
+        <input type="text" id="search-input" placeholder="Search your projects..." oninput="renderCards()" />
       </div>
     </div>
     <div class="stats-row" id="stats-row"></div>
     <div class="chips" id="filter-chips"></div>
     <div class="cards">
-      <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div>Loading your projects...</div>
+      <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div><div id="loading-msg">Loading your projects...</div></div>
       <div id="cards-list"></div>
     </div>
     <div style="padding: 0 0.75rem; margin-top: 0.5rem;">
@@ -164,6 +181,7 @@
     </div>
   </div>
 
+  <!-- DETAIL VIEW -->
   <div id="view-detail" class="view">
     <div class="detail-back" onclick="showView('dashboard')">
       <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
@@ -182,31 +200,35 @@ const DEFAULTS = {
   appId: '29839792'
 };
 
-let S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' };
+let S = { token: null, appId: DEFAULTS.appId, userId: null, profileId: null, userName: '', fields: [], mapping: {}, items: [], filter: 'All' };
 
-function persist() { try { localStorage.setItem('aveyo_v3', JSON.stringify({ token: S.token, appId: S.appId, mapping: S.mapping })); } catch(e) {} }
-
+function persist() {
+  try { localStorage.setItem('aveyo_v5', JSON.stringify({ token: S.token, appId: S.appId, userId: S.userId, profileId: S.profileId, userName: S.userName, mapping: S.mapping })); } catch(e) {}
+}
 function loadPersist() {
   try {
-    const d = JSON.parse(localStorage.getItem('aveyo_v3') || '{}');
+    const d = JSON.parse(localStorage.getItem('aveyo_v5') || '{}');
     if (d.token) S.token = d.token;
     if (d.appId) S.appId = d.appId;
+    if (d.userId) S.userId = d.userId;
+    if (d.profileId) S.profileId = d.profileId;
+    if (d.userName) S.userName = d.userName;
     if (d.mapping) S.mapping = d.mapping;
   } catch(e) {}
 }
-
 function showView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
-  document.getElementById('btn-logout').style.display = (v !== 'auth') ? 'block' : 'none';
+  const isDash = v === 'dashboard' || v === 'detail';
+  document.getElementById('btn-logout').style.display = isDash ? 'block' : 'none';
+  document.getElementById('btn-refresh').style.display = v === 'dashboard' ? 'block' : 'none';
 }
-
 function logout() {
-  S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' };
-  try { localStorage.removeItem('aveyo_v3'); } catch(e) {}
+  S = { token: null, appId: DEFAULTS.appId, userId: null, profileId: null, userName: '', fields: [], mapping: {}, items: [], filter: 'All' };
+  try { localStorage.removeItem('aveyo_v5'); } catch(e) {}
   populateAuthForm(); showView('auth');
 }
-
+function refreshDashboard() { loadDashboard(); }
 function populateAuthForm() {
   document.getElementById('auth-user').value = DEFAULTS.user;
   document.getElementById('auth-pass').value = DEFAULTS.pass;
@@ -219,36 +241,44 @@ async function connectPodio() {
   const appId = document.getElementById('auth-appid').value.trim();
   const msg = document.getElementById('auth-msg');
   const btn = document.getElementById('btn-connect');
-
-  msg.className = 'msg msg-info'; msg.textContent = 'Signing in to Podio...'; btn.disabled = true;
-
+  msg.className = 'msg msg-info'; msg.textContent = 'Signing in...'; btn.disabled = true;
   try {
     const res = await fetch('https://podio.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        username, password,
-        client_id: DEFAULTS.cid,
-        client_secret: DEFAULTS.csec
-      })
+      body: new URLSearchParams({ grant_type: 'password', username, password, client_id: DEFAULTS.cid, client_secret: DEFAULTS.csec })
     });
     const data = await res.json();
     if (!data.access_token) throw new Error(data.error_description || data.error || 'Sign in failed');
     S.token = data.access_token; S.appId = appId;
-    msg.className = 'msg msg-success'; msg.textContent = 'Signed in! Discovering fields...';
+    msg.className = 'msg msg-success'; msg.textContent = 'Signed in! Fetching your profile...';
+    await fetchUserProfile();
+    msg.textContent = 'Hello ' + (S.userName || '') + '! Discovering fields...';
     await discoverFields();
   } catch(e) {
-    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Sign in failed. Check your credentials.';
+    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Sign in failed.';
     btn.disabled = false;
   }
+}
+
+async function fetchUserProfile() {
+  try {
+    const res = await fetch('https://api.podio.com/user/status', { headers: { Authorization: 'OAuth2 ' + S.token } });
+    const data = await res.json();
+    // Podio returns user_id (account) and profile.profile_id (contact profile)
+    if (data.user) S.userId = data.user.user_id;
+    if (data.profile) {
+      S.profileId = data.profile.profile_id;
+      S.userName = data.profile.name || '';
+    }
+  } catch(e) { console.warn('Profile fetch failed:', e); }
 }
 
 async function discoverFields() {
   const msg = document.getElementById('auth-msg');
   try {
     const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
-    if (!res.ok) throw new Error('Could not load fields (HTTP ' + res.status + ')');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     S.fields = (data.fields || []).map(f => ({ id: f.field_id, label: f.label, type: f.type, ext: f.external_id }));
     populateMappingSelects(); persist(); showView('mapping');
@@ -264,22 +294,32 @@ function populateMappingSelects() {
     address: ['address','addr','location','street','city'],
     status: ['status','stage','state','phase','step'],
     date: ['date','install','milestone','schedule','completion'],
-    notes: ['note','flag','comment','remark','issue']
+    notes: ['note','flag','comment','remark','issue'],
+    pm: ['project.manager','project_manager','pm ','manager','assigned to','project manager']
   };
+  // For PM field, only show contact/member type fields
+  const contactFields = S.fields.filter(f => f.type === 'contact' || f.type === 'member' || f.type === 'app');
   Object.entries(hints).forEach(([k, h]) => {
     const sel = document.getElementById('map-' + k);
+    if (!sel) return;
+    const fieldList = k === 'pm' ? (contactFields.length ? contactFields : S.fields) : S.fields;
     sel.innerHTML = '<option value="">— not mapped —</option>';
-    S.fields.forEach(f => { const o = document.createElement('option'); o.value = f.ext; o.textContent = f.label + ' (' + f.type + ')'; sel.appendChild(o); });
+    fieldList.forEach(f => { const o = document.createElement('option'); o.value = f.ext; o.textContent = f.label + (k !== 'pm' ? ' (' + f.type + ')' : ''); sel.appendChild(o); });
     if (S.mapping[k]) sel.value = S.mapping[k];
     else {
-      const auto = S.fields.find(f => h.some(kw => f.label.toLowerCase().includes(kw) || f.ext.toLowerCase().includes(kw)));
+      const auto = fieldList.find(f => h.some(kw => f.label.toLowerCase().includes(kw.trim()) || f.ext.toLowerCase().includes(kw.trim())));
       if (auto) sel.value = auto.ext;
     }
   });
 }
 
 function saveMapping() {
-  ['name','address','status','date','notes'].forEach(k => { S.mapping[k] = document.getElementById('map-' + k).value; });
+  ['name','address','status','date','notes','pm'].forEach(k => { const s = document.getElementById('map-' + k); if (s) S.mapping[k] = s.value; });
+  if (!S.mapping.pm) {
+    document.getElementById('map-msg').className = 'msg msg-error';
+    document.getElementById('map-msg').textContent = 'Please select a Project Manager field for fast loading.';
+    return;
+  }
   persist(); loadDashboard();
 }
 
@@ -288,22 +328,85 @@ async function loadDashboard() {
   document.getElementById('cards-loading').style.display = 'block';
   document.getElementById('cards-list').innerHTML = '';
   document.getElementById('header-sub').textContent = 'Loading...';
+  document.getElementById('warn-banner').style.display = 'none';
+
+  const banner = document.getElementById('user-banner');
+  if (S.userName) { banner.style.display = 'block'; banner.textContent = 'Showing projects managed by ' + S.userName; }
+
+  const pmField = S.mapping.pm;
+  // Use profileId for contact fields (Podio contact fields store profile IDs, not user IDs)
+  const filterId = S.profileId || S.userId;
+
+  if (!pmField || !filterId) {
+    document.getElementById('cards-loading').style.display = 'none';
+    document.getElementById('warn-banner').style.display = 'block';
+    document.getElementById('warn-banner').textContent = 'No Project Manager field mapped. Go to Edit field mapping and select the PM field to filter your projects.';
+    document.getElementById('cards-list').innerHTML = '<div class="empty">Please map the Project Manager field first.</div>';
+    return;
+  }
+
   try {
-    let all = []; let offset = 0;
-    while (true) {
-      const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=100&offset=${offset}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const items = data.items || [];
-      all = all.concat(items);
-      if (items.length < 100) break;
-      offset += 100;
+    document.getElementById('loading-msg').textContent = 'Filtering your projects...';
+
+    // Use Podio filter API — only fetch items where PM = current user
+    const filterBody = {
+      filters: { [pmField]: [filterId] },
+      limit: 100,
+      offset: 0,
+      sort_by: 'last_edit_on',
+      sort_desc: true
+    };
+
+    const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+      method: 'POST',
+      headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(filterBody)
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error_description || errData.error || 'HTTP ' + res.status);
     }
-    S.items = all.map(parseItem);
+
+    const data = await res.json();
+    S.items = (data.items || []).map(parseItem);
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
-    renderStats(); renderChips(); renderCards();
+
+    if (S.items.length === 0) {
+      // Filter may have used wrong ID — try with userId as fallback
+      if (S.profileId && S.userId && filterId === S.profileId) {
+        await tryFallbackFilter(pmField);
+        return;
+      }
+      document.getElementById('cards-list').innerHTML = '<div class="empty">No projects found where you are the Project Manager.<br><br><small>Try editing the field mapping if this seems wrong.</small></div>';
+    } else {
+      renderStats(); renderChips(); renderCards();
+    }
   } catch(e) {
-    document.getElementById('cards-list').innerHTML = '<div class="empty">Error loading projects: ' + e.message + '<br><br><small>Try signing out and back in.</small></div>';
+    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}<br><br><small>Try signing out and back in, or check the field mapping.</small></div>`;
+  } finally {
+    document.getElementById('cards-loading').style.display = 'none';
+  }
+}
+
+async function tryFallbackFilter(pmField) {
+  // Try with userId instead of profileId
+  try {
+    const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+      method: 'POST',
+      headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filters: { [pmField]: [S.userId] }, limit: 100, offset: 0, sort_by: 'last_edit_on', sort_desc: true })
+    });
+    const data = await res.json();
+    S.items = (data.items || []).map(parseItem);
+    document.getElementById('header-sub').textContent = S.items.length + ' projects';
+    if (S.items.length === 0) {
+      document.getElementById('cards-list').innerHTML = '<div class="empty">No projects found where you are the Project Manager.<br><br><small>Try editing the field mapping to make sure the right PM field is selected.</small></div>';
+    } else {
+      renderStats(); renderChips(); renderCards();
+    }
+  } catch(e) {
+    document.getElementById('cards-list').innerHTML = `<div class="empty">Could not load projects. Try signing out and back in.</div>`;
   } finally {
     document.getElementById('cards-loading').style.display = 'none';
   }
@@ -326,8 +429,8 @@ function parseItem(raw) {
   return { id: raw.item_id, title: raw.title || getVal(raw, m.name) || ('Item #' + raw.item_id), address: getVal(raw, m.address), status: getVal(raw, m.status), date: getVal(raw, m.date), notes: getVal(raw, m.notes), raw };
 }
 
-function badgeClass(status) {
-  const s = (status || '').toLowerCase();
+function badgeClass(s) {
+  s = (s || '').toLowerCase();
   if (!s) return 'badge-gray';
   if (s.includes('complet') || s.includes('done') || s.includes('install') || s.includes('final')) return 'badge-green';
   if (s.includes('progress') || s.includes('active') || s.includes('schedul') || s.includes('approv')) return 'badge-blue';
@@ -341,7 +444,7 @@ function renderStats() {
   const completed = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('complet')||s.includes('done')||s.includes('install'); }).length;
   const active = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('progress')||s.includes('active')||s.includes('schedul'); }).length;
   document.getElementById('stats-row').innerHTML = `
-    <div class="stat"><div class="stat-num">${items.length}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-num">${items.length}</div><div class="stat-lbl">My projects</div></div>
     <div class="stat"><div class="stat-num" style="color:#185FA5">${active}</div><div class="stat-lbl">Active</div></div>
     <div class="stat"><div class="stat-num" style="color:#3B6D11">${completed}</div><div class="stat-lbl">Completed</div></div>
   `;
@@ -349,7 +452,9 @@ function renderStats() {
 
 function renderChips() {
   const statuses = ['All', ...new Set(S.items.map(i => i.status).filter(Boolean))].slice(0, 10);
-  document.getElementById('filter-chips').innerHTML = statuses.map(s => `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter(${JSON.stringify(s)})">${esc(s)}</button>`).join('');
+  document.getElementById('filter-chips').innerHTML = statuses.map(s =>
+    `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter(${JSON.stringify(s)})">${esc(s)}</button>`
+  ).join('');
 }
 
 function setFilter(f) { S.filter = f; renderChips(); renderCards(); }
