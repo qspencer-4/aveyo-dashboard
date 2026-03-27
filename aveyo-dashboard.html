@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Aveyo" />
+<meta name="theme-color" content="#185FA5" />
+<title>Aveyo Solar Dashboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-dark: #0C447C;
+    --green-light: #EAF3DE;
+    --green-dark: #27500A;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --red-light: #FCEBEB;
+    --red-dark: #791F1F;
+    --gray-light: #F1EFE8;
+    --gray-dark: #444441;
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeede8;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.2);
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #262624;
+      --bg3: #2e2e2b;
+      --text: #f0efea;
+      --text2: #a8a79f;
+      --text3: #6e6d67;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --blue-light: #0c3d6b;
+      --blue-dark: #90c4f0;
+      --green-light: #1a3a0a;
+      --green-dark: #a8d870;
+      --amber-light: #3d2a05;
+      --amber-dark: #f5c060;
+      --red-light: #3d1010;
+      --red-dark: #f09090;
+      --gray-light: #2e2e2b;
+      --gray-dark: #c8c7bf;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+  #app { max-width: 480px; margin: 0 auto; background: var(--bg3); min-height: 100vh; padding-bottom: 2rem; }
+
+  /* Header */
+  .header { background: var(--blue); color: white; padding: 1rem 1rem 0.875rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  .header-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .header-logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
+  .header-right { margin-left: auto; }
+  .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; }
+
+  /* Cards / sections */
+  .section { background: var(--bg); border-radius: var(--radius-lg); margin: 0.75rem; padding: 1.25rem; border: 0.5px solid var(--border); }
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.875rem; }
+
+  /* Form fields */
+  .field { margin-bottom: 0.875rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; font-size: 14px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    background: var(--bg2); color: var(--text); outline: none;
+    -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--blue); }
+
+  /* Buttons */
+  .btn { width: 100%; padding: 11px; border-radius: var(--radius); border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .btn:active { opacity: 0.8; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-secondary { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); margin-top: 8px; }
+
+  /* Status message */
+  .msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
+  .msg-error { color: #c0392b; }
+  .msg-success { color: #27ae60; }
+  .msg-info { color: var(--text2); }
+
+  /* Search */
+  .search-wrap { margin: 0.75rem; }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 10px 14px; }
+  .search-box svg { width: 16px; height: 16px; stroke: var(--text3); fill: none; stroke-width: 2; flex-shrink: 0; }
+  .search-box input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--text); outline: none; }
+  .search-box input::placeholder { color: var(--text3); }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0.75rem 0.75rem; }
+  .stat { background: var(--bg); border-radius: var(--radius); padding: 0.75rem; text-align: center; border: 0.5px solid var(--border); }
+  .stat-num { font-size: 24px; font-weight: 700; color: var(--text); }
+  .stat-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* Filter chips */
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0.75rem 0.75rem; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; font-size: 12px; padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .chip.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  /* Project cards */
+  .cards { padding: 0 0.75rem; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; margin-bottom: 0.625rem; cursor: pointer; transition: border-color 0.15s; }
+  .card:active { border-color: var(--blue); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .card-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
+  .badge-blue { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-green { background: var(--green-light); color: var(--green-dark); }
+  .badge-amber { background: var(--amber-light); color: var(--amber-dark); }
+  .badge-red { background: var(--red-light); color: var(--red-dark); }
+  .badge-gray { background: var(--gray-light); color: var(--gray-dark); }
+  .card-addr { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .card-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
+  .meta svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .card-note { font-size: 11px; color: var(--amber-dark); background: var(--amber-light); border-radius: var(--radius); padding: 4px 8px; margin-top: 7px; }
+
+  /* Detail view */
+  .detail-back { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--blue); cursor: pointer; margin: 0.75rem; font-weight: 500; }
+  .detail-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+  .detail-header { margin: 0 0.75rem 0.75rem; }
+  .detail-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .detail-section { background: var(--bg); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; border: 0.5px solid var(--border); overflow: hidden; }
+  .detail-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; padding: 0.75rem 1rem 0.5rem; border-bottom: 0.5px solid var(--border); }
+  .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 1rem; border-bottom: 0.5px solid var(--border); font-size: 13px; gap: 12px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { color: var(--text2); flex-shrink: 0; }
+  .detail-val { color: var(--text); text-align: right; word-break: break-word; max-width: 65%; }
+
+  /* Loading / empty */
+  .loading { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+
+  /* Field mapping */
+  .map-group { margin-bottom: 0.75rem; }
+  .map-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 3px; }
+  .map-group select { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); -webkit-appearance: none; appearance: none; outline: none; font-family: inherit; }
+
+  /* Views */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* PWA install banner */
+  .install-banner { background: var(--blue-light); color: var(--blue-dark); border-radius: var(--radius); margin: 0 0.75rem 0.75rem; padding: 10px 14px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 0.5px solid rgba(24,95,165,0.2); }
+  .install-banner button { background: var(--blue); color: white; border: none; border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div>
+      <div class="header-title">Aveyo Solar</div>
+      <div class="header-sub" id="header-sub">Project dashboard</div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" id="btn-logout" onclick="logout()" style="display:none;">Sign out</button>
+    </div>
+  </div>
+
+  <!-- AUTH VIEW -->
+  <div id="view-auth" class="view active">
+    <div class="section" style="margin-top:0.75rem;">
+      <div class="section-title">Connect to Podio</div>
+      <div class="field">
+        <label>Client ID</label>
+        <input type="text" id="auth-cid" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      </div>
+      <div class="field">
+        <label>Client secret</label>
+        <input type="password" id="auth-csec" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>App ID</label>
+        <input type="text" id="auth-appid" autocomplete="off" inputmode="numeric" />
+      </div>
+      <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Connect to Podio</button>
+      <div class="msg msg-info" id="auth-msg"></div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);text-align:center;padding:0 1rem;">Credentials are saved locally on your device only.</p>
+  </div>
+
+  <!-- FIELD MAPPING VIEW -->
+  <div id="view-mapping" class="view">
+    <div class="section" style="margin-top:0.75rem;">
+      <div class="section-title">Map your Podio fields</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:0.875rem;">We found your fields — match them to dashboard sections:</p>
+      <div class="map-group"><label>Customer name</label><select id="map-name"></select></div>
+      <div class="map-group"><label>Address</label><select id="map-address"></select></div>
+      <div class="map-group"><label>Status / stage</label><select id="map-status"></select></div>
+      <div class="map-group"><label>Install / milestone date</label><select id="map-date"></select></div>
+      <div class="map-group"><label>Notes / flags</label><select id="map-notes"></select></div>
+      <button class="btn btn-primary" onclick="saveMapping()">Save &amp; open dashboard</button>
+      <button class="btn btn-secondary" onclick="showView('auth')">Back</button>
+      <div class="msg msg-info" id="map-msg"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard" class="view">
+    <div id="install-banner" class="install-banner" style="display:none;margin-top:0.75rem;">
+      <span>Add to your home screen for quick access</span>
+      <button onclick="triggerInstall()">Install app</button>
+    </div>
+    <div class="search-wrap" style="margin-top:0.75rem;">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Search projects..." oninput="renderCards()" />
+      </div>
+    </div>
+    <div class="stats-row" id="stats-row"></div>
+    <div class="chips" id="filter-chips"></div>
+    <div class="cards" id="cards-area">
+      <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div>Loading your projects...</div>
+      <div id="cards-list"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div id="view-detail" class="view">
+    <div class="detail-back" onclick="showView('dashboard')">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+      Back to dashboard
+    </div>
+    <div id="detail-body"></div>
+  </div>
+
+</div>
+
+<script>
+const DEFAULTS = {
+  cid: 'google-sheets-sync-kqxsb2',
+  csec: 'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',
+  appId: '29839792'
+};
+
+let S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' };
+let deferredInstall = null;
+
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; document.getElementById('install-banner').style.display = 'flex'; });
+
+function triggerInstall() { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.then(() => { document.getElementById('install-banner').style.display = 'none'; }); } }
+
+function persist() { try { localStorage.setItem('aveyo_v2', JSON.stringify({ token: S.token, appId: S.appId, mapping: S.mapping })); } catch(e) {} }
+
+function loadPersist() {
+  try {
+    const d = JSON.parse(localStorage.getItem('aveyo_v2') || '{}');
+    if (d.token) S.token = d.token;
+    if (d.appId) S.appId = d.appId;
+    if (d.mapping) S.mapping = d.mapping;
+  } catch(e) {}
+}
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.getElementById('btn-logout').style.display = (v !== 'auth') ? 'block' : 'none';
+}
+
+function logout() { S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All' }; try { localStorage.removeItem('aveyo_v2'); } catch(e) {} populateAuthForm(); showView('auth'); }
+
+function populateAuthForm() {
+  document.getElementById('auth-cid').value = DEFAULTS.cid;
+  document.getElementById('auth-csec').value = DEFAULTS.csec;
+  document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
+}
+
+async function connectPodio() {
+  const cid = document.getElementById('auth-cid').value.trim();
+  const csec = document.getElementById('auth-csec').value.trim();
+  const appId = document.getElementById('auth-appid').value.trim();
+  const msg = document.getElementById('auth-msg');
+  const btn = document.getElementById('btn-connect');
+
+  msg.className = 'msg msg-info'; msg.textContent = 'Connecting to Podio...'; btn.disabled = true;
+
+  try {
+    const body = new URLSearchParams({ grant_type: 'app', app_id: appId, app_token: csec, client_id: cid, client_secret: csec });
+    const res = await fetch('https://podio.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+    const data = await res.json();
+    if (!data.access_token) throw new Error(data.error_description || data.error || 'Authentication failed');
+    S.token = data.access_token; S.appId = appId;
+    msg.className = 'msg msg-success'; msg.textContent = 'Connected! Discovering fields...';
+    await discoverFields();
+  } catch(e) {
+    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Connection failed. Check your credentials.';
+    btn.disabled = false;
+  }
+}
+
+async function discoverFields() {
+  const msg = document.getElementById('auth-msg');
+  try {
+    const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
+    if (!res.ok) throw new Error('Could not load app fields (HTTP ' + res.status + ')');
+    const data = await res.json();
+    S.fields = (data.fields || []).map(f => ({ id: f.field_id, label: f.label, type: f.type, ext: f.external_id }));
+    populateMappingSelects(); persist(); showView('mapping');
+  } catch(e) {
+    msg.className = 'msg msg-error'; msg.textContent = 'Field discovery failed: ' + e.message;
+    document.getElementById('btn-connect').disabled = false;
+  }
+}
+
+function populateMappingSelects() {
+  const maps = { name: ['name','customer','title','client','contact'], address: ['address','addr','location','street','city'], status: ['status','stage','state','phase','step'], date: ['date','install','milestone','schedule','completion'], notes: ['note','flag','comment','remark','issue'] };
+  Object.entries(maps).forEach(([k, hints]) => {
+    const sel = document.getElementById('map-' + k);
+    sel.innerHTML = '<option value="">— not mapped —</option>';
+    S.fields.forEach(f => { const o = document.createElement('option'); o.value = f.ext; o.textContent = f.label + ' (' + f.type + ')'; sel.appendChild(o); });
+    const saved = S.mapping[k];
+    if (saved) { sel.value = saved; }
+    else {
+      const auto = S.fields.find(f => hints.some(h => f.label.toLowerCase().includes(h) || f.ext.toLowerCase().includes(h)));
+      if (auto) sel.value = auto.ext;
+    }
+  });
+}
+
+function saveMapping() {
+  ['name','address','status','date','notes'].forEach(k => { S.mapping[k] = document.getElementById('map-' + k).value; });
+  persist(); loadDashboard();
+}
+
+async function loadDashboard() {
+  showView('dashboard');
+  document.getElementById('cards-loading').style.display = 'block';
+  document.getElementById('cards-list').innerHTML = '';
+  document.getElementById('header-sub').textContent = 'App ' + S.appId;
+  try {
+    let all = []; let offset = 0;
+    while (true) {
+      const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=100&offset=${offset}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const items = data.items || [];
+      all = all.concat(items);
+      if (items.length < 100) break;
+      offset += 100;
+    }
+    S.items = all.map(parseItem);
+    document.getElementById('header-sub').textContent = S.items.length + ' projects';
+    renderStats(); renderChips(); renderCards();
+  } catch(e) {
+    document.getElementById('cards-list').innerHTML = '<div class="empty">Error: ' + e.message + '<br><br><small>Try signing out and reconnecting.</small></div>';
+  } finally {
+    document.getElementById('cards-loading').style.display = 'none';
+  }
+}
+
+function getVal(item, extId) {
+  if (!extId) return '';
+  const f = (item.fields || []).find(f => f.external_id === extId);
+  if (!f || !f.values || !f.values.length) return '';
+  const v = f.values[0];
+  if (v.value !== undefined) {
+    if (typeof v.value === 'object' && v.value !== null) {
+      return v.value.text || v.value.name || v.value.start?.split(' ')[0] || v.value.title || '';
+    }
+    return String(v.value);
+  }
+  if (v.text) return v.text;
+  return '';
+}
+
+function parseItem(raw) {
+  const m = S.mapping;
+  return {
+    id: raw.item_id,
+    title: raw.title || getVal(raw, m.name) || ('Item #' + raw.item_id),
+    address: getVal(raw, m.address),
+    status: getVal(raw, m.status),
+    date: getVal(raw, m.date),
+    notes: getVal(raw, m.notes),
+    raw
+  };
+}
+
+function badgeClass(status) {
+  const s = (status || '').toLowerCase();
+  if (!s) return 'badge-gray';
+  if (s.includes('complet') || s.includes('done') || s.includes('install') || s.includes('final')) return 'badge-green';
+  if (s.includes('progress') || s.includes('active') || s.includes('schedul') || s.includes('approved')) return 'badge-blue';
+  if (s.includes('pending') || s.includes('wait') || s.includes('review') || s.includes('hold')) return 'badge-amber';
+  if (s.includes('cancel') || s.includes('reject') || s.includes('issue') || s.includes('fail')) return 'badge-red';
+  return 'badge-gray';
+}
+
+function renderStats() {
+  const items = S.items;
+  const completed = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('complet')||s.includes('done')||s.includes('install'); }).length;
+  const active = items.filter(i => { const s=(i.status||'').toLowerCase(); return s.includes('progress')||s.includes('active')||s.includes('schedul'); }).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><div class="stat-num">${items.length}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-num" style="color:#185FA5">${active}</div><div class="stat-lbl">Active</div></div>
+    <div class="stat"><div class="stat-num" style="color:#3B6D11">${completed}</div><div class="stat-lbl">Completed</div></div>
+  `;
+}
+
+function renderChips() {
+  const statuses = ['All', ...new Set(S.items.map(i => i.status).filter(Boolean))].slice(0, 10);
+  document.getElementById('filter-chips').innerHTML = statuses.map(s =>
+    `<button class="chip ${s === S.filter ? 'active' : ''}" onclick="setFilter('${s.replace(/'/g,"\\'")})">${s}</button>`
+  ).join('');
+}
+
+function setFilter(f) { S.filter = f; renderChips(); renderCards(); }
+
+function renderCards() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let items = S.items;
+  if (S.filter !== 'All') items = items.filter(i => i.status === S.filter);
+  if (q) items = items.filter(i => [i.title, i.address, i.status, i.notes].join(' ').toLowerCase().includes(q));
+  if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects match your search.</div>'; return; }
+  document.getElementById('cards-list').innerHTML = items.map(item => `
+    <div class="card" onclick="showDetail(${item.id})">
+      <div class="card-top">
+        <div class="card-name">${esc(item.title)}</div>
+        <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
+      </div>
+      ${item.address ? `<div class="card-addr">${esc(item.address)}</div>` : ''}
+      <div class="card-meta">
+        ${item.date ? `<span class="meta"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${esc(item.date)}</span>` : ''}
+        <span class="meta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>ID ${item.id}</span>
+      </div>
+      ${item.notes ? `<div class="card-note">${esc(item.notes.substring(0,120))}${item.notes.length>120?'...':''}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function showDetail(itemId) {
+  const item = S.items.find(i => i.id === itemId);
+  if (!item) return;
+  const allFields = (item.raw.fields || []).map(f => {
+    let val = '';
+    if (f.values && f.values.length) {
+      const v = f.values[0];
+      if (v.value !== undefined) {
+        if (typeof v.value === 'object' && v.value !== null) val = v.value.text || v.value.name || v.value.start?.split(' ')[0] || v.value.title || '';
+        else val = String(v.value);
+      } else if (v.text) val = v.text;
+    }
+    return { label: f.label, val };
+  }).filter(f => f.val);
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-name">${esc(item.title)}</div>
+      <span class="badge ${badgeClass(item.status)}">${esc(item.status) || '—'}</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Key details</div>
+      ${item.address ? `<div class="detail-row"><span class="detail-key">Address</span><span class="detail-val">${esc(item.address)}</span></div>` : ''}
+      ${item.date ? `<div class="detail-row"><span class="detail-key">Install / milestone</span><span class="detail-val">${esc(item.date)}</span></div>` : ''}
+      ${item.notes ? `<div class="detail-row"><span class="detail-key">Notes / flags</span><span class="detail-val">${esc(item.notes)}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-key">Podio ID</span><span class="detail-val">${item.id}</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">All fields</div>
+      ${allFields.map(f => `<div class="detail-row"><span class="detail-key">${esc(f.label)}</span><span class="detail-val">${esc(f.val)}</span></div>`).join('')}
+    </div>
+  `;
+  showView('detail');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+loadPersist();
+populateAuthForm();
+if (S.token && Object.keys(S.mapping).length > 0) {
+  discoverFields().then(() => saveMapping());
+} else if (S.token) {
+  discoverFields();
+} else {
+  showView('auth');
+}
+</script>
+</body>
+</html>
