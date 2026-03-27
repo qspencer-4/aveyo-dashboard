@@ -4,10 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="Aveyo" />
 <meta name="theme-color" content="#185FA5" />
-<title>Aveyo Solar Dashboard</title>
+<title>Aveyo — Field Inspector</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -30,30 +28,47 @@
       --green-light: #1a3a0a; --green-dark: #a8d870;
       --amber-light: #3d2a05; --amber-dark: #f5c060;
       --red-light: #3d1010; --red-dark: #f09090;
-      --gray-light: #2e2e2b; --gray-dark: #c8c7bf;
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
-  #app { max-width: 480px; margin: 0 auto; background: var(--bg3); min-height: 100vh; padding-bottom: 2rem; }
-  .header { background: var(--blue); color: white; padding: 1rem 1rem 0.875rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 2rem; }
+  .header { background: var(--blue); color: white; padding: 1rem; display: flex; align-items: center; gap: 10px; }
   .header-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .header-logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
-  .header-title { font-size: 16px; font-weight: 600; }
-  .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
-  .header-right { margin-left: auto; display: flex; gap: 6px; }
-  .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; font-family: inherit; }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-sub { font-size: 11px; opacity: 0.75; }
   .section { background: var(--bg); border-radius: var(--radius-lg); margin: 0.75rem; padding: 1.25rem; border: 0.5px solid var(--border); }
-  .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.875rem; }
-  .field { margin-bottom: 0.875rem; }
+  .section-title { font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; }
+  .field { margin-bottom: 0.75rem; }
   .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
   .field input { width: 100%; padding: 10px 12px; font-size: 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); outline: none; font-family: inherit; }
-  .field input:focus { border-color: var(--blue); }
   .btn { width: 100%; padding: 11px; border-radius: var(--radius); border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-primary { background: var(--blue); color: white; }
   .btn-secondary { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); margin-top: 8px; }
-  .msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
+  .msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 16px; }
   .msg-error { color: #c0392b; } .msg-success { color: #27ae60; } .msg-info { color: var(--text2); }
+  .loading { text-align: center; padding: 2rem; color: var(--text2); font-size: 14px; }
+  .spinner { width: 26px; height: 26px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.75rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .view { display: none; }
+  .view.active { display: block; }
+  .field-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; overflow: hidden; }
+  .field-card-header { padding: 10px 14px; background: var(--bg2); border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .field-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .field-ext { font-size: 11px; color: var(--text3); font-family: monospace; }
+  .field-type-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--blue-light); color: var(--blue-dark); }
+  .field-values { padding: 8px 14px; }
+  .value-row { padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
+  .value-row:last-child { border-bottom: none; }
+  .value-label { color: var(--text2); font-size: 11px; margin-bottom: 2px; }
+  .value-data { color: var(--text); font-family: monospace; font-size: 11px; word-break: break-all; }
+  .pm-highlight { border: 2px solid #27ae60 !important; }
+  .pm-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--green-light); color: var(--green-dark); margin-left: 6px; }
+  .use-btn { font-size: 11px; padding: 4px 10px; border-radius: var(--radius); border: 0.5px solid var(--blue); background: var(--blue-light); color: var(--blue-dark); cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .step-banner { background: var(--amber-light); color: var(--amber-dark); border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.6; border: 0.5px solid rgba(186,117,23,0.2); }
+  .success-banner { background: var(--green-light); color: var(--green-dark); border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.6; border: 0.5px solid rgba(59,109,17,0.2); }
+  /* --- Dashboard styles --- */
   .search-wrap { margin: 0.75rem; }
   .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 10px 14px; }
   .search-box svg { width: 16px; height: 16px; stroke: var(--text3); fill: none; stroke-width: 2; flex-shrink: 0; }
@@ -61,7 +76,7 @@
   .search-box input::placeholder { color: var(--text3); }
   .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0.75rem 0.75rem; }
   .stat { background: var(--bg); border-radius: var(--radius); padding: 0.75rem; text-align: center; border: 0.5px solid var(--border); }
-  .stat-num { font-size: 24px; font-weight: 700; color: var(--text); }
+  .stat-num { font-size: 24px; font-weight: 700; }
   .stat-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
   .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0.75rem 0.75rem; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
@@ -86,31 +101,16 @@
   .detail-back { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--blue); cursor: pointer; margin: 0.75rem; font-weight: 500; }
   .detail-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
   .detail-header { margin: 0 0.75rem 0.75rem; }
-  .detail-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .detail-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
   .detail-section { background: var(--bg); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; border: 0.5px solid var(--border); overflow: hidden; }
   .detail-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; padding: 0.75rem 1rem 0.5rem; border-bottom: 0.5px solid var(--border); }
   .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 1rem; border-bottom: 0.5px solid var(--border); font-size: 13px; gap: 12px; }
   .detail-row:last-child { border-bottom: none; }
   .detail-key { color: var(--text2); flex-shrink: 0; }
   .detail-val { color: var(--text); text-align: right; word-break: break-word; max-width: 65%; }
-  .loading { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
-  .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
   .empty { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 14px; line-height: 1.6; }
-  .map-group { margin-bottom: 0.75rem; }
-  .map-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 3px; }
-  .map-group select { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); -webkit-appearance: none; appearance: none; outline: none; font-family: inherit; }
-  .map-highlight { border: 1.5px solid var(--blue) !important; }
-  .view { display: none; }
-  .view.active { display: block; }
-  .info-banner { border-radius: var(--radius); margin: 0 0.75rem 0; padding: 10px 14px; font-size: 12px; line-height: 1.5; }
-  .info-blue { background: var(--blue-light); color: var(--blue-dark); border: 0.5px solid rgba(24,95,165,0.2); margin-top: 0.75rem; }
-  .info-amber { background: var(--amber-light); color: var(--amber-dark); border: 0.5px solid rgba(186,117,23,0.2); }
-  .debug-section { background: var(--bg2); border-radius: var(--radius); margin: 0.75rem; padding: 1rem; border: 0.5px solid var(--border2); font-size: 12px; }
-  .debug-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 0.5px solid var(--border); gap: 8px; font-size: 11px; }
-  .debug-row:last-child { border-bottom: none; }
-  .debug-key { color: var(--text2); }
-  .debug-val { color: var(--text); font-family: monospace; text-align: right; word-break: break-all; }
+  .header-right { margin-left: auto; display: flex; gap: 6px; }
+  .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: var(--radius); cursor: pointer; font-family: inherit; }
 </style>
 </head>
 <body>
@@ -121,7 +121,7 @@
     </div>
     <div>
       <div class="header-title">Aveyo Solar</div>
-      <div class="header-sub" id="header-sub">Project dashboard</div>
+      <div class="header-sub" id="header-sub">Field inspector</div>
     </div>
     <div class="header-right">
       <button class="header-btn" id="btn-refresh" onclick="loadDashboard()" style="display:none;">Refresh</button>
@@ -129,41 +129,33 @@
     </div>
   </div>
 
-  <!-- AUTH VIEW -->
+  <!-- AUTH -->
   <div id="view-auth" class="view active">
     <div class="section" style="margin-top:0.75rem;">
       <div class="section-title">Sign in to Podio</div>
-      <div class="field"><label>Username (email)</label><input type="email" id="auth-user" autocomplete="email" /></div>
-      <div class="field"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password" /></div>
+      <div class="field"><label>Username</label><input type="email" id="auth-user" /></div>
+      <div class="field"><label>Password</label><input type="password" id="auth-pass" /></div>
       <div class="field"><label>App ID</label><input type="text" id="auth-appid" inputmode="numeric" /></div>
-      <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Sign in</button>
+      <button class="btn btn-primary" id="btn-connect" onclick="connectPodio()">Sign in &amp; inspect fields</button>
       <div class="msg msg-info" id="auth-msg"></div>
     </div>
   </div>
 
-  <!-- FIELD MAPPING VIEW -->
-  <div id="view-mapping" class="view">
-    <div class="section" style="margin-top:0.75rem;">
-      <div class="section-title">Map your Podio fields</div>
-      <div class="map-group"><label>Customer name</label><select id="map-name"></select></div>
-      <div class="map-group"><label>Address</label><select id="map-address"></select></div>
-      <div class="map-group"><label>Status / stage</label><select id="map-status"></select></div>
-      <div class="map-group"><label>Install / milestone date</label><select id="map-date"></select></div>
-      <div class="map-group"><label>Notes / flags</label><select id="map-notes"></select></div>
-      <div class="map-group">
-        <label style="color:var(--blue-dark);font-weight:600;">Project Manager field (required)</label>
-        <select id="map-pm" class="map-highlight"></select>
-        <p style="font-size:11px;color:var(--text3);margin-top:3px;">Select the contact/member field that stores the PM.</p>
-      </div>
-      <button class="btn btn-primary" onclick="saveMapping()">Save &amp; open dashboard</button>
+  <!-- INSPECTOR -->
+  <div id="view-inspector" class="view">
+    <div class="step-banner" id="inspector-banner">
+      Below are all fields from a real project in your Podio app. Find the one that shows <strong>Quentin Spencer</strong> as a value and tap <strong>"Use as PM field"</strong>.
+    </div>
+    <div id="inspector-loading" class="loading" style="display:none;"><div class="spinner"></div>Loading sample item...</div>
+    <div id="inspector-fields"></div>
+    <div style="padding:0 0.75rem;margin-top:0.5rem;">
       <button class="btn btn-secondary" onclick="showView('auth')">Back</button>
-      <div class="msg" id="map-msg"></div>
     </div>
   </div>
 
-  <!-- DASHBOARD VIEW -->
+  <!-- DASHBOARD -->
   <div id="view-dashboard" class="view">
-    <div class="info-banner info-blue">Projects managed by Quentin Spencer</div>
+    <div id="dash-banner" class="success-banner" style="display:none;margin-top:0.75rem;"></div>
     <div class="search-wrap" style="margin-top:0.75rem;">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -173,19 +165,19 @@
     <div class="stats-row" id="stats-row"></div>
     <div class="chips" id="filter-chips"></div>
     <div class="cards">
-      <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div><div id="loading-msg">Filtering your projects...</div></div>
+      <div class="loading" id="cards-loading" style="display:none;"><div class="spinner"></div><div id="loading-msg">Loading...</div></div>
       <div id="cards-list"></div>
     </div>
-    <div style="padding: 0 0.75rem; margin-top: 0.5rem;">
-      <button class="btn btn-secondary" style="font-size:12px;" onclick="showView('mapping')">Edit field mapping</button>
+    <div style="padding:0 0.75rem;margin-top:0.5rem;">
+      <button class="btn btn-secondary" style="font-size:12px;" onclick="showInspector()">Re-inspect fields</button>
     </div>
   </div>
 
-  <!-- DETAIL VIEW -->
+  <!-- DETAIL -->
   <div id="view-detail" class="view">
     <div class="detail-back" onclick="showView('dashboard')">
       <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-      Back to dashboard
+      Back
     </div>
     <div id="detail-body"></div>
   </div>
@@ -199,26 +191,19 @@ const DEFAULTS = {
   csec: 'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',
   appId: '29839792'
 };
+const QUENTIN_ID = 76946137;
+const QUENTIN_NAMES = ['quentin', 'q.spencer', 'q spencer'];
 
-// Quentin Spencer's confirmed Podio user ID from profile URL
-const QUENTIN_USER_ID = 76946137;
+let S = { token: null, appId: DEFAULTS.appId, pmField: null, pmFilterId: null, fields: [], items: [], filter: 'All' };
 
-let S = {
-  token: null, appId: DEFAULTS.appId,
-  fields: [], mapping: {}, items: [], filter: 'All',
-  profileId: null // Will be fetched after login
-};
-
-function persist() {
-  try { localStorage.setItem('aveyo_v7', JSON.stringify({ token: S.token, appId: S.appId, mapping: S.mapping, profileId: S.profileId })); } catch(e) {}
-}
+function persist() { try { localStorage.setItem('aveyo_v8', JSON.stringify({ token: S.token, appId: S.appId, pmField: S.pmField, pmFilterId: S.pmFilterId })); } catch(e) {} }
 function loadPersist() {
   try {
-    const d = JSON.parse(localStorage.getItem('aveyo_v7') || '{}');
+    const d = JSON.parse(localStorage.getItem('aveyo_v8') || '{}');
     if (d.token) S.token = d.token;
     if (d.appId) S.appId = d.appId;
-    if (d.mapping) S.mapping = d.mapping;
-    if (d.profileId) S.profileId = d.profileId;
+    if (d.pmField) S.pmField = d.pmField;
+    if (d.pmFilterId) S.pmFilterId = d.pmFilterId;
   } catch(e) {}
 }
 function showView(v) {
@@ -226,21 +211,20 @@ function showView(v) {
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('btn-logout').style.display = v !== 'auth' ? 'block' : 'none';
   document.getElementById('btn-refresh').style.display = v === 'dashboard' ? 'block' : 'none';
+  document.getElementById('header-sub').textContent = v === 'inspector' ? 'Field inspector' : v === 'dashboard' ? 'My projects' : 'Sign in';
 }
 function logout() {
-  S = { token: null, appId: DEFAULTS.appId, fields: [], mapping: {}, items: [], filter: 'All', profileId: null };
-  try { localStorage.removeItem('aveyo_v7'); } catch(e) {}
-  populateAuthForm(); showView('auth');
-}
-function populateAuthForm() {
+  S = { token: null, appId: DEFAULTS.appId, pmField: null, pmFilterId: null, fields: [], items: [], filter: 'All' };
+  try { localStorage.removeItem('aveyo_v8'); } catch(e) {}
   document.getElementById('auth-user').value = DEFAULTS.user;
   document.getElementById('auth-pass').value = DEFAULTS.pass;
-  document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
+  document.getElementById('auth-appid').value = DEFAULTS.appId;
+  showView('auth');
 }
 
 async function connectPodio() {
-  const username = document.getElementById('auth-user').value.trim();
-  const password = document.getElementById('auth-pass').value;
+  const user = document.getElementById('auth-user').value.trim();
+  const pass = document.getElementById('auth-pass').value;
   const appId = document.getElementById('auth-appid').value.trim();
   const msg = document.getElementById('auth-msg');
   const btn = document.getElementById('btn-connect');
@@ -249,186 +233,206 @@ async function connectPodio() {
     const res = await fetch('https://podio.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ grant_type: 'password', username, password, client_id: DEFAULTS.cid, client_secret: DEFAULTS.csec })
+      body: new URLSearchParams({ grant_type: 'password', username: user, password: pass, client_id: DEFAULTS.cid, client_secret: DEFAULTS.csec })
     });
     const data = await res.json();
-    if (!data.access_token) throw new Error(data.error_description || data.error || 'Sign in failed');
+    if (!data.access_token) throw new Error(data.error_description || 'Sign in failed');
     S.token = data.access_token; S.appId = appId;
-
-    // Fetch profile to get profile_id (different from user_id)
-    msg.textContent = 'Fetching your Podio profile...';
-    await fetchProfile();
-
-    msg.className = 'msg msg-success'; msg.textContent = 'Signed in! Loading fields...';
-    await discoverFields();
+    msg.className = 'msg msg-success'; msg.textContent = 'Signed in!';
+    persist();
+    await showInspector();
   } catch(e) {
-    msg.className = 'msg msg-error'; msg.textContent = e.message || 'Sign in failed.';
+    msg.className = 'msg msg-error'; msg.textContent = e.message;
     btn.disabled = false;
   }
 }
 
-async function fetchProfile() {
+async function showInspector() {
+  showView('inspector');
+  document.getElementById('inspector-loading').style.display = 'block';
+  document.getElementById('inspector-fields').innerHTML = '';
   try {
-    // Get the contact profile associated with this user
-    const res = await fetch(`https://api.podio.com/contact/user/${QUENTIN_USER_ID}`, {
+    // Fetch a few items to find one with a populated PM-like field
+    const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=10&offset=0`, {
       headers: { Authorization: 'OAuth2 ' + S.token }
     });
-    if (res.ok) {
-      const data = await res.json();
-      // profile_id is what Podio contact fields store
-      S.profileId = data.profile_id || data.id || null;
-    }
-  } catch(e) { console.warn('Profile fetch failed:', e); }
-
-  // Also try user/status to get profile_id
-  if (!S.profileId) {
-    try {
-      const res2 = await fetch('https://api.podio.com/user/status', { headers: { Authorization: 'OAuth2 ' + S.token } });
-      const d2 = await res2.json();
-      S.profileId = d2.profile ? d2.profile.profile_id : null;
-    } catch(e) {}
-  }
-}
-
-async function discoverFields() {
-  try {
-    const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    S.fields = (data.fields || []).map(f => ({ id: f.field_id, label: f.label, type: f.type, ext: f.external_id }));
-    populateMappingSelects(); persist(); showView('mapping');
+    const items = data.items || [];
+    if (!items.length) throw new Error('No items found in this app');
+
+    // Pick the item with the most fields populated
+    const item = items.reduce((best, cur) => (cur.fields || []).length > (best.fields || []).length ? cur : best, items[0]);
+    renderInspector(item);
   } catch(e) {
-    document.getElementById('auth-msg').className = 'msg msg-error';
-    document.getElementById('auth-msg').textContent = 'Field discovery failed: ' + e.message;
-    document.getElementById('btn-connect').disabled = false;
+    document.getElementById('inspector-fields').innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`;
+  } finally {
+    document.getElementById('inspector-loading').style.display = 'none';
   }
 }
 
-function populateMappingSelects() {
-  const hints = {
-    name: ['name','customer','title','client'],
-    address: ['address','addr','location','street','city'],
-    status: ['status','stage','state','phase','step'],
-    date: ['date','install','milestone','schedule'],
-    notes: ['note','flag','comment','remark'],
-    pm: ['project manager','project_manager','pm','manager']
-  };
-  const contactFields = S.fields.filter(f => f.type === 'contact' || f.type === 'member' || f.type === 'app');
-  Object.entries(hints).forEach(([k, h]) => {
-    const sel = document.getElementById('map-' + k);
-    if (!sel) return;
-    const list = k === 'pm' ? (contactFields.length ? contactFields : S.fields) : S.fields;
-    sel.innerHTML = '<option value="">— not mapped —</option>';
-    list.forEach(f => { const o = document.createElement('option'); o.value = f.ext; o.textContent = f.label + (k !== 'pm' ? ' (' + f.type + ')' : ''); sel.appendChild(o); });
-    if (S.mapping[k]) sel.value = S.mapping[k];
-    else {
-      const auto = list.find(f => h.some(kw => f.label.toLowerCase().includes(kw) || f.ext.toLowerCase().includes(kw)));
-      if (auto) sel.value = auto.ext;
-    }
-  });
-}
+function renderInspector(item) {
+  const container = document.getElementById('inspector-fields');
+  const fields = item.fields || [];
 
-function saveMapping() {
-  ['name','address','status','date','notes','pm'].forEach(k => { const s = document.getElementById('map-' + k); if (s) S.mapping[k] = s.value; });
-  if (!S.mapping.pm) {
-    const m = document.getElementById('map-msg');
-    m.className = 'msg msg-error'; m.textContent = 'Please select the Project Manager field.';
+  if (!fields.length) {
+    container.innerHTML = '<div class="empty">No fields found on this item.</div>';
     return;
   }
-  persist(); loadDashboard();
-}
 
-async function tryFilter(id) {
-  const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
-    method: 'POST',
-    headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      filters: { [S.mapping.pm]: [id] },
-      limit: 100, offset: 0,
-      sort_by: 'last_edit_on', sort_desc: true
-    })
+  let html = `<p style="font-size:12px;color:var(--text2);margin:0 0.75rem 0.5rem;">Showing fields from: <strong>${esc(item.title || 'Item #' + item.item_id)}</strong></p>`;
+
+  fields.forEach(f => {
+    const values = f.values || [];
+    if (!values.length) return;
+
+    // Extract all meaningful data from this field's values
+    const valueRows = [];
+    values.forEach(v => {
+      const val = v.value;
+      if (!val) return;
+      if (typeof val === 'object') {
+        const name = val.name || val.text || val.title || '';
+        const uid = val.user_id || val.id || val.profile_id || '';
+        const extra = val.start || val.end || '';
+        if (name) valueRows.push({ label: 'Name', data: name });
+        if (uid) valueRows.push({ label: 'ID', data: String(uid) });
+        if (extra) valueRows.push({ label: 'Date', data: extra.split(' ')[0] });
+      } else {
+        valueRows.push({ label: 'Value', data: String(val) });
+      }
+    });
+
+    if (!valueRows.length) return;
+
+    // Check if this field looks like it contains Quentin's info
+    const rawJson = JSON.stringify(values).toLowerCase();
+    const looksLikePM = rawJson.includes('quentin') || rawJson.includes('q.spencer') || rawJson.includes(String(QUENTIN_ID)) || QUENTIN_NAMES.some(n => rawJson.includes(n));
+    const looksLikeContact = f.type === 'contact' || f.type === 'member';
+    const isPmCandidate = looksLikePM || (looksLikeContact && rawJson.includes('spencer'));
+
+    // Extract filter ID from this field
+    const firstVal = values[0] && values[0].value ? values[0].value : {};
+    const filterId = firstVal.profile_id || firstVal.user_id || firstVal.id || null;
+
+    html += `
+      <div class="field-card ${isPmCandidate ? 'pm-highlight' : ''}">
+        <div class="field-card-header">
+          <div>
+            <span class="field-label">${esc(f.label)}</span>
+            ${isPmCandidate ? '<span class="pm-badge">Quentin found!</span>' : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="field-type-badge">${esc(f.type)}</span>
+            ${(looksLikeContact || isPmCandidate) ? `<button class="use-btn" onclick="usePmField('${esc(f.external_id)}', ${filterId || 'null'}, '${esc(f.label)}')">Use as PM field</button>` : ''}
+          </div>
+        </div>
+        <div class="field-values">
+          <div class="value-row"><div class="value-label">External ID</div><div class="value-data">${esc(f.external_id)}</div></div>
+          ${valueRows.map(r => `<div class="value-row"><div class="value-label">${esc(r.label)}</div><div class="value-data">${esc(r.data)}</div></div>`).join('')}
+        </div>
+      </div>
+    `;
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error_description || err.error || 'HTTP ' + res.status);
-  }
-  const data = await res.json();
-  return data.items || [];
+
+  container.innerHTML = html;
 }
 
-async function loadDashboard() {
+async function usePmField(extId, filterId, label) {
+  S.pmField = extId;
+  // Try filterId first, then QUENTIN_ID
+  const idsToTry = [...new Set([filterId, QUENTIN_ID].filter(Boolean))];
+  const banner = document.getElementById('inspector-banner');
+  banner.textContent = `Testing "${label}" field...`;
+
+  for (const id of idsToTry) {
+    try {
+      const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+        method: 'POST',
+        headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filters: { [extId]: [id] }, limit: 100, offset: 0, sort_by: 'last_edit_on', sort_desc: true })
+      });
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        S.pmFilterId = id;
+        persist();
+        loadDashboard(data.items);
+        return;
+      }
+    } catch(e) { console.warn('Filter attempt failed:', e); }
+  }
+
+  // Fall back to client-side name match
+  banner.textContent = 'Server filter returned 0 — trying client-side match...';
+  await loadDashboardClientSide(extId);
+}
+
+async function loadDashboard(preloadedItems) {
+  showView('dashboard');
+  document.getElementById('cards-loading').style.display = 'none';
+  const banner = document.getElementById('dash-banner');
+  banner.style.display = 'block';
+  banner.textContent = `Showing your projects (PM field: ${S.pmField}, filter ID: ${S.pmFilterId})`;
+
+  let allItems = preloadedItems || [];
+
+  // Paginate to get more if needed
+  if (allItems.length === 100) {
+    document.getElementById('cards-loading').style.display = 'block';
+    try {
+      let offset = 100;
+      while (true) {
+        const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+          method: 'POST',
+          headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filters: { [S.pmField]: [S.pmFilterId] }, limit: 100, offset, sort_by: 'last_edit_on', sort_desc: true })
+        });
+        const data = await res.json();
+        const batch = data.items || [];
+        allItems = allItems.concat(batch);
+        if (batch.length < 100) break;
+        offset += 100;
+        document.getElementById('loading-msg').textContent = `Loaded ${allItems.length} projects...`;
+      }
+    } catch(e) {}
+    document.getElementById('cards-loading').style.display = 'none';
+  }
+
+  S.items = allItems.map(parseItem);
+  document.getElementById('header-sub').textContent = S.items.length + ' projects';
+  renderStats(); renderChips(); renderCards();
+}
+
+async function loadDashboardClientSide(extId) {
   showView('dashboard');
   document.getElementById('cards-loading').style.display = 'block';
-  document.getElementById('cards-list').innerHTML = '';
-  document.getElementById('header-sub').textContent = 'Loading...';
-
-  // All IDs to try — user_id first, then profile_id
-  const idsToTry = [...new Set([QUENTIN_USER_ID, S.profileId].filter(Boolean))];
-
+  document.getElementById('loading-msg').textContent = 'Loading projects (name match)...';
   try {
-    let items = [];
-    let usedId = null;
-
-    for (const id of idsToTry) {
-      document.getElementById('loading-msg').textContent = `Trying filter with ID ${id}...`;
-      try {
-        const result = await tryFilter(id);
-        if (result.length > 0) {
-          items = result; usedId = id;
-          break;
-        }
-      } catch(e) {
-        console.warn('Filter attempt failed for id', id, ':', e.message);
-      }
-    }
-
-    // If still nothing, try fetching a few items and do client-side match by name
-    if (items.length === 0) {
-      document.getElementById('loading-msg').textContent = 'Trying name-based match...';
-      items = await clientSideFilter();
-    }
-
-    S.items = items.map(parseItem);
+    const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=200&offset=0`, {
+      headers: { Authorization: 'OAuth2 ' + S.token }
+    });
+    const data = await res.json();
+    const filtered = (data.items || []).filter(item => {
+      const f = (item.fields || []).find(f => f.external_id === extId);
+      if (!f || !f.values) return false;
+      return f.values.some(v => {
+        const val = v.value || {};
+        const name = (val.name || val.text || '').toLowerCase();
+        const uid = val.user_id || val.id || val.profile_id;
+        return name.includes('quentin') || name.includes('spencer') || uid === QUENTIN_ID;
+      });
+    });
+    S.items = filtered.map(parseItem);
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
-
-    if (S.items.length === 0) {
-      document.getElementById('cards-list').innerHTML = `
-        <div class="empty">
-          No projects found for Quentin Spencer.<br><br>
-          <small>This could mean the PM field mapping is wrong.<br>
-          Tap "Edit field mapping" and double-check which field stores the Project Manager.</small>
-        </div>`;
-    } else {
-      renderStats(); renderChips(); renderCards();
-    }
+    const banner = document.getElementById('dash-banner');
+    banner.style.display = 'block';
+    banner.textContent = `Found ${S.items.length} projects via name match on "${extId}"`;
+    renderStats(); renderChips(); renderCards();
   } catch(e) {
-    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}<br><br><small>Try signing out and back in.</small></div>`;
+    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`;
   } finally {
     document.getElementById('cards-loading').style.display = 'none';
   }
-}
-
-async function clientSideFilter() {
-  // Fetch up to 200 items and filter by name "Quentin Spencer" in the PM field
-  const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=200&offset=0`, {
-    headers: { Authorization: 'OAuth2 ' + S.token }
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
-  const allItems = data.items || [];
-  const pmExt = S.mapping.pm;
-  if (!pmExt) return allItems;
-
-  return allItems.filter(item => {
-    const f = (item.fields || []).find(f => f.external_id === pmExt);
-    if (!f || !f.values) return false;
-    return f.values.some(v => {
-      const val = v.value || {};
-      const name = (val.name || val.text || '').toLowerCase();
-      const uid = val.user_id || val.id || val.profile_id;
-      return name.includes('quentin') || name.includes('spencer') || uid === QUENTIN_USER_ID;
-    });
-  });
 }
 
 function getVal(item, extId) {
@@ -444,8 +448,21 @@ function getVal(item, extId) {
 }
 
 function parseItem(raw) {
-  const m = S.mapping;
-  return { id: raw.item_id, title: raw.title || getVal(raw, m.name) || ('Item #' + raw.item_id), address: getVal(raw, m.address), status: getVal(raw, m.status), date: getVal(raw, m.date), notes: getVal(raw, m.notes), raw };
+  // Try to find name/address/status/date/notes by common patterns since we don't have mapping here
+  const fields = raw.fields || [];
+  const get = (hints) => {
+    const f = fields.find(f => hints.some(h => f.label.toLowerCase().includes(h) || f.external_id.toLowerCase().includes(h)));
+    return f ? getVal(raw, f.external_id) : '';
+  };
+  return {
+    id: raw.item_id,
+    title: raw.title || get(['name','customer','client','title']) || ('Item #' + raw.item_id),
+    address: get(['address','addr','location','street']),
+    status: get(['status','stage','state','phase']),
+    date: get(['install','milestone','date','schedule']),
+    notes: get(['note','flag','comment','remark']),
+    raw
+  };
 }
 
 function badgeClass(s) {
@@ -483,7 +500,7 @@ function renderCards() {
   let items = S.items;
   if (S.filter !== 'All') items = items.filter(i => i.status === S.filter);
   if (q) items = items.filter(i => [i.title, i.address, i.status, i.notes].join(' ').toLowerCase().includes(q));
-  if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects match your search.</div>'; return; }
+  if (!items.length) { document.getElementById('cards-list').innerHTML = '<div class="empty">No projects found.</div>'; return; }
   document.getElementById('cards-list').innerHTML = items.map(item => `
     <div class="card" onclick="showDetail(${item.id})">
       <div class="card-top"><div class="card-name">${esc(item.title)}</div><span class="badge ${badgeClass(item.status)}">${esc(item.status)||'—'}</span></div>
@@ -509,7 +526,6 @@ function showDetail(itemId) {
     }
     return { label: f.label, val };
   }).filter(f => f.val);
-
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-header">
       <div class="detail-name">${esc(item.title)}</div>
@@ -519,7 +535,7 @@ function showDetail(itemId) {
       <div class="detail-section-title">Key details</div>
       ${item.address ? `<div class="detail-row"><span class="detail-key">Address</span><span class="detail-val">${esc(item.address)}</span></div>` : ''}
       ${item.date ? `<div class="detail-row"><span class="detail-key">Install / milestone</span><span class="detail-val">${esc(item.date)}</span></div>` : ''}
-      ${item.notes ? `<div class="detail-row"><span class="detail-key">Notes / flags</span><span class="detail-val">${esc(item.notes)}</span></div>` : ''}
+      ${item.notes ? `<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${esc(item.notes)}</span></div>` : ''}
       <div class="detail-row"><span class="detail-key">Podio ID</span><span class="detail-val">${item.id}</span></div>
     </div>
     <div class="detail-section">
@@ -533,10 +549,22 @@ function showDetail(itemId) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 loadPersist();
-populateAuthForm();
-if (S.token && Object.keys(S.mapping).length > 0) { discoverFields().then(() => saveMapping()); }
-else if (S.token) { discoverFields(); }
-else { showView('auth'); }
+document.getElementById('auth-user').value = DEFAULTS.user;
+document.getElementById('auth-pass').value = DEFAULTS.pass;
+document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
+
+if (S.token && S.pmField && S.pmFilterId) {
+  // Already have working config — go straight to dashboard
+  fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+    method: 'POST',
+    headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filters: { [S.pmField]: [S.pmFilterId] }, limit: 100, offset: 0, sort_by: 'last_edit_on', sort_desc: true })
+  }).then(r => r.json()).then(d => loadDashboard(d.items || [])).catch(() => showView('auth'));
+} else if (S.token) {
+  showInspector();
+} else {
+  showView('auth');
+}
 </script>
 </body>
 </html>
