@@ -97,26 +97,19 @@
   .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 0.875rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 14px; line-height: 1.6; }
-  .progress-bar-wrap { background: rgba(255,255,255,0.2); border-radius: 99px; height: 4px; margin-top: 10px; overflow: hidden; }
-  .progress-bar { background: white; height: 4px; border-radius: 99px; transition: width 0.3s; }
+  .progress-wrap { width: 200px; margin: 10px auto 0; background: rgba(0,0,0,0.1); border-radius: 99px; height: 4px; overflow: hidden; }
+  .progress-bar { height: 4px; background: var(--blue); border-radius: 99px; transition: width 0.3s; }
   .view { display: none; }
   .view.active { display: block; }
-  .field-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin: 0 0.75rem 0.625rem; overflow: hidden; }
-  .field-card-header { padding: 10px 14px; background: var(--bg2); border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .field-label { font-size: 13px; font-weight: 600; color: var(--text); }
-  .field-type-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--blue-light); color: var(--blue-dark); white-space: nowrap; }
-  .field-values { padding: 8px 14px; }
-  .value-row { padding: 4px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
-  .value-row:last-child { border-bottom: none; }
-  .value-label { color: var(--text3); font-size: 11px; }
-  .value-data { color: var(--text); font-family: monospace; font-size: 11px; word-break: break-all; }
-  .pm-highlight { border: 2px solid #27ae60 !important; }
-  .pm-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--green-light); color: var(--green-dark); }
-  .use-btn { font-size: 11px; padding: 5px 10px; border-radius: var(--radius); border: none; background: var(--blue); color: white; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .info-banner { border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.6; }
-  .info-blue { background: var(--blue-light); color: var(--blue-dark); border: 0.5px solid rgba(24,95,165,0.2); }
+  .info-banner { border-radius: var(--radius); margin: 0.75rem; padding: 10px 14px; font-size: 12px; line-height: 1.5; }
   .info-green { background: var(--green-light); color: var(--green-dark); border: 0.5px solid rgba(59,109,17,0.2); }
   .info-amber { background: var(--amber-light); color: var(--amber-dark); border: 0.5px solid rgba(186,117,23,0.2); }
+  .result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; gap: 8px; }
+  .result-row:last-child { border-bottom: none; }
+  .result-key { color: var(--text2); }
+  .result-val { color: var(--text); font-weight: 500; text-align: right; }
+  .result-val.success { color: var(--green-dark); }
+  .result-val.fail { color: #c0392b; }
 </style>
 </head>
 <body>
@@ -147,15 +140,13 @@
     </div>
   </div>
 
-  <!-- INSPECTOR (used first time to identify PM field) -->
-  <div id="view-inspector" class="view">
-    <div class="info-banner info-amber" style="margin-top:0.75rem;">
-      Find the field that shows <strong>Quentin Spencer</strong> and tap <strong>Use as PM field</strong>.
-    </div>
-    <div class="loading" id="inspector-loading" style="display:none;"><div class="spinner"></div>Loading sample item...</div>
-    <div id="inspector-fields"></div>
-    <div style="padding:0 0.75rem;margin-top:0.5rem;">
-      <button class="btn btn-secondary" onclick="logout()">Sign out</button>
+  <!-- DIAGNOSTIC VIEW -->
+  <div id="view-diag" class="view">
+    <div class="section" style="margin-top:0.75rem;">
+      <div class="section-title">Running diagnostics...</div>
+      <div id="diag-rows"></div>
+      <div class="msg msg-info" id="diag-msg" style="text-align:left;margin-top:0.75rem;"></div>
+      <button class="btn btn-secondary" style="margin-top:1rem;" onclick="logout()">Sign out</button>
     </div>
   </div>
 
@@ -174,14 +165,12 @@
       <div class="loading" id="cards-loading" style="display:none;">
         <div class="spinner"></div>
         <div id="loading-msg">Loading your projects...</div>
-        <div class="progress-bar-wrap" style="width:200px;margin:10px auto 0;">
-          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:5%;"></div></div>
       </div>
       <div id="cards-list"></div>
     </div>
     <div style="padding:0 0.75rem;margin-top:0.5rem;">
-      <button class="btn btn-secondary" style="font-size:12px;" onclick="showInspector()">Re-detect PM field</button>
+      <button class="btn btn-secondary" style="font-size:12px;" onclick="runDiagnostics()">Run diagnostics</button>
     </div>
   </div>
 
@@ -203,20 +192,26 @@ const DEFAULTS = {
   csec: 'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',
   appId: '29839792'
 };
-const QUENTIN_ID = 76946137;
+
+// Quentin Spencer's confirmed identifiers
+const QUENTIN = {
+  userId: 76946137,
+  pmItemId: 6        // Item ID 6 in the Project Managers app
+};
 
 let S = {
   token: null, appId: DEFAULTS.appId,
-  pmField: null, pmFilterId: null,
-  items: [], filter: 'All', totalCount: 0
+  pmField: null,     // external_id of the PM field in the projects app
+  pmFilterId: null,  // ID to filter by (item ID 6)
+  items: [], filter: 'All'
 };
 
 function persist() {
-  try { localStorage.setItem('aveyo_v9', JSON.stringify({ token: S.token, appId: S.appId, pmField: S.pmField, pmFilterId: S.pmFilterId })); } catch(e) {}
+  try { localStorage.setItem('aveyo_v10', JSON.stringify({ token: S.token, appId: S.appId, pmField: S.pmField, pmFilterId: S.pmFilterId })); } catch(e) {}
 }
 function loadPersist() {
   try {
-    const d = JSON.parse(localStorage.getItem('aveyo_v9') || '{}');
+    const d = JSON.parse(localStorage.getItem('aveyo_v10') || '{}');
     if (d.token) S.token = d.token;
     if (d.appId) S.appId = d.appId;
     if (d.pmField) S.pmField = d.pmField;
@@ -228,14 +223,23 @@ function showView(v) {
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('btn-logout').style.display = v !== 'auth' ? 'block' : 'none';
   document.getElementById('btn-refresh').style.display = v === 'dashboard' ? 'block' : 'none';
+  document.getElementById('header-sub').textContent = v === 'diag' ? 'Diagnostics' : v === 'dashboard' ? 'My projects' : 'Sign in';
 }
 function logout() {
-  S = { token: null, appId: DEFAULTS.appId, pmField: null, pmFilterId: null, items: [], filter: 'All', totalCount: 0 };
-  try { localStorage.removeItem('aveyo_v9'); } catch(e) {}
+  S = { token: null, appId: DEFAULTS.appId, pmField: null, pmFilterId: null, items: [], filter: 'All' };
+  try { localStorage.removeItem('aveyo_v10'); } catch(e) {}
   document.getElementById('auth-user').value = DEFAULTS.user;
   document.getElementById('auth-pass').value = DEFAULTS.pass;
   document.getElementById('auth-appid').value = DEFAULTS.appId;
   showView('auth');
+}
+
+function addDiagRow(label, value, status) {
+  const container = document.getElementById('diag-rows');
+  const row = document.createElement('div');
+  row.className = 'result-row';
+  row.innerHTML = `<span class="result-key">${esc(label)}</span><span class="result-val ${status || ''}">${esc(String(value))}</span>`;
+  container.appendChild(row);
 }
 
 async function connectPodio() {
@@ -255,128 +259,129 @@ async function connectPodio() {
     if (!data.access_token) throw new Error(data.error_description || 'Sign in failed');
     S.token = data.access_token; S.appId = appId;
     persist();
-    msg.className = 'msg msg-success'; msg.textContent = 'Signed in!';
-    await showInspector();
+    await runDiagnostics();
   } catch(e) {
     msg.className = 'msg msg-error'; msg.textContent = e.message;
     btn.disabled = false;
   }
 }
 
-async function showInspector() {
-  showView('inspector');
-  document.getElementById('inspector-loading').style.display = 'block';
-  document.getElementById('inspector-fields').innerHTML = '';
+async function runDiagnostics() {
+  showView('diag');
+  document.getElementById('diag-rows').innerHTML = '';
+  document.getElementById('diag-msg').textContent = 'Running...';
+
+  addDiagRow('App ID', S.appId, '');
+  addDiagRow('Quentin user ID', QUENTIN.userId, '');
+  addDiagRow('Quentin PM item ID', QUENTIN.pmItemId, '');
+
+  // Step 1: Auto-detect the PM field by scanning app fields
+  let pmField = S.pmField;
   try {
-    // Fetch several items to find one with a contact/PM field populated
-    const res = await fetch(`https://api.podio.com/item/app/${S.appId}/?limit=20&offset=0`, {
-      headers: { Authorization: 'OAuth2 ' + S.token }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
     const data = await res.json();
-    const items = data.items || [];
-    if (!items.length) throw new Error('No items found');
+    const fields = data.fields || [];
+    // Look for an app-reference field that likely references the PM app
+    const appFields = fields.filter(f => f.type === 'app' || f.type === 'contact' || f.type === 'member');
+    addDiagRow('App-type fields found', appFields.map(f => f.label).join(', ') || 'none', appFields.length ? 'success' : 'fail');
 
-    // Pick item with most fields
-    const item = items.reduce((best, cur) => (cur.fields||[]).length > (best.fields||[]).length ? cur : best, items[0]);
-    renderInspector(item);
-  } catch(e) {
-    document.getElementById('inspector-fields').innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`;
-  } finally {
-    document.getElementById('inspector-loading').style.display = 'none';
-  }
-}
-
-function renderInspector(item) {
-  const fields = (item.fields || []).filter(f => f.values && f.values.length);
-  let html = `<p style="font-size:12px;color:var(--text2);margin:0 0.75rem 0.5rem 0.75rem;">Sample: <strong>${esc(item.title || 'Item #' + item.item_id)}</strong></p>`;
-
-  fields.forEach(f => {
-    const rawJson = JSON.stringify(f.values).toLowerCase();
-    const looksLikeContact = f.type === 'contact' || f.type === 'member';
-    const hasQuentin = rawJson.includes('quentin') || rawJson.includes('spencer') || rawJson.includes(String(QUENTIN_ID));
-    const showBtn = looksLikeContact || hasQuentin;
-
-    // Build value rows
-    const rows = [];
-    f.values.forEach(v => {
-      const val = v.value;
-      if (!val) return;
-      if (typeof val === 'object') {
-        if (val.name) rows.push({ label: 'Name', data: val.name });
-        if (val.user_id) rows.push({ label: 'user_id', data: String(val.user_id) });
-        if (val.profile_id) rows.push({ label: 'profile_id', data: String(val.profile_id) });
-        if (val.id) rows.push({ label: 'id', data: String(val.id) });
-        if (val.start) rows.push({ label: 'Date', data: val.start.split(' ')[0] });
-        if (val.text) rows.push({ label: 'Text', data: val.text });
+    // Try to auto-pick the PM field
+    if (!pmField) {
+      const pmCandidate = appFields.find(f =>
+        f.label.toLowerCase().includes('project manager') ||
+        f.label.toLowerCase().includes('pm') ||
+        f.external_id.toLowerCase().includes('project-manager') ||
+        f.external_id.toLowerCase().includes('project_manager')
+      ) || appFields[0];
+      if (pmCandidate) {
+        pmField = pmCandidate.external_id;
+        addDiagRow('Auto-detected PM field', `${pmCandidate.label} (${pmField})`, 'success');
       } else {
-        rows.push({ label: 'Value', data: String(val) });
+        addDiagRow('PM field auto-detect', 'Not found', 'fail');
       }
-    });
-    if (!rows.length) return;
+    } else {
+      addDiagRow('PM field (saved)', pmField, 'success');
+    }
+  } catch(e) {
+    addDiagRow('App field fetch', 'Failed: ' + e.message, 'fail');
+  }
 
-    // Extract the best filter ID from this field
-    const firstVal = f.values[0] && f.values[0].value ? f.values[0].value : {};
-    const filterId = firstVal.profile_id || firstVal.user_id || firstVal.id || null;
+  if (!pmField) {
+    document.getElementById('diag-msg').textContent = 'Could not find PM field. Check your App ID.';
+    return;
+  }
 
-    html += `
-      <div class="field-card ${hasQuentin ? 'pm-highlight' : ''}">
-        <div class="field-card-header">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="field-label">${esc(f.label)}</span>
-            ${hasQuentin ? '<span class="pm-badge">Quentin found!</span>' : ''}
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-            <span class="field-type-badge">${esc(f.type)}</span>
-            ${showBtn ? `<button class="use-btn" onclick="selectPmField('${esc(f.external_id)}', ${filterId || 'null'}, '${esc(f.label)}')">Use as PM</button>` : ''}
-          </div>
-        </div>
-        <div class="field-values">
-          <div class="value-row"><div class="value-label">External ID</div><div class="value-data">${esc(f.external_id)}</div></div>
-          ${rows.map(r => `<div class="value-row"><div class="value-label">${esc(r.label)}</div><div class="value-data">${esc(r.data)}</div></div>`).join('')}
-        </div>
-      </div>`;
-  });
+  // Step 2: Try all candidate filter IDs including item ID 6
+  const candidates = [
+    { id: QUENTIN.pmItemId, label: 'PM item ID 6' },
+    { id: QUENTIN.userId, label: 'User ID 76946137' }
+  ];
 
-  document.getElementById('inspector-fields').innerHTML = html;
-}
+  let workingField = null;
+  let workingId = null;
+  let workingCount = 0;
 
-async function selectPmField(extId, filterId, label) {
-  S.pmField = extId;
-  // Try all possible IDs
-  const candidates = [...new Set([filterId, QUENTIN_ID].filter(Boolean))];
-  let found = false;
-
-  for (const id of candidates) {
+  for (const candidate of candidates) {
     try {
+      document.getElementById('diag-msg').textContent = `Testing filter: ${candidate.label}...`;
       const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
         method: 'POST',
         headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filters: { [extId]: [id] }, limit: 1, offset: 0 })
+        body: JSON.stringify({ filters: { [pmField]: [candidate.id] }, limit: 1, offset: 0 })
       });
       const data = await res.json();
-      if (data.total !== undefined && data.total > 0) {
-        S.pmFilterId = id;
-        S.totalCount = data.total;
-        persist();
-        found = true;
-        break;
-      } else if (data.items && data.items.length > 0) {
-        S.pmFilterId = id;
-        persist();
-        found = true;
-        break;
+      const count = data.total || (data.items || []).length;
+      addDiagRow(`Filter by ${candidate.label}`, count + ' projects found', count > 0 ? 'success' : 'fail');
+      if (count > 0 && !workingId) {
+        workingField = pmField;
+        workingId = candidate.id;
+        workingCount = count;
       }
-    } catch(e) { console.warn('selectPmField attempt failed:', e); }
+    } catch(e) {
+      addDiagRow(`Filter by ${candidate.label}`, 'Error: ' + e.message, 'fail');
+    }
   }
 
-  if (!found) {
-    // Still use whatever we have and let loadAllProjects try
-    S.pmFilterId = filterId || QUENTIN_ID;
+  // Step 3: If nothing worked, try all app-type fields with item ID 6
+  if (!workingId) {
+    try {
+      const res = await fetch(`https://api.podio.com/app/${S.appId}`, { headers: { Authorization: 'OAuth2 ' + S.token } });
+      const data = await res.json();
+      const allFields = (data.fields || []).filter(f => f.type === 'app' || f.type === 'contact' || f.type === 'member');
+      for (const f of allFields) {
+        for (const cid of [QUENTIN.pmItemId, QUENTIN.userId]) {
+          try {
+            const r2 = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
+              method: 'POST',
+              headers: { Authorization: 'OAuth2 ' + S.token, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filters: { [f.external_id]: [cid] }, limit: 1, offset: 0 })
+            });
+            const d2 = await r2.json();
+            const count = d2.total || (d2.items || []).length;
+            if (count > 0) {
+              workingField = f.external_id;
+              workingId = cid;
+              workingCount = count;
+              addDiagRow(`Found match!`, `Field "${f.label}" + ID ${cid} = ${count} projects`, 'success');
+              break;
+            }
+          } catch(e) {}
+        }
+        if (workingId) break;
+      }
+    } catch(e) {}
+  }
+
+  if (workingField && workingId) {
+    S.pmField = workingField;
+    S.pmFilterId = workingId;
     persist();
+    document.getElementById('diag-msg').textContent = `✓ Found ${workingCount} projects! Loading dashboard...`;
+    setTimeout(() => loadAllProjects(), 1000);
+  } else {
+    document.getElementById('diag-msg').textContent = 'Could not find matching projects. See results above for clues.';
+    addDiagRow('Result', 'No matching filter found', 'fail');
   }
-
-  await loadAllProjects();
 }
 
 async function loadAllProjects() {
@@ -384,23 +389,17 @@ async function loadAllProjects() {
   document.getElementById('cards-loading').style.display = 'block';
   document.getElementById('cards-list').innerHTML = '';
   document.getElementById('header-sub').textContent = 'Loading...';
-  document.getElementById('progress-bar').style.width = '5%';
-
-  if (!S.pmField || !S.pmFilterId) {
-    document.getElementById('cards-loading').style.display = 'none';
-    document.getElementById('cards-list').innerHTML = '<div class="empty">PM field not set. Tap "Re-detect PM field".</div>';
-    return;
-  }
 
   try {
     let all = [];
     let offset = 0;
     const limit = 100;
-    let total = S.totalCount || 999;
+    let total = null;
 
     while (true) {
-      document.getElementById('loading-msg').textContent = `Loading projects... (${all.length}${total < 999 ? ' of ' + total : ''})`;
-      document.getElementById('progress-bar').style.width = total < 999 ? Math.round((all.length / total) * 100) + '%' : '50%';
+      const loaded = all.length;
+      document.getElementById('loading-msg').textContent = `Loading projects... (${loaded}${total ? ' of ' + total : ''})`;
+      if (total) document.getElementById('progress-bar').style.width = Math.min(95, Math.round((loaded / total) * 100)) + '%';
 
       const res = await fetch(`https://api.podio.com/item/app/${S.appId}/filter/`, {
         method: 'POST',
@@ -415,33 +414,27 @@ async function loadAllProjects() {
 
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-
-      if (data.total) { total = data.total; S.totalCount = total; }
+      if (data.total && !total) total = data.total;
       const batch = data.items || [];
       all = all.concat(batch);
-
-      if (batch.length < limit || all.length >= total) break;
+      if (batch.length < limit || (total && all.length >= total)) break;
       offset += limit;
     }
 
     document.getElementById('progress-bar').style.width = '100%';
     S.items = all.map(parseItem);
     document.getElementById('header-sub').textContent = S.items.length + ' projects';
-
-    const info = document.getElementById('dash-info');
-    info.textContent = `${S.items.length} projects managed by Quentin Spencer`;
-
+    document.getElementById('dash-info').textContent = `${S.items.length} projects — Quentin Spencer (PM)`;
     renderStats(); renderChips(); renderCards();
   } catch(e) {
-    document.getElementById('cards-list').innerHTML = `<div class="empty">Error loading projects: ${esc(e.message)}<br><br><small>Try signing out and back in.</small></div>`;
+    document.getElementById('cards-list').innerHTML = `<div class="empty">Error: ${esc(e.message)}<br><br><small>Try "Run diagnostics" below.</small></div>`;
   } finally {
     document.getElementById('cards-loading').style.display = 'none';
   }
 }
 
 function getVal(item, hints) {
-  const fields = item.fields || [];
-  const f = fields.find(f => hints.some(h => f.label.toLowerCase().includes(h) || f.external_id.toLowerCase().includes(h)));
+  const f = (item.fields || []).find(f => hints.some(h => f.label.toLowerCase().includes(h) || f.external_id.toLowerCase().includes(h)));
   if (!f || !f.values || !f.values.length) return '';
   const v = f.values[0];
   if (v.value !== undefined) {
@@ -454,7 +447,7 @@ function getVal(item, hints) {
 function parseItem(raw) {
   return {
     id: raw.item_id,
-    title: raw.title || getVal(raw, ['name','customer','client','title']) || ('Item #' + raw.item_id),
+    title: raw.title || getVal(raw, ['name','customer','client']) || ('Item #' + raw.item_id),
     address: getVal(raw, ['address','addr','location','street','city']),
     status: getVal(raw, ['status','stage','state','phase','step']),
     date: getVal(raw, ['install','milestone','date','schedule','completion']),
@@ -555,7 +548,7 @@ document.getElementById('auth-appid').value = S.appId || DEFAULTS.appId;
 if (S.token && S.pmField && S.pmFilterId) {
   loadAllProjects();
 } else if (S.token) {
-  showInspector();
+  runDiagnostics();
 } else {
   showView('auth');
 }
