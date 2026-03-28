@@ -12,8 +12,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
 @media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#262624;--bg3:#2e2e2b;--text:#f0efea;--text2:#a8a79f;--text3:#6e6d67;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);--blue-light:#0c3d6b;--blue-dark:#90c4f0;--green-light:#1a3a0a;--green-dark:#a8d870;--amber-light:#3d2a05;--amber-dark:#f5c060;--red-light:#3d1010;--red-dark:#f09090;--purple-light:#26215C;--purple-dark:#AFA9EC;--teal-light:#04342C;--teal-dark:#5DCAA5;--pink-light:#4B1528;--pink-dark:#ED93B1;--gray-light:#2e2e2b;--gray-dark:#c8c7bf}}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
-#app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:5rem}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;overflow-x:hidden}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:5rem;position:relative}
 .hdr{background:var(--blue);color:#fff;padding:1rem 1rem .875rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
 .hdr-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-logo svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
@@ -28,6 +28,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bnav-btn span{font-size:10px;color:var(--text3);font-weight:500}
 .bnav-btn.active svg{stroke:var(--blue)}
 .bnav-btn.active span{color:var(--blue)}
+/* Auth */
 .section-card{background:var(--bg);border-radius:var(--radius-lg);margin:.75rem;padding:1.25rem;border:.5px solid var(--border)}
 .field{margin-bottom:.875rem}
 .field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
@@ -40,15 +41,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-outline{background:transparent;color:var(--blue);border:.5px solid var(--blue);margin-top:8px}
 .msg{font-size:12px;text-align:center;margin-top:8px;min-height:18px}
 .msg-error{color:#c0392b}.msg-success{color:#27ae60}.msg-info{color:var(--text2)}
+/* Home widgets */
 .sec-label{font-size:13px;font-weight:700;color:var(--text);padding:1rem .75rem .5rem;letter-spacing:.01em}
 .wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 .75rem .5rem}
-.w{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
-.w-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;line-height:1.4}
+.w{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;cursor:pointer;transition:border-color .15s,transform .1s;position:relative;overflow:hidden}
+.w:active{border-color:var(--blue);transform:scale(.98)}
+.w.clickable::after{content:'›';position:absolute;top:50%;right:12px;transform:translateY(-50%);font-size:18px;color:var(--text3);pointer-events:none}
+.w-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;line-height:1.4;padding-right:16px}
 .w-num{font-size:36px;font-weight:700;line-height:1}
 .w-num.blue{color:var(--blue)}.w-num.green{color:#3B6D11}.w-num.amber{color:var(--amber-dark)}.w-num.red{color:#A32D2D}.w-num.def{color:var(--text)}
 .w-spin{display:inline-block;width:22px;height:22px;border:2.5px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-top:4px}
-.w-wide{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);margin:0 .75rem .5rem;padding:1rem}
-.w-wide .w-title{margin-bottom:6px}
+.w-wide{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);margin:0 .75rem .5rem;padding:1rem;cursor:pointer;transition:border-color .15s;position:relative}
+.w-wide:active{border-color:var(--blue)}
+.w-wide.clickable::after{content:'›';position:absolute;top:50%;right:14px;transform:translateY(-50%);font-size:18px;color:var(--text3)}
+.w-wide .w-title{margin-bottom:6px;padding-right:20px}
+/* Search */
 .search-wrap{margin:.75rem}
 .search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:.5px solid var(--border2);border-radius:var(--radius-lg);padding:10px 14px}
 .search-box svg{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0}
@@ -58,6 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .chips::-webkit-scrollbar{display:none}
 .chip{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:99px;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit}
 .chip.active{color:#fff;border-color:transparent}
+/* Cards */
 .cards{padding:0 .75rem}
 .card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.125rem;margin-bottom:.625rem;cursor:pointer}
 .card:active{border-color:var(--blue)}
@@ -70,6 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .meta svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
 .meta.warn{color:var(--amber-dark);font-weight:500}
 .card-note{font-size:11px;color:var(--text2);background:var(--bg2);border-radius:var(--radius);padding:6px 8px;margin-top:7px;line-height:1.5;border-left:2px solid var(--blue)}
+/* Badges */
 .badge{font-size:11px;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;font-weight:600}
 .ms-packet{background:var(--purple-light);color:var(--purple-dark)}
 .ms-survey{background:var(--amber-light);color:var(--amber-dark)}
@@ -82,6 +91,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ms-complete{background:var(--green-light);color:var(--green-dark)}
 .ms-hold,.ms-cancel{background:var(--red-light);color:var(--red-dark)}
 .ms-default{background:var(--gray-light);color:var(--gray-dark)}
+/* Collapsible */
 .collapsible{background:var(--bg);border-radius:var(--radius-lg);margin:0 .75rem .625rem;border:.5px solid var(--border);overflow:hidden}
 .coll-hdr{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;cursor:pointer;user-select:none}
 .coll-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
@@ -103,12 +113,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ts-assigned{background:var(--amber-light);color:var(--amber-dark)}
 .ts-open{background:var(--blue-light);color:var(--blue-dark)}
 .notes-body{padding:.875rem 1rem;font-size:13px;line-height:1.6;color:var(--text2)}
-.detail-back{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--blue);cursor:pointer;margin:.75rem;font-weight:500}
-.detail-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+/* Back button */
+.back-bar{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--blue);cursor:pointer;margin:.75rem;font-weight:500}
+.back-bar svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+/* Detail */
 .detail-hdr{margin:0 .75rem .75rem}
 .detail-id{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.04em;margin-bottom:3px}
 .detail-name{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
 .detail-addr{font-size:13px;color:var(--text2);margin-bottom:8px}
+/* Loading */
 .loading{text-align:center;padding:3rem 1rem;color:var(--text2);font-size:14px}
 .spinner{width:28px;height:28px;border:2.5px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .875rem}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -116,7 +129,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .progress-wrap{width:200px;margin:10px auto 0;background:rgba(0,0,0,.1);border-radius:99px;height:4px;overflow:hidden}
 .progress-bar{height:4px;background:var(--blue);border-radius:99px;transition:width .3s}
 .rate-msg{background:var(--amber-light);color:var(--amber-dark);border-radius:var(--radius);padding:.75rem 1rem;margin:.75rem;font-size:12px;line-height:1.5;text-align:center}
+/* Views */
 .view{display:none}.view.active{display:block}
+/* Widget list view header */
+.wl-header{background:var(--bg);border-bottom:.5px solid var(--border);padding:.875rem 1rem;position:sticky;top:57px;z-index:50}
+.wl-title{font-size:15px;font-weight:700;color:var(--text)}
+.wl-count{font-size:12px;color:var(--text3);margin-top:2px}
 </style>
 </head>
 <body>
@@ -131,6 +149,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- AUTH -->
   <div id="view-auth" class="view active">
     <div class="section-card" style="margin-top:.75rem">
       <div style="font-size:14px;font-weight:600;margin-bottom:.875rem">Sign in to Podio</div>
@@ -141,8 +160,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- HOME DASHBOARD -->
   <div id="view-home" class="view"><div id="home-content"></div></div>
 
+  <!-- WIDGET PROJECT LIST (clicking a home widget) -->
+  <div id="view-wlist" class="view">
+    <div class="back-bar" onclick="goBack('home')">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>Back to Dashboard
+    </div>
+    <div class="wl-header">
+      <div class="wl-title" id="wl-title">Loading...</div>
+      <div class="wl-count" id="wl-count"></div>
+    </div>
+    <div class="cards" style="padding-top:.75rem">
+      <div class="loading" id="wl-loading"><div class="spinner"></div>Loading projects...</div>
+      <div id="wl-list"></div>
+    </div>
+  </div>
+
+  <!-- MY PROJECTS LIST -->
   <div id="view-projects" class="view">
     <div class="search-wrap" style="margin-top:.75rem">
       <div class="search-box">
@@ -159,13 +195,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="padding:0 .75rem;margin-top:.5rem"><button class="btn btn-secondary" style="font-size:12px" onclick="logout()">Sign out</button></div>
   </div>
 
+  <!-- PROJECT DETAIL -->
   <div id="view-detail" class="view">
-    <div class="detail-back" onclick="showView('projects')">
-      <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>Back to projects
+    <div class="back-bar" id="detail-back-btn" onclick="goBackFromDetail()">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg><span id="detail-back-label">Back</span>
     </div>
     <div id="detail-body"></div>
   </div>
 
+  <!-- BOTTOM NAV -->
   <div class="bnav" id="bnav" style="display:none">
     <button class="bnav-btn active" id="nav-home" onclick="switchTab('home')">
       <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
@@ -179,8 +217,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const PODIO={appId:'29839792',viewId:'61731109',cid:'google-sheets-sync-kqxsb2',csec:'WSRPgu0EuzhzTpvkVzfygSnmSZRmqnfYH8rfQJY4dHbDG7DFdgQ1mldX2nV3cAKo',user:'q.spencer@aveyo.com',pass:'Clippers332!'};
 
-// Widgets in order — sequential fetch to avoid rate limiting
-// [label, appId, viewId, warnAt, dangerAt, isWide, sectionHeader|null]
+// [label, appId, viewId, warnAt, dangerAt, isWide, sectionHeader]
 const WW=[
   ['My Total Projects',         29839792,61731109,999,9999,false,'Projects'],
   ['Pipeline Review Not Set',   29839792,61743306,1,3,    false,null],
@@ -203,36 +240,54 @@ const WW=[
   ['Roof Review Needed',        29839741,61743345,1,3,    false,'Roof Work'],
 ];
 
-const CACHE_TTL=10*60*1000; // 10 min
+const CACHE_TTL=10*60*1000;
 let CACHE={};
-let S={token:null,items:[],filter:'All',currentTab:'home'};
+let S={token:null,items:[],filter:'All',currentTab:'home',prevView:'home',wlistItems:[],wlistLabel:''};
 
-function persist(){try{localStorage.setItem('aveyo_v19',JSON.stringify({token:S.token}));}catch(e){}}
-function loadPersist(){try{const d=JSON.parse(localStorage.getItem('aveyo_v19')||'{}');if(d.token)S.token=d.token;}catch(e){}}
+function persist(){try{localStorage.setItem('aveyo_v20',JSON.stringify({token:S.token}));}catch(e){}}
+function loadPersist(){try{const d=JSON.parse(localStorage.getItem('aveyo_v20')||'{}');if(d.token)S.token=d.token;}catch(e){}}
 
-function showView(v){
+function showView(v,updateNav=true){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.getElementById('btn-logout').style.display=v!=='auth'?'block':'none';
   document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects')?'block':'none';
   document.getElementById('bnav').style.display=v!=='auth'?'flex':'none';
-  const subs={home:'Dashboard',projects:'My Projects',detail:'Project Detail',auth:'Sign In'};
+  const subs={home:'Dashboard',projects:'My Projects',detail:'Project Detail',wlist:S.wlistLabel||'Projects',auth:'Sign In'};
   document.getElementById('hdr-sub').textContent=subs[v]||'';
+  if(updateNav&&(v==='home'||v==='projects')){
+    document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('nav-'+v).classList.add('active');
+  }
 }
+
 function switchTab(tab){
   S.currentTab=tab;
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+tab).classList.add('active');
-  if(tab==='home'){showView('home');loadHome();}
-  else if(tab==='projects'){showView('projects');if(!S.items.length)loadProjects();}
+  if(tab==='home'){showView('home',false);loadHome();}
+  else if(tab==='projects'){showView('projects',false);if(!S.items.length)loadProjects();}
 }
+
+function goBack(to){
+  if(to==='home'){showView('home',false);document.getElementById('nav-home').classList.add('active');document.getElementById('nav-projects').classList.remove('active');}
+  else showView(to,false);
+}
+
+function goBackFromDetail(){
+  showView(S.prevView,false);
+  if(S.prevView==='projects'){document.getElementById('nav-projects').classList.add('active');document.getElementById('nav-home').classList.remove('active');}
+  else if(S.prevView==='home'){document.getElementById('nav-home').classList.add('active');document.getElementById('nav-projects').classList.remove('active');}
+  else if(S.prevView==='wlist'){/* keep nav as-is */}
+}
+
 function onRefresh(){
   if(S.currentTab==='home'){CACHE={};document.getElementById('cache-label').textContent='';loadHome();}
   else{S.items=[];loadProjects();}
 }
 function logout(){
-  S={token:null,items:[],filter:'All',currentTab:'home'};CACHE={};
-  try{localStorage.removeItem('aveyo_v19');}catch(e){}
+  S={token:null,items:[],filter:'All',currentTab:'home',prevView:'home',wlistItems:[],wlistLabel:''};CACHE={};
+  try{localStorage.removeItem('aveyo_v20');}catch(e){}
   document.getElementById('cache-label').textContent='';
   document.getElementById('auth-user').value=PODIO.user;
   document.getElementById('auth-pass').value=PODIO.pass;
@@ -241,15 +296,16 @@ function logout(){
 async function connectPodio(){
   const user=document.getElementById('auth-user').value.trim();
   const pass=document.getElementById('auth-pass').value;
-  const msg=document.getElementById('auth-msg');
-  const btn=document.getElementById('btn-connect');
+  const msg=document.getElementById('auth-msg');const btn=document.getElementById('btn-connect');
   msg.className='msg msg-info';msg.textContent='Signing in...';btn.disabled=true;
   try{
     const res=await fetch('https://podio.com/oauth/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'password',username:user,password:pass,client_id:PODIO.cid,client_secret:PODIO.csec})});
     const data=await res.json();
     if(!data.access_token)throw new Error(data.error_description||'Sign in failed');
     S.token=data.access_token;persist();
-    showView('home');document.getElementById('bnav').style.display='flex';loadHome();
+    showView('home');document.getElementById('bnav').style.display='flex';
+    document.getElementById('nav-home').classList.add('active');document.getElementById('nav-projects').classList.remove('active');
+    loadHome();
   }catch(e){msg.className='msg msg-error';msg.textContent=e.message;btn.disabled=false;}
 }
 
@@ -260,13 +316,8 @@ function toCache(a,v,count){CACHE[cKey(a,v)]={count,ts:Date.now()};}
 function numColor(n,w,d){if(n==='—')return 'def';if(n>=d)return 'red';if(n>=w)return 'amber';if(n===0)return 'green';return 'blue';}
 
 async function fetchOneCount(appId,viewId){
-  // Returns {count, rateLimit}
   try{
-    const res=await fetch(`https://api.podio.com/item/app/${appId}/filter/${viewId}/`,{
-      method:'POST',
-      headers:{Authorization:'OAuth2 '+S.token,'Content-Type':'application/json'},
-      body:JSON.stringify({limit:1,offset:0})
-    });
+    const res=await fetch(`https://api.podio.com/item/app/${appId}/filter/${viewId}/`,{method:'POST',headers:{Authorization:'OAuth2 '+S.token,'Content-Type':'application/json'},body:JSON.stringify({limit:1,offset:0})});
     const data=await res.json();
     if(data.error==='rate_limit')return{count:'—',rateLimit:true};
     if(!res.ok)return{count:'—'};
@@ -276,26 +327,38 @@ async function fetchOneCount(appId,viewId){
   }catch(e){return{count:'—'};}
 }
 
+// Fetch all items from a view (for widget click)
+async function fetchViewItems(appId,viewId){
+  let all=[],offset=0,total=null;
+  while(true){
+    const res=await fetch(`https://api.podio.com/item/app/${appId}/filter/${viewId}/`,{method:'POST',headers:{Authorization:'OAuth2 '+S.token,'Content-Type':'application/json'},body:JSON.stringify({limit:100,offset,sort_by:'last_edit_on',sort_desc:true})});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error==='rate_limit'?'Rate limit — wait ~1 hour':'HTTP '+res.status);}
+    const data=await res.json();
+    if(data.filtered!==undefined&&total===null)total=data.filtered;
+    else if(data.total!==undefined&&total===null)total=data.total;
+    const batch=data.items||[];
+    all=all.concat(batch);
+    if(batch.length<100||(total!==null&&all.length>=total))break;
+    offset+=100;
+  }
+  return all;
+}
+
 function renderShell(){
   const c=document.getElementById('home-content');
-  let html='';
-  let lastSection='';
-  let gridOpen=false;
+  let html='';let lastSection='';let gridOpen=false;
   for(const [label,appId,viewId,w,d,isWide,section] of WW){
     const cached=fromCache(appId,viewId);
     const numHtml=cached!==null?`<div class="w-num ${numColor(cached,w,d)}">${cached}</div>`:`<div class="w-spin"></div>`;
-    if(section&&section!==lastSection){
-      if(gridOpen){html+='</div>';gridOpen=false;}
-      html+=`<div class="sec-label">${section}</div>`;
-      lastSection=section;
-    }
+    if(section&&section!==lastSection){if(gridOpen){html+='</div>';gridOpen=false;}html+=`<div class="sec-label">${section}</div>`;lastSection=section;}
     const key=cKey(appId,viewId);
+    const clickable='clickable';
     if(isWide){
       if(gridOpen){html+='</div>';gridOpen=false;}
-      html+=`<div class="w-wide" id="wd_${key}"><div class="w-title">${label}</div>${numHtml}</div>`;
+      html+=`<div class="w-wide ${clickable}" id="wd_${key}" onclick="openWidgetList(${JSON.stringify(label)},${appId},${viewId})"><div class="w-title">${label}</div>${numHtml}</div>`;
     }else{
       if(!gridOpen){html+='<div class="wgrid">';gridOpen=true;}
-      html+=`<div class="w" id="wd_${key}"><div class="w-title">${label}</div>${numHtml}</div>`;
+      html+=`<div class="w ${clickable}" id="wd_${key}" onclick="openWidgetList(${JSON.stringify(label)},${appId},${viewId})"><div class="w-title">${label}</div>${numHtml}</div>`;
     }
   }
   if(gridOpen)html+='</div>';
@@ -304,60 +367,111 @@ function renderShell(){
 }
 
 function setWidgetNum(appId,viewId,count,w,d){
-  const el=document.getElementById('wd_'+cKey(appId,viewId));
-  if(!el)return;
-  const spinner=el.querySelector('.w-spin');
-  const existing=el.querySelector('.w-num');
+  const el=document.getElementById('wd_'+cKey(appId,viewId));if(!el)return;
+  const spinner=el.querySelector('.w-spin');const existing=el.querySelector('.w-num');
   const color=count==='—'?'def':numColor(count,w,d);
-  const numEl=document.createElement('div');
-  numEl.className='w-num '+color;
-  numEl.textContent=count;
-  if(spinner)spinner.replaceWith(numEl);
-  else if(existing)existing.replaceWith(numEl);
+  const numEl=document.createElement('div');numEl.className='w-num '+color;numEl.textContent=count;
+  if(spinner)spinner.replaceWith(numEl);else if(existing)existing.replaceWith(numEl);
 }
-
 function updateCacheLabel(){
   const ts=Object.values(CACHE).map(c=>c.ts);
   if(!ts.length){document.getElementById('cache-label').textContent='';return;}
   const ago=Math.round((Date.now()-Math.min(...ts))/60000);
   document.getElementById('cache-label').textContent=ago<1?'just loaded':`cached ${ago}m ago`;
 }
-
 async function loadHome(){
-  showView('home');
-  renderShell(); // Show immediately with spinners for uncached items
-
+  showView('home',false);
+  renderShell();
   const allCached=WW.every(([,a,v])=>fromCache(a,v)!==null);
   if(allCached){updateCacheLabel();return;}
-
   let rateLimited=false;
   for(const [label,appId,viewId,w,d] of WW){
-    if(fromCache(appId,viewId)!==null){
-      setWidgetNum(appId,viewId,fromCache(appId,viewId),w,d);
-      continue;
-    }
+    if(fromCache(appId,viewId)!==null){setWidgetNum(appId,viewId,fromCache(appId,viewId),w,d);continue;}
     if(rateLimited){setWidgetNum(appId,viewId,'—',w,d);continue;}
-    const {count,rateLimit}=await fetchOneCount(appId,viewId);
+    const{count,rateLimit}=await fetchOneCount(appId,viewId);
     setWidgetNum(appId,viewId,count,w,d);
     if(rateLimit){
       rateLimited=true;
-      // Show rate limit warning
       const warn=document.createElement('div');
       warn.className='rate-msg';
-      warn.textContent='⚠️ Podio rate limit reached. Some counts show — . Wait ~1 hour then tap Refresh.';
-      const hc=document.getElementById('home-content');
-      hc.insertBefore(warn,hc.firstChild);
+      warn.textContent='⚠️ Podio rate limit reached. Some counts show —. Wait ~1 hour then tap Refresh.';
+      const hc=document.getElementById('home-content');hc.insertBefore(warn,hc.firstChild);
       continue;
     }
-    await delay(350); // 350ms between each request = ~170 req/hr, safely under 250 limit
+    await delay(350);
   }
   updateCacheLabel();
 }
 
-// ── PROJECTS ──
+// ── WIDGET CLICK → PROJECT LIST ─────────────────────────
+async function openWidgetList(label,appId,viewId){
+  S.wlistLabel=label;
+  S.prevView='home';
+  document.getElementById('wl-title').textContent=label;
+  document.getElementById('wl-count').textContent='';
+  document.getElementById('wl-loading').style.display='block';
+  document.getElementById('wl-list').innerHTML='';
+  showView('wlist',false);
+  // Keep home active in nav
+  document.getElementById('nav-home').classList.add('active');
+  document.getElementById('nav-projects').classList.remove('active');
+
+  try{
+    const raw=await fetchViewItems(appId,viewId);
+    const items=raw.map(parseItem);
+    S.wlistItems=items;
+    document.getElementById('wl-count').textContent=`${items.length} project${items.length!==1?'s':''}`;
+    document.getElementById('wl-loading').style.display='none';
+    if(!items.length){document.getElementById('wl-list').innerHTML='<div class="empty">No projects in this view.</div>';return;}
+    document.getElementById('wl-list').innerHTML=items.map(item=>cardHtml(item,'wlist')).join('');
+  }catch(e){
+    document.getElementById('wl-loading').style.display='none';
+    document.getElementById('wl-list').innerHTML=`<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+// ── PROJECT DETAIL ───────────────────────────────────────
+function showDetailFrom(itemId,fromView){
+  // Find item in either S.items or S.wlistItems
+  const item=S.items.find(i=>i.id===itemId)||S.wlistItems.find(i=>i.id===itemId);
+  if(!item)return;
+  S.prevView=fromView;
+  const backLabels={home:'Dashboard',projects:'My Projects',wlist:S.wlistLabel};
+  document.getElementById('detail-back-label').textContent=backLabels[fromView]||'Back';
+  buildDetailBody(item);
+  showView('detail',false);
+  if(fromView==='projects'){document.getElementById('nav-projects').classList.add('active');document.getElementById('nav-home').classList.remove('active');}
+  else if(fromView==='wlist'||fromView==='home'){document.getElementById('nav-home').classList.add('active');document.getElementById('nav-projects').classList.remove('active');}
+}
+
+// ── FIELD PARSERS ────────────────────────────────────────
 const F={status:266489985,milestoneStatus:269930958,lastReview:275467370,notes:275751845,fundingStatus:268433601,lender:266828352,financeType:274492780,daysSince:276204428,projectComments:266495555,workOrders:266494683,repTicketsList:267693531};
+function fv(item,fid){const f=(item.fields||[]).find(f=>f.field_id===fid);if(!f||!f.values||!f.values.length)return '';const v=f.values[0];if(v.value&&v.value.text)return v.value.text;if(v.start_date)return v.start_date;if(v.start)return v.start.split(' ')[0];if(v.value!==undefined){if(typeof v.value==='object'&&v.value!==null)return v.value.text||v.value.name||'';return String(v.value);}return v.text||'';}
+function fnum(item,fid){const f=(item.fields||[]).find(f=>f.field_id===fid);if(!f||!f.values||!f.values.length)return null;const v=f.values[0];if(v.value!==undefined)return Math.round(parseFloat(v.value));return null;}
+function stripHtml(h){return(h||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();}
+function parseTitle(t){const m=(t||'').match(/^(#\S+)\s+(.+?)\s+-\s+(.+)$/);if(m)return{projectNum:m[1],name:m[2],address:m[3]};return{projectNum:'',name:t||'',address:''};}
+function parseItem(raw){const{projectNum,name,address}=parseTitle(raw.title);return{id:raw.item_id,projectNum,name,address,title:raw.title||'',status:fv(raw,F.status),milestoneStatus:fv(raw,F.milestoneStatus),lastReview:fv(raw,F.lastReview),notes:stripHtml(fv(raw,F.notes)),fundingStatus:fv(raw,F.fundingStatus),lender:fv(raw,F.lender),financeType:fv(raw,F.financeType),daysSince:fnum(raw,F.daysSince),comments:fv(raw,F.projectComments),workOrders:fv(raw,F.workOrders),repTickets:fv(raw,F.repTicketsList),raw};}
+function msClass(ms){if(!ms)return 'ms-default';const s=ms.toLowerCase();if(s.includes('packet'))return 'ms-packet';if(s.includes('survey'))return 'ms-survey';if(s.includes('design'))return 'ms-design';if(s==='ntp')return 'ms-ntp';if(s.includes('scope'))return 'ms-scope';if(s.includes('utility'))return 'ms-utility';if(s.includes('permit'))return 'ms-permit';if(s.includes('install ready'))return 'ms-install';if(s.includes('install'))return 'ms-install';if(s.includes('inspect'))return 'ms-inspect';if(s.includes('pto'))return 'ms-pto';if(s.includes('complet')||s.includes('done'))return 'ms-complete';if(s.includes('hold'))return 'ms-hold';if(s.includes('cancel'))return 'ms-cancel';if(s.includes('hoa'))return 'ms-survey';return 'ms-default';}
+const MS_COLORS={'Packet Approval':'#7F77DD','Site Survey':'#BA7517','Design':'#D4537E','NTP':'#185FA5','Scope of Work':'#185FA5','Utility Pre-Install Docs':'#1D9E75','Utility':'#1D9E75','Permits':'#BA7517','Permit':'#BA7517','Install Ready':'#185FA5','Install':'#185FA5','Inspection':'#534AB7','PTO':'#0F6E56','Complete':'#3B6D11','HOA Approval':'#BA7517','On Hold':'#A32D2D','Cancelled':'#A32D2D'};
+function chipColor(ms){const k=Object.keys(MS_COLORS).find(k=>ms&&ms.toLowerCase().includes(k.toLowerCase()));return k?MS_COLORS[k]:'#888780';}
+
+function cardHtml(item,fromView){
+  const warn=item.daysSince!==null&&item.daysSince>7;
+  return`<div class="card" onclick="showDetailFrom(${item.id},${JSON.stringify(fromView)})">
+    <div class="card-id">${esc(item.projectNum)}</div>
+    <div class="card-top"><div class="card-name">${esc(item.name)}</div><span class="badge ${msClass(item.milestoneStatus)}">${esc(item.milestoneStatus)||esc(item.status)||'—'}</span></div>
+    ${item.address?`<div class="card-addr">${esc(item.address)}</div>`:''}
+    <div class="card-meta">
+      ${item.lastReview?`<span class="meta ${warn?'warn':''}"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${esc(item.lastReview)}${item.daysSince!==null?' · '+item.daysSince+'d ago':''}</span>`:''}
+      ${item.lender?`<span class="meta"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${esc(item.lender)}</span>`:''}
+    </div>
+    ${item.notes?`<div class="card-note">${esc(item.notes.substring(0,140))}${item.notes.length>140?'...':''}</div>`:''}
+  </div>`;
+}
+
+// ── MY PROJECTS ──────────────────────────────────────────
 async function loadProjects(){
-  showView('projects');
+  showView('projects',false);
   document.getElementById('cards-loading').style.display='block';
   document.getElementById('cards-list').innerHTML='';
   document.getElementById('progress-bar').style.width='5%';
@@ -367,12 +481,11 @@ async function loadProjects(){
       document.getElementById('loading-msg').textContent=`Loading projects... (${all.length}${total?' of '+total:''})`;
       if(total)document.getElementById('progress-bar').style.width=Math.min(90,Math.round(all.length/total*100))+'%';
       const res=await fetch(`https://api.podio.com/item/app/${PODIO.appId}/filter/${PODIO.viewId}/`,{method:'POST',headers:{Authorization:'OAuth2 '+S.token,'Content-Type':'application/json'},body:JSON.stringify({limit:100,offset,sort_by:'last_edit_on',sort_desc:true})});
-      if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error==='rate_limit'?'Podio rate limit — wait ~1 hour then retry.':e.error_description||'HTTP '+res.status);}
+      if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error==='rate_limit'?'Rate limit — wait ~1 hour':e.error_description||'HTTP '+res.status);}
       const data=await res.json();
       if(data.filtered!==undefined&&total===null)total=data.filtered;
       else if(data.total!==undefined&&total===null)total=data.total;
-      const batch=data.items||[];
-      all=all.concat(batch);
+      const batch=data.items||[];all=all.concat(batch);
       if(batch.length<100||(total!==null&&all.length>=total))break;
       offset+=100;
     }
@@ -382,24 +495,18 @@ async function loadProjects(){
   }catch(e){document.getElementById('cards-list').innerHTML=`<div class="empty">${esc(e.message)}</div>`;}
   finally{document.getElementById('cards-loading').style.display='none';}
 }
-function fv(item,fid){const f=(item.fields||[]).find(f=>f.field_id===fid);if(!f||!f.values||!f.values.length)return '';const v=f.values[0];if(v.value&&v.value.text)return v.value.text;if(v.start_date)return v.start_date;if(v.start)return v.start.split(' ')[0];if(v.value!==undefined){if(typeof v.value==='object'&&v.value!==null)return v.value.text||v.value.name||'';return String(v.value);}return v.text||'';}
-function fnum(item,fid){const f=(item.fields||[]).find(f=>f.field_id===fid);if(!f||!f.values||!f.values.length)return null;const v=f.values[0];if(v.value!==undefined)return Math.round(parseFloat(v.value));return null;}
-function stripHtml(h){return(h||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();}
-function parseTitle(t){const m=(t||'').match(/^(#\S+)\s+(.+?)\s+-\s+(.+)$/);if(m)return{projectNum:m[1],name:m[2],address:m[3]};return{projectNum:'',name:t||'',address:''};}
-function parseItem(raw){const{projectNum,name,address}=parseTitle(raw.title);return{id:raw.item_id,projectNum,name,address,title:raw.title||'',status:fv(raw,F.status),milestoneStatus:fv(raw,F.milestoneStatus),lastReview:fv(raw,F.lastReview),notes:stripHtml(fv(raw,F.notes)),fundingStatus:fv(raw,F.fundingStatus),lender:fv(raw,F.lender),financeType:fv(raw,F.financeType),daysSince:fnum(raw,F.daysSince),comments:fv(raw,F.projectComments),workOrders:fv(raw,F.workOrders),repTickets:fv(raw,F.repTicketsList),raw};}
-function msClass(ms){if(!ms)return 'ms-default';const s=ms.toLowerCase();if(s.includes('packet'))return 'ms-packet';if(s.includes('survey'))return 'ms-survey';if(s.includes('design'))return 'ms-design';if(s==='ntp')return 'ms-ntp';if(s.includes('scope'))return 'ms-scope';if(s.includes('utility'))return 'ms-utility';if(s.includes('permit'))return 'ms-permit';if(s.includes('install ready'))return 'ms-install';if(s.includes('install'))return 'ms-install';if(s.includes('inspect'))return 'ms-inspect';if(s.includes('pto'))return 'ms-pto';if(s.includes('complet')||s.includes('done'))return 'ms-complete';if(s.includes('hold'))return 'ms-hold';if(s.includes('cancel'))return 'ms-cancel';if(s.includes('hoa'))return 'ms-survey';return 'ms-default';}
-const MS_COLORS={'Packet Approval':'#7F77DD','Site Survey':'#BA7517','Design':'#D4537E','NTP':'#185FA5','Scope of Work':'#185FA5','Utility Pre-Install Docs':'#1D9E75','Utility':'#1D9E75','Permits':'#BA7517','Permit':'#BA7517','Install Ready':'#185FA5','Install':'#185FA5','Inspection':'#534AB7','PTO':'#0F6E56','Complete':'#3B6D11','HOA Approval':'#BA7517','On Hold':'#A32D2D','Cancelled':'#A32D2D'};
-function chipColor(ms){const k=Object.keys(MS_COLORS).find(k=>ms&&ms.toLowerCase().includes(k.toLowerCase()));return k?MS_COLORS[k]:'#888780';}
 function renderProjStats(){const items=S.items;const overdue=items.filter(i=>i.daysSince!==null&&i.daysSince>7).length;const active=items.filter(i=>(i.status||'').toLowerCase().includes('active')).length;document.getElementById('proj-stats').innerHTML=`<div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--text)">${items.length}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Total</div></div><div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:#185FA5">${active}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Active</div></div><div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Review &gt;7d</div></div>`;}
 function renderChips(){const statuses=['All',...new Set(S.items.map(i=>i.milestoneStatus).filter(Boolean))];document.getElementById('filter-chips').innerHTML=statuses.slice(0,14).map(s=>{const active=s===S.filter;const color=active?chipColor(s):'';const style=active?`background:${color};border-color:${color};`:'';return`<button class="chip ${active?'active':''}" style="${style}" onclick="setFilter(${JSON.stringify(s)})">${esc(s)}</button>`;}).join('');}
 function setFilter(f){S.filter=f;renderChips();renderCards();}
-function renderCards(){const q=(document.getElementById('search-input').value||'').toLowerCase();let items=S.items;if(S.filter!=='All')items=items.filter(i=>i.milestoneStatus===S.filter);if(q)items=items.filter(i=>[i.name,i.address,i.milestoneStatus,i.status,i.notes,i.projectNum].join(' ').toLowerCase().includes(q));if(!items.length){document.getElementById('cards-list').innerHTML='<div class="empty">No projects match.</div>';return;}document.getElementById('cards-list').innerHTML=items.map(item=>{const warn=item.daysSince!==null&&item.daysSince>7;return`<div class="card" onclick="showDetail(${item.id})"><div class="card-id">${esc(item.projectNum)}</div><div class="card-top"><div class="card-name">${esc(item.name)}</div><span class="badge ${msClass(item.milestoneStatus)}">${esc(item.milestoneStatus)||esc(item.status)||'—'}</span></div>${item.address?`<div class="card-addr">${esc(item.address)}</div>`:''}<div class="card-meta">${item.lastReview?`<span class="meta ${warn?'warn':''}"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${esc(item.lastReview)}${item.daysSince!==null?' · '+item.daysSince+'d ago':''}</span>`:''}${item.lender?`<span class="meta"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${esc(item.lender)}</span>`:''}</div>${item.notes?`<div class="card-note">${esc(item.notes.substring(0,140))}${item.notes.length>140?'...':''}</div>`:''}</div>`;}).join('');}
+function renderCards(){const q=(document.getElementById('search-input').value||'').toLowerCase();let items=S.items;if(S.filter!=='All')items=items.filter(i=>i.milestoneStatus===S.filter);if(q)items=items.filter(i=>[i.name,i.address,i.milestoneStatus,i.status,i.notes,i.projectNum].join(' ').toLowerCase().includes(q));if(!items.length){document.getElementById('cards-list').innerHTML='<div class="empty">No projects match.</div>';return;}document.getElementById('cards-list').innerHTML=items.map(item=>cardHtml(item,'projects')).join('');}
+
+// ── DETAIL BODY ──────────────────────────────────────────
 function toggleColl(el){el.closest('.collapsible').classList.toggle('open');}
 function parseCommentBlocks(raw){if(!raw)return[];return raw.split(/\*{3}/).map(b=>b.trim()).filter(Boolean).slice(0,20);}
 function parseWOBlocks(raw){if(!raw)return[];return raw.split(/\\---|\n---\n/).map(b=>b.trim()).filter(b=>b.includes('WO-')||b.includes('Type:')).slice(0,10);}
 function parseTicketBlocks(raw){if(!raw)return[];return raw.split(/\\---|\n---\n/).map(b=>b.trim()).filter(b=>b.includes('Ticket')||b.includes('Status:')).slice(0,10);}
-function showDetail(itemId){
-  const item=S.items.find(i=>i.id===itemId);if(!item)return;
+
+function buildDetailBody(item){
   const infoRows=[{k:'Project status',v:item.status},{k:'Milestone',v:item.milestoneStatus},{k:'Lender',v:item.lender},{k:'Finance type',v:item.financeType},{k:'Funding status',v:item.fundingStatus},{k:'Last review',v:item.lastReview},{k:'Days since review',v:item.daysSince!==null?item.daysSince+' days':''}].filter(r=>r.v);
   const commentBlocks=parseCommentBlocks(item.comments);
   const commentsHtml=commentBlocks.length?commentBlocks.map(b=>{const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);const dl=lines[0]&&lines[0].match(/^(\d{4}-\d{2}-\d{2})\s+\d{2}:\d{2}:\d{2}\s+(.+)/);const date=dl?dl[1]:'';const ctx=dl?dl[2]:'';const body=lines.slice(dl?1:0).join(' ');return`<div class="te"><div class="te-date">${esc(date)}${ctx?' · '+esc(ctx):''}</div><div class="te-body">${esc(body.substring(0,300))}${body.length>300?'...':''}</div></div>`;}).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No comments.</div></div>';
@@ -407,17 +514,29 @@ function showDetail(itemId){
   const woHtml=woBlocks.length?woBlocks.map(b=>{const status=(b.match(/Status:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';const type=(b.match(/Type:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';const appt=(b.match(/Appointment:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';const desc=(b.match(/Description:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';const woId=(b.match(/\[WO-(\d+)\]/)||[])[1]||'';const sCls=status.toLowerCase().includes('complet')?'ts-complete':'ts-open';return`<div class="te"><div class="te-date">${woId?'WO-'+woId:''}${appt?' · '+esc(appt.trim()):''}</div>${type?`<div style="font-weight:600;font-size:12px;color:var(--text)">${esc(type.trim())}</div>`:''} ${desc?`<div class="te-body">${esc(desc.trim().substring(0,200))}</div>`:''} ${status?`<span class="te-status ${sCls}">${esc(status.trim())}</span>`:''}</div>`;}).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No work orders.</div></div>';
   const ticketBlocks=parseTicketBlocks(item.repTickets);
   const ticketsHtml=ticketBlocks.length?ticketBlocks.map(b=>{const status=(b.match(/Status:\*?\*?\s*([^\n<*\[]+)/i)||[])[1]||'';const desc=(b.match(/Description:\*?\*?\s*([^\n]+)/i)||[])[1]||'';const date=(b.match(/^(\d{2}\/\d{2}\/\d{4})/)||[])[1]||'';const tid=(b.match(/Ticket #(\d+)/i)||[])[1]||'';const sCls=status.toLowerCase().includes('complet')?'ts-complete':status.toLowerCase().includes('assign')?'ts-assigned':'ts-open';return`<div class="te"><div class="te-date">${date?esc(date):''}${tid?' · Ticket #'+tid:''}</div>${desc?`<div class="te-body">${esc(desc.trim().substring(0,200))}</div>`:''} ${status?`<span class="te-status ${sCls}">${esc(status.trim())}</span>`:''}</div>`;}).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No support tickets.</div></div>';
-  document.getElementById('detail-body').innerHTML=`<div class="detail-hdr"><div class="detail-id">${esc(item.projectNum)}</div><div class="detail-name">${esc(item.name)}</div>${item.address?`<div class="detail-addr">${esc(item.address)}</div>`:''}<span class="badge ${msClass(item.milestoneStatus)}">${esc(item.milestoneStatus)||esc(item.status)||'—'}</span></div><div class="collapsible open"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project details</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${infoRows.map(r=>`<div class="drow"><span class="dk">${esc(r.k)}</span><span class="dv">${esc(String(r.v))}</span></div>`).join('')}</div></div>${item.notes?`<div class="collapsible open"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${esc(item.notes)}</div></div></div>`:''}<div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project comments <span class="cnt">${commentBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${commentsHtml}</div></div><div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Work orders <span class="cnt">${woBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${woHtml}</div></div><div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Support tickets <span class="cnt">${ticketBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${ticketsHtml}</div></div><div style="padding:0 .75rem;margin-top:.5rem"><a href="https://podio.com/aveyo/projects/apps/project/items/${esc(String(item.id))}" target="_blank"><button class="btn btn-outline" style="font-size:12px">Open in Podio</button></a></div>`;
-  showView('detail');
-  document.getElementById('nav-projects').classList.add('active');
-  document.getElementById('nav-home').classList.remove('active');
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-hdr">
+      <div class="detail-id">${esc(item.projectNum)}</div>
+      <div class="detail-name">${esc(item.name)}</div>
+      ${item.address?`<div class="detail-addr">${esc(item.address)}</div>`:''}
+      <span class="badge ${msClass(item.milestoneStatus)}">${esc(item.milestoneStatus)||esc(item.status)||'—'}</span>
+    </div>
+    <div class="collapsible open"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project details</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${infoRows.map(r=>`<div class="drow"><span class="dk">${esc(r.k)}</span><span class="dv">${esc(String(r.v))}</span></div>`).join('')}</div></div>
+    ${item.notes?`<div class="collapsible open"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${esc(item.notes)}</div></div></div>`:''}
+    <div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Project comments <span class="cnt">${commentBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${commentsHtml}</div></div>
+    <div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Work orders <span class="cnt">${woBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${woHtml}</div></div>
+    <div class="collapsible"><div class="coll-hdr" onclick="toggleColl(this)"><span class="coll-title">Support tickets <span class="cnt">${ticketBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body">${ticketsHtml}</div></div>
+    <div style="padding:0 .75rem;margin-top:.5rem">
+      <a href="https://podio.com/aveyo/projects/apps/project/items/${esc(String(item.id))}" target="_blank"><button class="btn btn-outline" style="font-size:12px">Open in Podio</button></a>
+    </div>`;
 }
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 loadPersist();
 document.getElementById('auth-user').value=PODIO.user;
 document.getElementById('auth-pass').value=PODIO.pass;
-if(S.token){showView('home');document.getElementById('bnav').style.display='flex';loadHome();}
+if(S.token){showView('home');document.getElementById('bnav').style.display='flex';document.getElementById('nav-home').classList.add('active');loadHome();}
 else{showView('auth');}
 </script>
 </body>
