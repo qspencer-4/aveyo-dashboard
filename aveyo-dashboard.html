@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v24</title>
+<title>Aveyo Solar v25</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -146,13 +146,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .compose-result{border-radius:var(--radius);padding:.75rem 1rem;font-size:13px;font-weight:500;text-align:center}
 .compose-result.success{background:var(--green-light);color:var(--green-dark)}
 .compose-result.error{background:var(--red-light);color:var(--red-dark)}
-.card-actions{display:flex;gap:6px;margin-top:.625rem}
 .card-action-btn{flex:1;padding:8px;border-radius:var(--radius);border:.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .card-action-btn.rep{background:var(--blue-light);color:var(--blue-dark);border-color:transparent}
 .card-action-btn.customer{background:var(--teal-light);color:var(--teal-dark);border-color:transparent}
 .card-note{font-size:11px;color:var(--text2);background:var(--bg2);border-radius:var(--radius);padding:6px 8px;margin-top:7px;line-height:1.6;border-left:2px solid var(--blue)}
 .card-note-more{color:var(--blue);font-weight:600;cursor:pointer}
 .card-note-full{white-space:pre-wrap}
+.card-ms-expand{margin-top:6px;border:.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-ms-row{display:flex;justify-content:space-between;padding:4px 8px;border-bottom:.5px solid var(--border);font-size:11px;gap:8px}
+.card-ms-row:last-child{border-bottom:none}
+.card-ms-key{color:var(--text2);flex-shrink:0;max-width:55%}
+.card-ms-val{color:var(--text);text-align:right;font-weight:500;word-break:break-word}
+.card-ms-val.done{color:#3B6D11}
+.card-ms-val.progress{color:var(--amber-dark)}
+.card-ms-toggle{font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;margin-top:5px;display:inline-block}
+.card-actions-row{display:flex;gap:6px;margin-top:.625rem}
+.card-action-btn{flex:1;padding:8px;border-radius:var(--radius);border:.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.card-action-btn.rep{background:var(--blue-light);color:var(--blue-dark);border-color:transparent}
+.card-action-btn.customer{background:var(--teal-light);color:var(--teal-dark);border-color:transparent}
 
 </style>
 </head>
@@ -160,7 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div class="hdr-title">Aveyo Solar</div><div class="hdr-sub" id="hdr-sub">v24</div></div>
+    <div style="flex:1;min-width:0"><div class="hdr-title">Aveyo Solar</div><div class="hdr-sub" id="hdr-sub">v25</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -285,7 +296,7 @@ const WIDGETS=[
   ['Roof Review Needed',         29839741,61743345,1,3,    false,'Roof Work'],
 ];
 
-const FIELD={status:266489985,milestone:269930958,lastReview:275467370,notes:275751845,funding:268433601,lender:266828352,finance:274492780,daysSince:276204428,comments:266495555,workOrders:266494683,tickets:267693531,repInfo:266491096,customerPhone:266489983};
+const FIELD={status:266489985,milestone:269930958,lastReview:275467370,notes:275751845,funding:268433601,lender:266828352,finance:274492780,daysSince:276204428,comments:266495555,workOrders:266494683,tickets:267693531,repInfo:266491096,customerPhone:266489983,milestones:266608138};
 const CACHE_TTL=10*60*1000;
 
 // ── STATE ────────────────────────────────────────────────
@@ -592,7 +603,30 @@ function parseItem(raw){
     funding:fv(raw,FIELD.funding),lender:fv(raw,FIELD.lender),
     finance:fv(raw,FIELD.finance),daysSince:fnum(raw,FIELD.daysSince),
     comments:fv(raw,FIELD.comments),workOrders:fv(raw,FIELD.workOrders),
-    repTickets:fv(raw,FIELD.tickets),repInfo:fv(raw,FIELD.repInfo),customerPhone:fv(raw,FIELD.customerPhone),raw};
+    repTickets:fv(raw,FIELD.tickets),repInfo:fv(raw,FIELD.repInfo),customerPhone:fv(raw,FIELD.customerPhone),milestones:fv(raw,FIELD.milestones),raw};
+}
+function parseMilestones(raw){
+  if(!raw)return[];
+  const rows=[];
+  const lines=raw.replace(/\*\*/g,'').split('\n');
+  for(const line of lines){
+    const clean=line.replace(/^\|/,'').replace(/\|$/,'').trim();
+    const parts=clean.split('|').map(p=>p.trim());
+    if(parts.length>=2&&parts[0]&&!parts[0].startsWith('---')&&parts[0]!=='STATUS/MILESTONE'&&parts[0]!=='STATUS'){
+      const key=parts[0].trim();
+      const val=parts[1].trim();
+      if(key&&val&&val!=='---'&&val!==''){
+        rows.push({k:key,v:val});
+      }
+    }
+  }
+  return rows;
+}
+function msValClass(v){
+  const l=(v||'').toLowerCase();
+  if(l.includes('complete')||l.includes('approved')||l.includes('yes')||l.includes('received'))return'done';
+  if(l.includes('progress')||l.includes('submitted')||l.includes('pending')||l.includes('ready')||l.includes('scheduled'))return'progress';
+  return'';
 }
 function parseRepName(repInfo){
   if(!repInfo)return'';
@@ -629,6 +663,7 @@ function cardHTML(item,composeType=null){
   const warn=item.daysSince!==null&&item.daysSince>7;
   const repName=parseRepName(item.repInfo);
   const uid='card_'+item.id;
+  const msRows=parseMilestones(item.milestones);
   return`<div class="card" data-itemid="${item.id}">
     <div class="card-id">${x(item.num)}</div>
     <div class="card-top"><div class="card-name">${x(item.name)}</div><span class="badge ${msClass(item.milestone)}">${x(item.milestone)||x(item.status)||'—'}</span></div>
@@ -638,10 +673,14 @@ function cardHTML(item,composeType=null){
       ${item.lastReview?`<span class="meta${warn?' warn':''}"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${x(item.lastReview)}${item.daysSince!==null?' · '+item.daysSince+'d ago':''}</span>`:''}
       ${item.lender?`<span class="meta"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${x(item.lender)}</span>`:''}
     </div>
+    ${msRows.length?`<span class="card-ms-toggle" data-msid="${uid}">▶ Milestones (${msRows.length})</span><div class="card-ms-expand" id="${uid}_ms" style="display:none">${msRows.map(r=>`<div class="card-ms-row"><span class="card-ms-key">${x(r.k)}</span><span class="card-ms-val ${msValClass(r.v)}">${x(r.v)}</span></div>`).join('')}</div>`:''}
     ${item.notes?`<div class="card-note-wrap" id="${uid}">
       <div class="card-note card-note-collapsed" id="${uid}_txt">${x(item.notes.substring(0,120))}${item.notes.length>120?`<span class="card-note-more" data-noteid="${uid}"> more</span>`:''}</div>
     </div>`:''}
-    ${composeType?`<div class="card-actions"><button class="card-action-btn ${composeType}" data-action="${composeType}" data-itemid="${item.id}">${composeType==='rep'?'&#9993; Send Rep Update':'&#9993; Send Customer Text'}</button></div>`:''}
+    <div class="card-actions-row">
+      <button class="card-action-btn rep" data-action="rep" data-itemid="${item.id}">&#9993; Rep Update</button>
+      <button class="card-action-btn customer" data-action="customer" data-itemid="${item.id}">&#9993; Customer Text</button>
+    </div>
   </div>`;
 }
 
@@ -893,6 +932,20 @@ async function doSend() {
 document.getElementById('compose-cancel').addEventListener('click', closeCompose);
 document.getElementById('compose-send').addEventListener('click', doSend);
 document.getElementById('compose-textarea').addEventListener('input', updateCharCount);
+// Milestone expand/collapse
+document.addEventListener('click', function(e){
+  const tog = e.target.closest('[data-msid]');
+  if(tog){
+    e.stopPropagation();
+    const uid = tog.dataset.msid;
+    const panel = document.getElementById(uid+'_ms');
+    if(!panel) return;
+    const open = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    tog.textContent = tog.textContent.replace(open?'▼':'▶', open?'▶':'▼');
+  }
+});
+
 // Note expand/collapse
 document.addEventListener('click', function(e){
   const more = e.target.closest('[data-noteid]');
