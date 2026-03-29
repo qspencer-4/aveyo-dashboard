@@ -187,6 +187,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field"><label>Username</label><input type="email" id="auth-user" autocomplete="email"/></div>
       <div class="field"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password"/></div>
       <button class="btn btn-primary" id="btn-connect">Sign in</button>
+      <button class="btn" id="btn-demo" style="background:var(--amber-light);color:var(--amber-dark);border:.5px solid var(--amber-dark);margin-top:8px">Try Demo Mode</button>
       <div class="msg msg-info" id="auth-msg"></div>
     </div>
   </div>
@@ -315,7 +316,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v32';
+const VERSION='v32-demo';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -333,6 +334,7 @@ function setActiveNav(tab){
 
 // ── EVENT WIRING (no inline onclick) ─────────────────────
 document.getElementById('btn-connect').addEventListener('click',doSignIn);
+document.getElementById('btn-demo').addEventListener('click',enterDemoMode);
 document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
@@ -394,12 +396,32 @@ function doLogout(){
   document.getElementById('bnav').style.display='none';
   showView('auth');
 }
+function enterDemoMode(){
+  DEMO_MODE=true;
+  TOKEN='demo';
+  document.getElementById('bnav').style.display='flex';
+  setActiveNav('home');
+  showView('home');
+  loadHome();
+}
 function doRefresh(){
   const active=document.querySelector('.view.active');
   if(!active)return;
   if(active.id==='view-home'){clearCache();loadHome();}
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
 }
+
+
+// ── DEMO MODE ────────────────────────────────────────────
+let DEMO_MODE = false;
+const DEMO_ITEMS = [
+  {id:1001,num:'#06001',name:'John Martinez',address:'1234 Elm St, Springfield, IL 62701',title:'#06001 John Martinez - 1234 Elm St, Springfield, IL 62701',status:'Active',milestone:'Permit',lastReview:'2026-03-20',daysSince:9,lender:'LightReach',finance:'PPA',funding:'New Deal',comments:'2026-03-20 10:00:00 Design\nPermit submitted to AHJ on 3/18.\n***\n2026-03-15 09:00:00 PM\nCustomer confirmed site survey complete.\n***',workOrders:'',repTickets:'',repInfo:'**Rep Name: **SAWYER KIEFFER\n**Phone: **4196721460\n**Email: **sawyer@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 11/24/2025 |\n|Packet Approval Status | Complete |\n|SS Status | Complete |\n|Design Status | Complete |\n|Permit Status | In Progress - Submitted |\n|Install Ready? | No |',fundingMilestones:'**M1 Status: **Approved\n**M1 Earned Date: **01/15/2026\n**M2 Status: **\n**M2 Earned Date: **\n**M3 Status: **\n**M3 Earned Date: **',notes:'March 20 Review: Project is in permitting. Waiting on AHJ approval.',raw:{}},
+  {id:1002,num:'#06002',name:'Sarah Johnson',address:'5678 Oak Ave, Decatur, IL 62521',title:'#06002 Sarah Johnson - 5678 Oak Ave, Decatur, IL 62521',status:'Active',milestone:'Install Ready',lastReview:'2026-03-22',daysSince:7,lender:'Mosaic',finance:'Loan',funding:'M1 Approved',comments:'2026-03-22 14:00:00 PM\nInstall crew scheduled for 4/2.\n***\n2026-03-18 11:00:00 Design\nAll permits approved. Ready for install.\n***',workOrders:'[WO-14300]\n**Type:** Install\n**Status:** Scheduled\n**Appointment:** 04/02/2026\n**Description:** Full system install',repTickets:'',repInfo:'**Rep Name: **MIKE TORRES\n**Phone: **3125551234\n**Email: **mike@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 10/15/2025 |\n|Packet Approval Status | Complete |\n|SS Status | Complete |\n|Design Status | Complete |\n|Permit Status | Complete |\n|Install Ready? | Yes |\n|Install Ready Date | 03/20/2026 |',fundingMilestones:'**M1 Status: **Approved\n**M1 Earned Date: **02/01/2026\n**M2 Status: **Approved\n**M2 Earned Date: **03/01/2026\n**M3 Status: **\n**M3 Earned Date: **',notes:'March 22 Review: All permits approved. Install scheduled for April 2nd.',raw:{}},
+  {id:1003,num:'#06003',name:'Robert Davis',address:'9101 Pine Rd, Peoria, IL 61602',title:'#06003 Robert Davis - 9101 Pine Rd, Peoria, IL 61602',status:'Active',milestone:'PTO',lastReview:'2026-03-10',daysSince:19,lender:'Sunrun',finance:'Lease',funding:'M2 Approved',comments:'2026-03-10 09:00:00 PM\nInspection passed. Waiting on utility for PTO.\n***',workOrders:'',repTickets:'03/15/2026 - **Ticket #**10234 - **Status:** Open\n**Description:** Customer asking about PTO timeline',repInfo:'**Rep Name: **LISA CHEN\n**Phone: **3125559876\n**Email: **lisa@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 08/01/2025 |\n|Install Status | Complete |\n|Install Complete | 01/15/2026 |\n|AHJ Inspection Status | Complete |\n|PTO Status | Not Ready |',fundingMilestones:'**M1 Status: **Approved\n**M1 Earned Date: **09/01/2025\n**M2 Status: **Approved\n**M2 Earned Date: **01/20/2026\n**M3 Status: **\n**M3 Earned Date: **',notes:'March 10 Review: Install complete, inspection passed. Waiting on utility PTO.',raw:{}},
+  {id:1004,num:'#06004',name:'Emily Wilson',address:'2233 Maple Dr, Rockford, IL 61101',title:'#06004 Emily Wilson - 2233 Maple Dr, Rockford, IL 61101',status:'Active',milestone:'Site Survey',lastReview:'2026-03-25',daysSince:4,lender:'LightReach',finance:'PPA',funding:'New Deal',comments:'2026-03-25 10:00:00 Design\nSite survey scheduled for 3/30.\n***',workOrders:'[WO-14400]\n**Type:** Site Survey\n**Status:** Scheduled\n**Appointment:** 03/30/2026\n**Description:** Initial site survey',repTickets:'',repInfo:'**Rep Name: **SAWYER KIEFFER\n**Phone: **4196721460\n**Email: **sawyer@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 03/15/2026 |\n|Packet Approval Status | In Progress |\n|SS Status | Scheduled |',fundingMilestones:'**M1 Status: **\n**M1 Earned Date: **\n**M2 Status: **\n**M2 Earned Date: **\n**M3 Status: **\n**M3 Earned Date: **',notes:'',raw:{}},
+  {id:1005,num:'#06005',name:'James Thompson',address:'4455 Cedar Ln, Champaign, IL 61820',title:'#06005 James Thompson - 4455 Cedar Ln, Champaign, IL 61820',status:'Active',milestone:'Inspection',lastReview:'2026-03-18',daysSince:11,lender:'Mosaic',finance:'Loan',funding:'M1 Approved',comments:'2026-03-18 15:00:00 PM\nInspection scheduled for 3/31.\n***\n2026-03-12 09:00:00 Install\nInstall completed successfully.\n***',workOrders:'',repTickets:'',repInfo:'**Rep Name: **MIKE TORRES\n**Phone: **3125551234\n**Email: **mike@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 09/10/2025 |\n|Install Status | Complete |\n|Install Complete | 03/10/2026 |\n|AHJ Inspection Status | Ready for Inspection |',fundingMilestones:'**M1 Status: **Approved\n**M1 Earned Date: **10/15/2025\n**M2 Status: **\n**M2 Earned Date: **\n**M3 Status: **\n**M3 Earned Date: **',notes:'March 18 Review: Install done, inspection set for 3/31.',raw:{}},
+];
+const DEMO_WIDGETS=[3,1,2,5,1,0,1,0,0,0,4,1,0,2,1,1,2,3,1];
 
 // ── CACHE ─────────────────────────────────────────────────
 const CACHE_KEY='aveyo_cache_v30';
@@ -486,6 +508,11 @@ function updateCacheLabel(){
 async function loadHome(){
   showView('home');setActiveNav('home');
   buildHomeShell();
+  if(DEMO_MODE){
+    WIDGETS.forEach(([,,,],i)=>setWidgetNum(i,DEMO_WIDGETS[i]||0));
+    document.getElementById('cache-label').textContent='Demo mode';
+    return;
+  }
   const allCached=WIDGETS.every(([,a,v])=>cGet(a+'_'+v)!==null);
   if(allCached){updateCacheLabel();return;}
   let rateLimited=false;
@@ -523,8 +550,14 @@ async function openWidgetList(wi){
   document.getElementById('wl-loading').style.display='block';
   showView('wlist');setActiveNav('home');
   try{
-    const raw=await fetchAllItems(appId,viewId);
-    WLIST_ITEMS=raw.map(parseItem);
+    let raw;
+    if(DEMO_MODE){
+      raw=null;
+      WLIST_ITEMS=[...DEMO_ITEMS];
+    }else{
+      const fetched=await fetchAllItems(appId,viewId);
+      WLIST_ITEMS=fetched.map(parseItem);
+    }
     document.getElementById('wl-count').textContent=WLIST_ITEMS.length+' project'+(WLIST_ITEMS.length!==1?'s':'');
     const composeType=COMPOSE_WIDGET[wi]||null;
     document.getElementById('wl-list').innerHTML=WLIST_ITEMS.length
@@ -542,6 +575,13 @@ async function loadProjects(){
   document.getElementById('cards-loading').style.display='block';
   document.getElementById('cards-list').innerHTML='';
   document.getElementById('progress-bar').style.width='5%';
+  if(DEMO_MODE){
+    ALL_ITEMS=[...DEMO_ITEMS];
+    document.getElementById('progress-bar').style.width='100%';
+    renderProjStats();renderChips();renderCards();
+    document.getElementById('cards-loading').style.display='none';
+    return;
+  }
   try{
     let all=[],offset=0,total=null;
     while(true){
@@ -867,6 +907,23 @@ async function fetchComposeMessage(itemId, type) {
   bodyEl.style.display = 'none';
   sendBtn.disabled = true;
 
+  if(DEMO_MODE){
+    await delay(1200);
+    const demoMsgs={
+      rep: "Hi [Rep Name], just a quick update on your project — we're currently in the permitting stage and have submitted all required documents to the AHJ. We expect approval within 2-3 weeks and will keep you posted on any updates.",
+      customer: "Hi [Customer], we wanted to touch base on your solar project! Everything is progressing well — we're currently working through the permit approval process and will reach out as soon as we have a confirmed install date.",
+      review: new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + " Project Review: Project is currently in the permitting stage with all documents submitted to the AHJ. No open blockers at this time. Next step is to monitor permit approval and schedule install upon receipt."
+    };
+    ta.value = demoMsgs[type] || demoMsgs.rep;
+    ta.placeholder = '';
+    updateCharCount();
+    sendBtn.disabled = false;
+    document.getElementById('compose-subtitle').textContent = 'Stage: Demo · Review and edit before sending';
+    loadingEl.style.display = 'none';
+    bodyEl.style.display = 'block';
+    return;
+  }
+
   try {
     const endpoint = type === 'review' ? '/generate-review' : '/generate-message';
     const res = await fetch(VPS + endpoint, {
@@ -920,6 +977,19 @@ async function doSend() {
 
   const fieldId = PODIO_FIELD[COMPOSE_TYPE];
   const itemId = COMPOSE_ITEM.id;
+
+  if(DEMO_MODE){
+    btn.disabled=true; btn.textContent='Sending...';
+    await delay(1000);
+    const result=document.getElementById('compose-result');
+    result.className='compose-result success';
+    result.textContent=COMPOSE_TYPE==='rep'?'✓ Rep update sent (demo)':COMPOSE_TYPE==='customer'?'✓ Customer message sent (demo)':'✓ Project notes saved (demo)';
+    result.style.display='block';
+    document.getElementById('compose-body').style.display='none';
+    btn.textContent='Sent ✓';
+    setTimeout(closeCompose,1800);
+    return;
+  }
 
   try {
     const res = await fetch(
