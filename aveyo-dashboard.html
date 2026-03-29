@@ -316,7 +316,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v32-demo';
+const VERSION='v32';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -912,7 +912,7 @@ async function fetchComposeMessage(itemId, type) {
     const demoMsgs={
       rep: "Hi [Rep Name], just a quick update on your project — we're currently in the permitting stage and have submitted all required documents to the AHJ. We expect approval within 2-3 weeks and will keep you posted on any updates.",
       customer: "Hi [Customer], we wanted to touch base on your solar project! Everything is progressing well — we're currently working through the permit approval process and will reach out as soon as we have a confirmed install date.",
-      review: new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + " Project Review: Project is currently in the permitting stage with all documents submitted to the AHJ. No open blockers at this time. Next step is to monitor permit approval and schedule install upon receipt."
+      review: new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' Project Review: This project is currently in the Permit stage, pending final inspection of the detached structure before permits can be approved. Our permitting team has a follow-up scheduled with the inspection department for next week. We are waiting on the local authority to complete the inspection before we can proceed with permit approval and get the project inspection scheduled. There are currently no active or outstanding tickets or work orders that need action.'
     };
     ta.value = demoMsgs[type] || demoMsgs.rep;
     ta.placeholder = '';
