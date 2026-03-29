@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v29</title>
+<title>Aveyo Solar v30</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -171,7 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v29</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v30</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -297,7 +297,7 @@ const WIDGETS=[
 ];
 
 const FIELD={status:266489985,milestone:269930958,lastReview:275467370,notes:275751845,funding:268433601,lender:266828352,finance:274492780,daysSince:276204428,comments:266495555,workOrders:266494683,tickets:267693531,repInfo:266491096,customerPhone:266489983,milestones:266608138,fundingMilestones:268365536};
-const CACHE_TTL=10*60*1000;
+const CACHE_TTL=30*60*1000; // 30 minutes
 
 // ── STATE ────────────────────────────────────────────────
 let TOKEN=null;
@@ -314,7 +314,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v29';
+const VERSION='v30';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -401,10 +401,23 @@ function doRefresh(){
 }
 
 // ── CACHE ─────────────────────────────────────────────────
-const CACHE={};
-function clearCache(){Object.keys(CACHE).forEach(k=>delete CACHE[k]);}
-function cGet(k){const c=CACHE[k];return c&&Date.now()-c.ts<CACHE_TTL?c.v:null;}
-function cSet(k,v){CACHE[k]={v,ts:Date.now()};}
+const CACHE_KEY='aveyo_cache_v30';
+function loadCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');}catch(e){return{};}}
+function saveCache(c){try{localStorage.setItem(CACHE_KEY,JSON.stringify(c));}catch(e){}}
+function clearCache(){try{localStorage.removeItem(CACHE_KEY);}catch(e){}}
+function cGet(k){
+  try{
+    const c=loadCache()[k];
+    return c&&Date.now()-c.ts<CACHE_TTL?c.v:null;
+  }catch(e){return null;}
+}
+function cSet(k,v){
+  try{
+    const c=loadCache();
+    c[k]={v,ts:Date.now()};
+    saveCache(c);
+  }catch(e){}
+}
 
 // ── API HELPERS ──────────────────────────────────────────
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
