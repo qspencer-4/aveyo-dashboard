@@ -171,7 +171,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div class="hdr-title">Aveyo Solar</div><div class="hdr-sub" id="hdr-sub">v26</div></div>
+    <div style="flex:1;min-width:0"><div class="hdr-title">Aveyo Solar</div><div class="hdr-sub" id="hdr-sub">Dashboard · v26</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -314,7 +314,8 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
+const VERSION='v26';
+const SUBS={home:'Dashboard · '+VERSION,projects:'My Projects · '+VERSION,wlist:'',detail:'Project Detail · '+VERSION,auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
@@ -322,7 +323,7 @@ function showView(v){
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
   document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
-  document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
+  document.getElementById('hdr-sub').textContent=v==='wlist'?(WLIST_LABEL+' · '+VERSION):(SUBS[v]||'');
 }
 function setActiveNav(tab){
   document.getElementById('nav-home').classList.toggle('active',tab==='home');
