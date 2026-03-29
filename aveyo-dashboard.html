@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v32</title>
+<title>Aveyo Solar v33</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -172,7 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v32</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v33</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -316,7 +316,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v32';
+const VERSION='v33';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -339,7 +339,7 @@ document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
-document.getElementById('wlist-back').addEventListener('click',()=>{showView('home');setActiveNav('home');});
+document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
 document.getElementById('detail-back').addEventListener('click',()=>{showView(PREV_VIEW);setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
 document.getElementById('proj-signout').addEventListener('click',doLogout);
 document.getElementById('search-input').addEventListener('input',renderCards);
@@ -608,7 +608,22 @@ function renderProjStats(){
   document.getElementById('proj-stats').innerHTML=`
     <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--text)">${ALL_ITEMS.length}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Total</div></div>
     <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--blue)">${active}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Active</div></div>
-    <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Review &gt;7d</div></div>`;
+    <div id="stat-overdue" style="background:var(--amber-light);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--amber-dark);cursor:pointer;position:relative" onclick="openOverdueReview()"><div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div><div style="font-size:11px;color:var(--amber-dark);margin-top:2px;font-weight:600">Review &gt;7d ›</div></div>`;
+}
+
+function openOverdueReview(){
+  const items = ALL_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>7)
+    .sort((a,b)=>(b.daysSince||0)-(a.daysSince||0));
+  if(!items.length){alert('No projects overdue for review!');return;}
+  WLIST_ITEMS=[...items];
+  WLIST_LABEL='Review Needed (>7d)';
+  PREV_VIEW='projects';
+  document.getElementById('wl-title').textContent='Review Needed';
+  document.getElementById('wl-count').textContent=items.length+' project'+(items.length!==1?'s':'')+' overdue for review';
+  document.getElementById('wl-loading').style.display='none';
+  document.getElementById('wl-list').innerHTML=items.map(item=>cardHTML(item,'review')).join('');
+  showView('wlist');
+  setActiveNav('projects');
 }
 const MS_COLORS={'Packet Approval':'#7F77DD','Site Survey':'#BA7517','Design':'#D4537E','Scope of Work':'#185FA5','NTP':'#185FA5','Utility':'#1D9E75','Permit':'#BA7517','Install Ready':'#185FA5','Install':'#185FA5','Inspection':'#534AB7','PTO':'#0F6E56','Complete':'#3B6D11','On Hold':'#A32D2D','Cancelled':'#A32D2D'};
 function chipColor(ms){const k=Object.keys(MS_COLORS).find(k=>ms&&ms.toLowerCase().includes(k.toLowerCase()));return k?MS_COLORS[k]:'#888780';}
