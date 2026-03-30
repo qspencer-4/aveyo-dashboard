@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v40</title>
+<title>Aveyo Solar v41</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -109,6 +109,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .back-bar{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--blue);cursor:pointer;margin:.75rem;font-weight:500}
 .back-bar svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
 .detail-hdr{margin:0 .75rem .75rem}
+.swipe-nav{display:flex;align-items:center;justify-content:space-between;padding:.25rem .75rem;margin-bottom:.25rem}
+.swipe-btn{background:var(--bg);border:.5px solid var(--border2);border-radius:var(--radius);padding:6px 14px;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;font-family:inherit}
+.swipe-btn:disabled{opacity:.3;cursor:not-allowed}
+.swipe-pos{font-size:12px;color:var(--text3)}
+.review-filter-chips{display:flex;gap:6px;overflow-x:auto;padding:.5rem .75rem;scrollbar-width:none;border-bottom:.5px solid var(--border)}
+.review-filter-chips::-webkit-scrollbar{display:none}
+.rchip{flex-shrink:0;font-size:11px;padding:4px 10px;border-radius:99px;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:inherit;white-space:nowrap}
+.rchip.active{background:var(--amber-dark);color:#fff;border-color:transparent}
+.inline-compose{margin:.625rem .75rem 0;border:.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.inline-compose-hdr{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;cursor:pointer;background:var(--bg)}
+.inline-compose-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.inline-compose-arrow{width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;transition:transform .2s}
+.inline-compose.open .inline-compose-arrow{transform:rotate(180deg)}
+.inline-compose-body{display:none;border-top:.5px solid var(--border);padding:.875rem 1rem;background:var(--bg)}
+.inline-compose.open .inline-compose-body{display:block}
+.inline-textarea{width:100%;min-height:100px;padding:10px;font-size:13px;line-height:1.6;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit;resize:vertical}
+.inline-textarea:focus{border-color:var(--blue)}
+.inline-actions{display:flex;gap:8px;margin-top:8px}
+.inline-gen-btn{flex:1;padding:8px;border-radius:var(--radius);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--bg2);color:var(--text);border:.5px solid var(--border2)}
+.inline-send-btn{flex:2;padding:8px;border-radius:var(--radius);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--blue);color:#fff}
+.inline-send-btn:disabled{opacity:.45}
+.inline-status{font-size:11px;margin-top:6px;min-height:16px;color:var(--text3)}
 .detail-id{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.04em;margin-bottom:3px}
 .detail-name{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
 .detail-addr{font-size:13px;color:var(--text2);margin-bottom:8px}
@@ -189,7 +211,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v40</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v41</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -221,6 +243,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="wl-title" id="wl-title"></div>
       <div class="wl-count" id="wl-count"></div>
     </div>
+    <div class="review-filter-chips" id="review-filter-row" style="display:none">
+      <button class="rchip active" data-rfilter="all">All</button>
+      <button class="rchip" data-rfilter="7">7+ days</button>
+      <button class="rchip" data-rfilter="14">14+ days</button>
+      <button class="rchip" data-rfilter="21">21+ days</button>
+      <button class="rchip" data-rfilter="30">30+ days</button>
+    </div>
     <div class="cards" style="padding-top:.75rem">
       <div id="wl-loading" class="loading" style="display:none"><div class="spinner"></div>Loading projects...</div>
       <div id="wl-list"></div>
@@ -249,6 +278,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="back-bar" id="detail-back">
       <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
       <span id="detail-back-label">Back</span>
+    </div>
+    <div class="swipe-nav">
+      <button class="swipe-btn" id="swipe-prev">← Prev</button>
+      <span class="swipe-pos" id="swipe-pos"></span>
+      <button class="swipe-btn" id="swipe-next">Next →</button>
     </div>
     <div id="detail-body"></div>
   </div>
@@ -343,7 +377,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v40';
+const VERSION='v41';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -367,7 +401,17 @@ document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
-document.getElementById('detail-back').addEventListener('click',()=>{showView(PREV_VIEW);setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
+document.getElementById('detail-back').addEventListener('click',()=>{
+  showView(PREV_VIEW);
+  setActiveNav(PREV_VIEW==='projects'?'projects':'home');
+  // Restore scroll position
+  setTimeout(()=>{
+    const scrollKey = PREV_VIEW + '_scroll';
+    if(SCROLL_POS[scrollKey] !== undefined){
+      window.scrollTo(0, SCROLL_POS[scrollKey]);
+    }
+  }, 50);
+});
 document.getElementById('proj-signout').addEventListener('click',doLogout);
 document.getElementById('search-input').addEventListener('input',renderCards);
 
@@ -571,6 +615,12 @@ async function openWidgetList(wi){
   const[label,appId,viewId]=WIDGETS[wi];
   WLIST_LABEL=label;
   CURRENT_WI=wi;
+  REVIEW_FILTER='all';
+  // Show day filter chips only for Project Review Needed widget
+  const filterRow=document.getElementById('review-filter-row');
+  filterRow.style.display=wi===2?'flex':'none';
+  // Reset chips
+  document.querySelectorAll('[data-rfilter]').forEach(c=>c.classList.toggle('active',c.dataset.rfilter==='all'));
   document.getElementById('wl-title').textContent=label;
   document.getElementById('wl-count').textContent='';
   document.getElementById('wl-list').innerHTML='';
@@ -802,10 +852,24 @@ function cardHTML(item,composeType=null){
 function openDetail(itemId){
   const item=ALL_ITEMS.find(i=>i.id===itemId)||WLIST_ITEMS.find(i=>i.id===itemId);
   if(!item)return;
+  // Save scroll position before leaving
+  SCROLL_POS[PREV_VIEW+'_scroll'] = window.scrollY;
+  CURRENT_ITEM_ID = itemId;
+  // Set current list for swipe
+  if(PREV_VIEW==='projects'){
+    const q=(document.getElementById('search-input').value||'').toLowerCase();
+    let items=ALL_ITEMS;
+    if(FILTER!=='All')items=items.filter(i=>i.milestone===FILTER);
+    if(q)items=items.filter(i=>[i.name,i.address,i.milestone,i.status,i.notes,i.num].join(' ').toLowerCase().includes(q));
+    CURRENT_LIST=[...items];
+  } else {
+    CURRENT_LIST=[...WLIST_ITEMS];
+  }
   const labels={home:'Dashboard',projects:'My Projects',wlist:WLIST_LABEL};
   document.getElementById('detail-back-label').textContent=labels[PREV_VIEW]||'Back';
   buildDetail(item);
   showView('detail');
+  window.scrollTo(0,0);
   setActiveNav(PREV_VIEW==='projects'?'projects':'home');
 }
 function parseBlocks(raw,sep){if(!raw)return[];return raw.split(sep).map(b=>b.trim()).filter(Boolean);}
@@ -858,6 +922,7 @@ function buildDetail(item){
     return`<div class="te"><div class="te-date">${date?x(date):''}${tid?' · Ticket #'+tid:''}</div>${desc?`<div class="te-body">${x(desc.trim().substring(0,200))}</div>`:''} ${status?`<span class="te-status ${cls}">${x(status.trim())}</span>`:''}</div>`;
   }).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No tickets.</div></div>';
 
+  updateSwipeNav();
   document.getElementById('detail-body').innerHTML=`
     <div class="detail-hdr">
       <div class="detail-id">${x(item.num)}</div>
@@ -916,6 +981,10 @@ const PODIO_FIELD = {rep: 267123636, customer: 270976084, review: 275751845};
 let COMPOSE_ITEM = null;   // current item being composed
 let COMPOSE_TYPE = null;   // 'rep' or 'customer'
 let COMPOSE_DRAFT = null;  // saved draft when minimized
+let CURRENT_ITEM_ID = null; // currently open detail item
+let CURRENT_LIST = [];      // current filtered/active list for swipe
+let SCROLL_POS = {};        // saved scroll positions by view
+let REVIEW_FILTER = 'all';  // filter for Project Review Needed widget
 
 function isComposeWidget(wi) {
   return wi in COMPOSE_WIDGET;
@@ -1158,6 +1227,24 @@ async function doSend() {
 document.getElementById('compose-cancel').addEventListener('click', closeCompose);
 document.getElementById('compose-send').addEventListener('click', doSend);
 document.getElementById('compose-textarea').addEventListener('input', updateCharCount);
+// Review filter chips
+document.getElementById('review-filter-row').addEventListener('click',function(e){
+  const chip=e.target.closest('[data-rfilter]');
+  if(!chip)return;
+  REVIEW_FILTER=chip.dataset.rfilter;
+  document.querySelectorAll('[data-rfilter]').forEach(c=>c.classList.toggle('active',c.dataset.rfilter===REVIEW_FILTER));
+  applyReviewFilter();
+});
+function applyReviewFilter(){
+  const days=REVIEW_FILTER==='all'?0:parseInt(REVIEW_FILTER);
+  const filtered=REVIEW_FILTER==='all'?WLIST_ITEMS:WLIST_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>=days);
+  const composeType=COMPOSE_WIDGET[CURRENT_WI]||null;
+  document.getElementById('wl-count').textContent=filtered.length+' project'+(filtered.length!==1?'s':'');
+  document.getElementById('wl-list').innerHTML=filtered.length
+    ?filtered.map(item=>cardHTML(item,composeType)).join('')
+    :'<div class="empty">No projects match this filter.</div>';
+}
+
 // Milestone expand/collapse
 document.addEventListener('click', function(e){
   const tog = e.target.closest('[data-msid]');
@@ -1215,6 +1302,149 @@ document.getElementById('cards-list').addEventListener('click', function(e) {
     openCompose(parseInt(btn.dataset.itemid), btn.dataset.action);
   }
 });
+
+// ── INLINE COMPOSE IN DETAIL ─────────────────────────────
+// Toggle expand
+document.addEventListener('click',function(e){
+  const hdr=e.target.closest('[data-ictoggle]');
+  if(hdr){
+    const id=hdr.dataset.ictoggle;
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('open');
+    return;
+  }
+  // Generate button
+  const genBtn=e.target.closest('[data-icgen]');
+  if(genBtn){
+    e.stopPropagation();
+    inlineGenerate(parseInt(genBtn.dataset.itemid), genBtn.dataset.icgen);
+    return;
+  }
+  // Send button
+  const sendBtn=e.target.closest('[data-icsend]');
+  if(sendBtn && !sendBtn.disabled){
+    e.stopPropagation();
+    inlineSend(parseInt(sendBtn.dataset.itemid), sendBtn.dataset.icsend);
+    return;
+  }
+});
+// Enable send when textarea has content
+document.addEventListener('input',function(e){
+  const ta=e.target.closest('.inline-textarea');
+  if(!ta) return;
+  const id=ta.id; // ic-rep-ta-{itemid} or ic-cust-ta-{itemid} or ic-review-ta-{itemid}
+  const parts=id.split('-');
+  const itemId=parts[parts.length-1];
+  const type=parts[1]; // rep, cust, review
+  const typeKey=type==='cust'?'customer':type;
+  const sendBtn=document.querySelector('[data-icsend="'+typeKey+'"][data-itemid="'+itemId+'"]');
+  if(sendBtn) sendBtn.disabled=!ta.value.trim();
+});
+async function inlineGenerate(itemId, type){
+  const taId = 'ic-'+(type==='customer'?'cust':type)+'-ta-'+itemId;
+  const statusId = 'ic-'+(type==='customer'?'cust':type)+'-status-'+itemId;
+  const ta=document.getElementById(taId);
+  const status=document.getElementById(statusId);
+  if(!ta||!status) return;
+  ta.placeholder='Generating...';
+  status.textContent='⏳ Generating with AI...';
+  if(DEMO_MODE){
+    await delay(1200);
+    const msgs={rep:'Hello [Rep], this project is currently in the permit stage. Our permitting team has a follow-up scheduled and we will reach out once we have an update.',customer:'Hi [Customer], we wanted to touch base on your solar project. We are currently in the permit stage and will reach out once we have an update on approval.',review:new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' Project Review: This project is currently in the Permit stage, pending final inspection. We are waiting on the local authority and will reach out once we have an update.'};
+    ta.value=msgs[type]||'';
+    status.textContent='';
+    const sendBtn=document.querySelector('[data-icsend="'+type+'"][data-itemid="'+itemId+'"]');
+    if(sendBtn) sendBtn.disabled=!ta.value.trim();
+    return;
+  }
+  try{
+    const endpoint=type==='review'?'/generate-review':'/generate-message';
+    const res=await fetch(VPS+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:itemId,type})});
+    const data=await res.json();
+    if(data.status!=='ok') throw new Error(data.message||'Failed');
+    ta.value=data.message||'';
+    ta.placeholder='';
+    if(data.stage) status.textContent='Stage: '+data.stage;
+    else status.textContent='';
+    const sendBtn=document.querySelector('[data-icsend="'+type+'"][data-itemid="'+itemId+'"]');
+    if(sendBtn) sendBtn.disabled=!ta.value.trim();
+  }catch(e){
+    status.textContent='⚠️ '+e.message;
+    ta.placeholder='Generation failed. Type manually.';
+  }
+}
+async function inlineSend(itemId, type){
+  const taId='ic-'+(type==='customer'?'cust':type)+'-ta-'+itemId;
+  const statusId='ic-'+(type==='customer'?'cust':type)+'-status-'+itemId;
+  const ta=document.getElementById(taId);
+  const status=document.getElementById(statusId);
+  const sendBtn=document.querySelector('[data-icsend="'+type+'"][data-itemid="'+itemId+'"]');
+  if(!ta||!status) return;
+  let msg=ta.value.trim();
+  if(!msg) return;
+  // Fix date for review
+  if(type==='review'){
+    const today=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    msg=msg.replace(/^[A-Za-z]+,\s[A-Za-z]+\s\d+,\s\d{4}/,today);
+  }
+  if(DEMO_MODE){
+    sendBtn.disabled=true;
+    status.textContent='⏳ Sending...';
+    await delay(1000);
+    status.textContent=type==='rep'?'✓ Rep update sent (demo)':type==='customer'?'✓ Customer message sent (demo)':'✓ Review saved (demo)';
+    ta.value='';
+    return;
+  }
+  sendBtn.disabled=true;
+  status.textContent='⏳ Sending...';
+  try{
+    const fieldId=PODIO_FIELD[type];
+    const res=await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId,{method:'PUT',headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({value:msg})});
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error_description||'HTTP '+res.status);}
+    if(type==='review'){
+      try{await fetch('https://api.podio.com/comment/item/'+itemId+'/',{method:'POST',headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({value:msg})});}catch(e){}
+    }
+    status.textContent=type==='rep'?'✓ Rep update sent':type==='customer'?'✓ Customer message sent':'✓ Review saved to notes & activity';
+    if(type!=='review'){
+      setTimeout(async()=>{
+        try{await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId,{method:'DELETE',headers:{'Authorization':'OAuth2 '+TOKEN}});}catch(e){}
+      },1800);
+    }
+    ta.value='';
+    sendBtn.disabled=true;
+  }catch(e){
+    status.textContent='⚠️ Failed: '+e.message;
+    sendBtn.disabled=false;
+  }
+}
+
+// ── SWIPE NAVIGATION ─────────────────────────────────────
+function updateSwipeNav(){
+  const idx = CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
+  const total = CURRENT_LIST.length;
+  document.getElementById('swipe-pos').textContent = total ? (idx+1)+' of '+total : '';
+  document.getElementById('swipe-prev').disabled = idx<=0;
+  document.getElementById('swipe-next').disabled = idx>=total-1;
+}
+document.getElementById('swipe-prev').addEventListener('click',()=>{
+  const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
+  if(idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
+});
+document.getElementById('swipe-next').addEventListener('click',()=>{
+  const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
+  if(idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
+});
+// Touch swipe support
+let touchStartX=0;
+document.getElementById('view-detail').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+document.getElementById('view-detail').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(dx)>60){
+    const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
+    if(dx<0&&idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
+    if(dx>0&&idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
+  }
+},{passive:true});
 
 // ── REVIEW DATE SAVE ─────────────────────────────────────
 document.addEventListener('click', function(e){
