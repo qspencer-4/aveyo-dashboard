@@ -1,4 +1,4 @@
-const VERSION = 'v46';
+const VERSION = 'v47';
 
 // On install - skip waiting to activate immediately
 self.addEventListener('install', event => {
