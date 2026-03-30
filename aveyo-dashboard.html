@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v45</title>
+<title>Aveyo Solar v46</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -208,13 +208,85 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-action-btn.rep{background:var(--blue-light);color:var(--blue-dark);border-color:transparent}
 .card-action-btn.customer{background:var(--teal-light);color:var(--teal-dark);border-color:transparent}
 
+
+/* ── DESKTOP LAYOUT (768px+) ─────────────────────────── */
+@media(min-width:768px){
+  body{background:var(--bg3)}
+  #app{max-width:100%;padding-bottom:0;display:grid;grid-template-columns:240px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+
+  /* Header spans full width */
+  .hdr{grid-column:1/-1;position:sticky;top:0;z-index:100;padding:1rem 1.5rem}
+
+  /* Sidebar nav replaces bottom nav */
+  .bnav{position:sticky;top:57px;height:calc(100vh - 57px);flex-direction:column;width:240px;border-top:none;border-right:.5px solid var(--border2);padding:1rem 0;align-items:stretch;justify-content:flex-start;transform:none;left:auto;bottom:auto;max-width:240px}
+  .bnav-btn{flex-direction:row;padding:.75rem 1.25rem;gap:10px;justify-content:flex-start;border-radius:var(--radius);margin:2px .5rem}
+  .bnav-btn svg{width:18px;height:18px}
+  .bnav-btn span{font-size:13px;font-weight:500}
+  .bnav-btn.active{background:var(--blue-light)}
+  .bnav-btn.active svg{stroke:var(--blue)}
+  .bnav-btn.active span{color:var(--blue)}
+
+  /* Main content area */
+  .view{grid-column:2;max-width:900px;padding:0 1.5rem}
+  .view.active{display:block}
+
+  /* Home widgets - 3 column grid on desktop */
+  .wgrid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 .5rem}
+  .sec-label{padding:1rem 0 .5rem}
+  .w-wide{margin:0 0 .5rem}
+
+  /* Cards - 2 column on desktop */
+  .cards{padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.625rem}
+  .card{margin-bottom:0}
+
+  /* Search and filters */
+  .search-wrap{margin:.75rem 0}
+  .chips{padding:0 0 .75rem}
+
+  /* Detail view */
+  #view-detail .collapsible{margin:0 0 .625rem}
+  #view-detail .detail-hdr{margin:0 0 .75rem}
+  #view-detail .inline-compose{margin:.625rem 0 0}
+
+  /* Widget list */
+  #view-wlist .cards{padding-top:.75rem}
+  .wl-header{padding:.875rem 0}
+
+  /* Compose sheet - centered modal on desktop */
+  .compose-overlay{align-items:center}
+  .compose-sheet{border-radius:var(--radius-lg);max-width:540px;max-height:80vh}
+  .compose-mini{max-width:500px}
+
+  /* Proj stats */
+  #proj-stats{margin:0 0 .75rem}
+
+  /* Collapsibles in detail */
+  .collapsible{margin:0 0 .625rem}
+
+  /* Back bar */
+  .back-bar{margin:.75rem 0}
+
+  /* Swipe nav */
+  .swipe-nav{padding:.25rem 0}
+
+  /* Review filter */
+  .review-filter-chips{padding:.5rem 0}
+}
+
+@media(min-width:1100px){
+  #app{grid-template-columns:260px 1fr}
+  .bnav{width:260px;max-width:260px}
+  .cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .wgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v45</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v46</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -375,7 +447,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v45';
+const VERSION='v46';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1582,7 +1654,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=45').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=46').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
