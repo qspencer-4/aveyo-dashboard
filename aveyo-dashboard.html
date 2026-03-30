@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v41</title>
+<title>Aveyo Solar v42</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -214,7 +214,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v41</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v42</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -246,13 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="wl-title" id="wl-title"></div>
       <div class="wl-count" id="wl-count"></div>
     </div>
-    <div class="review-filter-chips" id="review-filter-row" style="display:none">
-      <button class="rchip active" data-rfilter="all">All</button>
-      <button class="rchip" data-rfilter="7">7+ days</button>
-      <button class="rchip" data-rfilter="14">14+ days</button>
-      <button class="rchip" data-rfilter="21">21+ days</button>
-      <button class="rchip" data-rfilter="30">30+ days</button>
-    </div>
+    <div class="review-filter-chips" id="review-filter-row" style="display:none"></div>
     <div class="cards" style="padding-top:.75rem">
       <div id="wl-loading" class="loading" style="display:none"><div class="spinner"></div>Loading projects...</div>
       <div id="wl-list"></div>
@@ -380,7 +374,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v41';
+const VERSION='v42';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -639,6 +633,7 @@ async function openWidgetList(wi){
       WLIST_ITEMS=fetched.map(parseItem);
     }
     document.getElementById('wl-count').textContent=WLIST_ITEMS.length+' project'+(WLIST_ITEMS.length!==1?'s':'');
+    if(wi===2) buildReviewFilterChips();
     const composeType=COMPOSE_WIDGET[wi]||null;
     document.getElementById('wl-list').innerHTML=WLIST_ITEMS.length
       ?WLIST_ITEMS.map(item=>cardHTML(item,composeType)).join('')
@@ -915,7 +910,7 @@ function buildDetail(item){
     return`<div class="te"><div class="te-date">${woId?'WO-'+woId:''}${appt?' · '+x(appt.trim()):''}</div>${type?`<div style="font-weight:600;font-size:12px;color:var(--text)">${x(type.trim())}</div>`:''} ${desc?`<div class="te-body">${x(desc.trim().substring(0,200))}</div>`:''} ${status?`<span class="te-status ${status.toLowerCase().includes('complet')?'ts-complete':'ts-open'}">${x(status.trim())}</span>`:''}</div>`;
   }).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No work orders.</div></div>';
 
-  const tBlocks=parseBlocks(item.repTickets,/\\---|\n---\n/).filter(b=>b.includes('Ticket')||b.includes('Status:'));
+  const tBlocks=parseBlocks(item.repTickets,/\\---|\n---\n/).filter(b=>b.includes('Ticket')||b.includes('Status:')).reverse();
   const tHtml=tBlocks.length?tBlocks.map(b=>{
     const status=(b.match(/Status:\*?\*?\s*([^\n<*\[]+)/i)||[])[1]||'';
     const desc=(b.match(/Description:\*?\*?\s*([^\n]+)/i)||[])[1]||'';
@@ -961,7 +956,49 @@ function buildDetail(item){
       <div class="coll-hdr"><span class="coll-title">Support tickets <span class="cnt">${tBlocks.length}</span></span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
       <div class="coll-body">${tHtml}</div>
     </div>
-    <div style="padding:0 .75rem;margin-top:.5rem">
+    <div class="inline-compose" id="ic-rep-${item.id}">
+      <div class="inline-compose-hdr" data-ictoggle="ic-rep-${item.id}">
+        <span class="inline-compose-title" style="color:var(--blue-dark)">&#9993; Rep Update</span>
+        <svg class="inline-compose-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="inline-compose-body">
+        <textarea class="inline-textarea" id="ic-rep-ta-${item.id}" placeholder="Generate or type a rep update..."></textarea>
+        <div class="inline-actions">
+          <button class="inline-gen-btn" data-icgen="rep" data-itemid="${item.id}">&#9889; Generate</button>
+          <button class="inline-send-btn" data-icsend="rep" data-itemid="${item.id}" disabled>Send to Rep</button>
+        </div>
+        <div class="inline-status" id="ic-rep-status-${item.id}"></div>
+      </div>
+    </div>
+    <div class="inline-compose" id="ic-cust-${item.id}">
+      <div class="inline-compose-hdr" data-ictoggle="ic-cust-${item.id}">
+        <span class="inline-compose-title" style="color:var(--teal-dark)">&#9993; Customer Text</span>
+        <svg class="inline-compose-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="inline-compose-body">
+        <textarea class="inline-textarea" id="ic-cust-ta-${item.id}" placeholder="Generate or type a customer message..."></textarea>
+        <div class="inline-actions">
+          <button class="inline-gen-btn" data-icgen="customer" data-itemid="${item.id}">&#9889; Generate</button>
+          <button class="inline-send-btn" data-icsend="customer" data-itemid="${item.id}" disabled>Send to Customer</button>
+        </div>
+        <div class="inline-status" id="ic-cust-status-${item.id}"></div>
+      </div>
+    </div>
+    <div class="inline-compose" id="ic-review-${item.id}">
+      <div class="inline-compose-hdr" data-ictoggle="ic-review-${item.id}">
+        <span class="inline-compose-title" style="color:var(--purple-dark)">&#128221; Project Review</span>
+        <svg class="inline-compose-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="inline-compose-body">
+        <textarea class="inline-textarea" id="ic-review-ta-${item.id}" placeholder="Generate or type a project review note..."></textarea>
+        <div class="inline-actions">
+          <button class="inline-gen-btn" data-icgen="review" data-itemid="${item.id}">&#9889; Generate</button>
+          <button class="inline-send-btn" data-icsend="review" data-itemid="${item.id}" disabled>Save Review</button>
+        </div>
+        <div class="inline-status" id="ic-review-status-${item.id}"></div>
+      </div>
+    </div>
+    <div style="padding:0 .75rem;margin-top:.5rem;padding-bottom:.5rem">
       <a href="https://podio.com/aveyo/projects/apps/project/items/${item.id}" target="_blank">
         <button class="btn btn-outline" style="font-size:12px">Open in Podio</button>
       </a>
@@ -1235,13 +1272,35 @@ document.getElementById('review-filter-row').addEventListener('click',function(e
   const chip=e.target.closest('[data-rfilter]');
   if(!chip)return;
   REVIEW_FILTER=chip.dataset.rfilter;
-  document.querySelectorAll('[data-rfilter]').forEach(c=>c.classList.toggle('active',c.dataset.rfilter===REVIEW_FILTER));
+  buildReviewFilterChips();
   applyReviewFilter();
 });
+function buildReviewFilterChips(){
+  const row = document.getElementById('review-filter-row');
+  if(!row) return;
+  // Get unique day values from items
+  const dayCounts = {};
+  WLIST_ITEMS.forEach(i=>{
+    if(i.daysSince !== null){
+      const d = i.daysSince;
+      dayCounts[d] = (dayCounts[d]||0)+1;
+    }
+  });
+  const allCount = WLIST_ITEMS.length;
+  // Build chips: All + each unique day value sorted
+  const days = Object.keys(dayCounts).map(Number).sort((a,b)=>a-b);
+  let html = `<button class="rchip ${REVIEW_FILTER==='all'?'active':''}" data-rfilter="all">All (${allCount})</button>`;
+  days.forEach(d=>{
+    const cnt = dayCounts[d];
+    html += `<button class="rchip ${REVIEW_FILTER===String(d)?'active':''}" data-rfilter="${d}">${d} days (${cnt})</button>`;
+  });
+  row.innerHTML = html;
+}
 function applyReviewFilter(){
-  const days=REVIEW_FILTER==='all'?0:parseInt(REVIEW_FILTER);
-  const filtered=REVIEW_FILTER==='all'?WLIST_ITEMS:WLIST_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>=days);
   const composeType=COMPOSE_WIDGET[CURRENT_WI]||null;
+  const filtered=REVIEW_FILTER==='all'
+    ?WLIST_ITEMS
+    :WLIST_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince===parseInt(REVIEW_FILTER));
   document.getElementById('wl-count').textContent=filtered.length+' project'+(filtered.length!==1?'s':'');
   document.getElementById('wl-list').innerHTML=filtered.length
     ?filtered.map(item=>cardHTML(item,composeType)).join('')
@@ -1513,6 +1572,29 @@ if(TOKEN){
   setActiveNav('home');loadHome();
 }else{
   showView('auth');
+}
+</script>
+<script>
+// Register service worker for cache busting
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    // Check for updates every time page loads
+    reg.update();
+    reg.addEventListener('updatefound',()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange',()=>{
+        if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+          // New version available - reload automatically
+          window.location.reload();
+        }
+      });
+    });
+  });
+  // Also force reload if controlled by new SW
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!refreshing){refreshing=true;window.location.reload();}
+  });
 }
 </script>
 </body>
