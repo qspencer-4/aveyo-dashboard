@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v48</title>
+<title>Aveyo Solar v50</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -212,6 +212,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-action-btn.customer{background:var(--teal-light);color:var(--teal-dark);border-color:transparent}
 
 
+/* ── SOW TAB ─────────────────────────────────────────── */
+.sow-toolbar{display:flex;align-items:center;gap:8px;padding:.75rem;background:var(--bg);border-bottom:.5px solid var(--border);position:sticky;top:57px;z-index:50}
+.sow-select{flex:1;padding:8px 12px;font-size:13px;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
+.sow-count{font-size:12px;color:var(--text3);white-space:nowrap}
+.sow-split{display:flex;flex-direction:column}
+.sow-list{border-bottom:.5px solid var(--border)}
+.sow-detail{background:var(--bg3)}
+.sow-checklist{background:var(--bg);border-radius:var(--radius-lg);margin:.75rem;border:.5px solid var(--border);overflow:hidden}
+.sow-checklist-hdr{padding:.875rem 1rem;background:var(--blue);color:#fff;font-size:13px;font-weight:600}
+.sow-check-row{display:flex;align-items:flex-start;gap:10px;padding:.875rem 1rem;border-bottom:.5px solid var(--border);cursor:pointer}
+.sow-check-row:last-child{border-bottom:none}
+.sow-check-row:active{background:var(--bg2)}
+.sow-check-icon{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:12px;transition:all .15s}
+.sow-check-icon.done{background:var(--green-light);border-color:#3B6D11;color:#3B6D11}
+.sow-check-icon.warn{background:var(--amber-light);border-color:var(--amber-dark);color:var(--amber-dark)}
+.sow-check-icon.empty{background:var(--bg2);border-color:var(--border2);color:var(--text3)}
+.sow-check-content{flex:1;min-width:0}
+.sow-check-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sow-check-value{font-size:12px;color:var(--text2);line-height:1.4}
+.sow-check-value.warn{color:var(--amber-dark);font-weight:500}
+.sow-check-value.good{color:#3B6D11;font-weight:500}
+.sow-distance-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;margin-top:3px}
+.sow-production-box{margin:.75rem;background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.sow-production-hdr{padding:.875rem 1rem;background:var(--purple-light);color:var(--purple-dark);font-size:13px;font-weight:600}
+.sow-production-body{padding:.875rem 1rem}
+.sow-production-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:.5px solid var(--border);font-size:13px}
+.sow-production-row:last-child{border-bottom:none}
+.sow-production-label{color:var(--text2)}
+.sow-production-val{font-weight:600;color:var(--text)}
+.sow-co-btn{width:100%;margin-top:.875rem;padding:10px;border-radius:var(--radius);border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:#A32D2D;color:#fff}
+.sow-co-btn:disabled{opacity:.45}
+.sow-co-result{margin-top:8px;font-size:12px;padding:8px 10px;border-radius:var(--radius);text-align:center}
+.sow-co-result.success{background:var(--green-light);color:var(--green-dark)}
+.sow-co-result.error{background:var(--red-light);color:var(--red-dark)}
+.sow-production-input{width:100%;padding:8px 10px;font-size:13px;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit;margin-top:6px}
+.sow-production-input:focus{border-color:var(--blue)}
+/* KB TAB */
+.kb-search{margin:.75rem;display:flex;align-items:center;gap:8px;background:var(--bg);border:.5px solid var(--border2);border-radius:var(--radius-lg);padding:10px 14px}
+.kb-search svg{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0}
+.kb-search input{flex:1;border:none;background:transparent;font-size:14px;color:var(--text);outline:none;font-family:inherit}
+.kb-section{margin:.75rem}
+.kb-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+.kb-card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.5rem;overflow:hidden}
+.kb-card-hdr{display:flex;justify-content:space-between;align-items:center;padding:.875rem 1rem;cursor:pointer}
+.kb-card-title{font-size:13px;font-weight:600;color:var(--text)}
+.kb-card-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.kb-card-arrow{width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;transition:transform .2s;flex-shrink:0}
+.kb-card.open .kb-card-arrow{transform:rotate(180deg)}
+.kb-card-body{display:none;border-top:.5px solid var(--border);padding:.875rem 1rem}
+.kb-card.open .kb-card-body{display:block}
+.kb-adder-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:.5px solid var(--border);font-size:12px}
+.kb-adder-row:last-child{border-bottom:none}
+.kb-adder-name{color:var(--text);flex:1}
+.kb-adder-cost{color:var(--blue);font-weight:600;text-align:right;white-space:nowrap}
 /* ── DESKTOP LAYOUT (768px+) ─────────────────────────── */
 @media(min-width:768px){
   body{background:var(--bg3)}
@@ -283,7 +337,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v48</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v50</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -361,7 +415,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="bnav-btn" id="nav-projects">
       <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Projects</span>
     </button>
+    <button class="bnav-btn" id="nav-sow">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>SOW</span>
+    </button>
+    <button class="bnav-btn" id="nav-kb">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge</span>
+    </button>
   </div>
+<!-- KNOWLEDGE BASE TAB -->
+<div id="view-kb" class="view">
+  <div class="kb-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="kb-search-input" placeholder="Search adders, SOPs..."/>
+  </div>
+  <div id="kb-content"></div>
+</div>
+
 <!-- COMPOSE MINIMIZED BAR -->
 <div class="compose-mini" id="compose-mini">
   <span class="compose-mini-icon">&#9998;</span>
@@ -445,20 +514,22 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v48';
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In'};
+const VERSION='v50';
+const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
-  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects')?'block':'none';
+  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
   document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
 }
 function setActiveNav(tab){
   document.getElementById('nav-home').classList.toggle('active',tab==='home');
   document.getElementById('nav-projects').classList.toggle('active',tab==='projects');
+  document.getElementById('nav-sow').classList.toggle('active',tab==='sow');
+  document.getElementById('nav-kb').classList.toggle('active',tab==='kb');
 }
 
 // ── EVENT WIRING (no inline onclick) ─────────────────────
@@ -467,6 +538,8 @@ document.getElementById('btn-demo').addEventListener('click',enterDemoMode);
 document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
+document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sow');loadSOW();});
+document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
 document.getElementById('detail-back').addEventListener('click',()=>{
@@ -548,6 +621,7 @@ function doRefresh(){
   if(!active)return;
   if(active.id==='view-home'){clearCache();loadHome();}
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
+  else if(active.id==='view-sow'){SOW_ITEMS=[];loadSOW();}
 }
 
 
@@ -1672,6 +1746,504 @@ async function saveReviewDate(itemId){
   btn.disabled=false;
 }
 
+
+// ── SOW TAB ──────────────────────────────────────────────
+const SOW_APP_ID = 29839685;
+let SOW_ITEMS = [];
+let SOW_CURRENT_ITEM = null;
+
+const SOW_VIEWS = {
+  '61743307': 'Ready for SOW',
+  '61743308': 'SOW Rejections',
+  '61743310': 'Ready to Send Rep SOW',
+  '61743311': 'Projects w/ No Redlines',
+  '61743313': 'Rep SOW Pending Approval',
+  '61743314': 'Customer SOW Rejections',
+  '61743315': 'Customer SOW Sent',
+  '61743332': 'Ready to Send Cust SOW',
+  '61743312': 'Roof Review Needed (SOW)',
+  '61743309': 'Total in SOW'
+};
+
+// SOW field IDs
+const SOW_FIELD = {
+  systemSizeMatches: 271721075,
+  contractPriceMatches: 271721078,
+  designMatches: 271721079,
+  electricalWork: 271721076,
+  structuralUpgrade: 271721077,
+  roofReview: 269989063,
+  repDesignApproval: 266496729,
+  repScopeCreation: 266489342,
+  repScopeApproval: 266489343,
+  customerSOWStatus: 266489345,
+  permitDesign: 267966500,
+  redlineAnalysis: 269673804,
+  systemSize: 267350045,
+  contractPrice: 267350044,
+  address: null, // from project app
+  sowNotes: 266489347,
+};
+
+// Distance adder tiers (miles from branch)
+const BRANCHES = [
+  {name: 'Springfield, IL', lat: 39.7817, lng: -89.6501},
+  {name: 'Frankfort, IL', lat: 41.4959, lng: -87.8534},
+];
+
+function haversineDistance(lat1, lon1, lat2, lon2){
+  const R = 3958.8; // miles
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getDistanceAdder(lat, lng){
+  if(!lat||!lng) return null;
+  let minDist = Infinity;
+  let closestBranch = '';
+  BRANCHES.forEach(b=>{
+    const d = haversineDistance(parseFloat(lat), parseFloat(lng), b.lat, b.lng);
+    if(d < minDist){ minDist = d; closestBranch = b.name; }
+  });
+  const dist = Math.round(minDist);
+  let tier = null;
+  let cost = null;
+  if(dist >= 200){ tier='Tier 3 (200+ miles)'; cost='Quote'; }
+  else if(dist >= 125){ tier='Tier 2 (125-199 miles)'; cost='$0.65/watt'; }
+  else if(dist >= 75){ tier='Tier 1 (75-124 miles)'; cost='$0.50/watt'; }
+  return {dist, tier, cost, branch: closestBranch};
+}
+
+function sowFV(fields, fid){
+  const f = (fields||[]).find(f=>f.field_id===fid);
+  if(!f||!f.values||!f.values.length) return null;
+  const v = f.values[0];
+  if(v.value && v.value.text) return v.value.text;
+  if(v.value !== undefined) return v.value;
+  return null;
+}
+
+async function loadSOW(){
+  showView('sow'); setActiveNav('sow');
+  const viewId = document.getElementById('sow-view-select').value;
+  document.getElementById('sow-loading').style.display='block';
+  document.getElementById('sow-list').innerHTML='';
+  document.getElementById('sow-detail').style.display='none';
+  document.getElementById('sow-count').textContent='';
+  try{
+    const raw = await fetchAllItems(SOW_APP_ID, parseInt(viewId));
+    SOW_ITEMS = raw;
+    document.getElementById('sow-count').textContent = raw.length + ' projects';
+    document.getElementById('sow-list').innerHTML = raw.length
+      ? raw.map(item=>sowCardHTML(item)).join('')
+      : '<div class="empty">No projects in this view.</div>';
+  }catch(e){
+    document.getElementById('sow-list').innerHTML = '<div class="empty">'+e.message+'</div>';
+  }
+  document.getElementById('sow-loading').style.display='none';
+}
+
+function sowCardHTML(item){
+  const fields = item.fields||[];
+  const systemMatches = sowFV(fields, SOW_FIELD.systemSizeMatches);
+  const priceMatches = sowFV(fields, SOW_FIELD.contractPriceMatches);
+  const roofStatus = sowFV(fields, SOW_FIELD.roofReview);
+  const repScope = sowFV(fields, SOW_FIELD.repScopeCreation);
+  const milestone = sowFV(fields, 269930958)||'';
+  // Status dot
+  const allGood = systemMatches==='Yes' && priceMatches==='Yes';
+  const hasIssue = systemMatches==='No' || priceMatches==='No';
+  const dot = hasIssue
+    ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--red-dark);display:inline-block;margin-right:6px;flex-shrink:0"></span>'
+    : allGood
+    ? '<span style="width:8px;height:8px;border-radius:50%;background:#3B6D11;display:inline-block;margin-right:6px;flex-shrink:0"></span>'
+    : '<span style="width:8px;height:8px;border-radius:50%;background:var(--amber-dark);display:inline-block;margin-right:6px;flex-shrink:0"></span>';
+  return `<div class="card" data-sowid="${item.item_id}">
+    <div style="display:flex;align-items:center;margin-bottom:2px">${dot}<span class="card-id">${x(item.title.match(/^(#\S+)/)?.[1]||'')}</span></div>
+    <div class="card-top">
+      <div class="card-name">${x(item.title.replace(/^#\S+\s+/,'').split(' - ')[0]||'')}</div>
+      <span class="badge ${msClass(milestone)}">${x(milestone)||'—'}</span>
+    </div>
+    <div class="card-addr" style="font-size:11px;margin-top:2px">${x(item.title.split(' - ')[1]||'')}</div>
+    <div class="card-meta" style="margin-top:5px">
+      ${systemMatches?`<span class="meta" style="color:${systemMatches==='Yes'?'#3B6D11':'var(--red-dark)'}">Size: ${x(systemMatches)}</span>`:''}
+      ${priceMatches?`<span class="meta" style="color:${priceMatches==='Yes'?'#3B6D11':'var(--red-dark)'}">Price: ${x(priceMatches)}</span>`:''}
+      ${roofStatus?`<span class="meta">${x(roofStatus)}</span>`:''}
+    </div>
+  </div>`;
+}
+
+// SOW card click
+document.getElementById('sow-list').addEventListener('click',function(e){
+  const card = e.target.closest('[data-sowid]');
+  if(card) openSOWDetail(parseInt(card.dataset.sowid));
+});
+
+document.getElementById('sow-back').addEventListener('click',()=>{
+  document.getElementById('sow-detail').style.display='none';
+  SOW_CURRENT_ITEM=null;
+});
+
+document.getElementById('sow-view-select').addEventListener('change',()=>loadSOW());
+
+function openSOWDetail(itemId){
+  const item = SOW_ITEMS.find(i=>i.item_id===itemId);
+  if(!item) return;
+  SOW_CURRENT_ITEM = item;
+  buildSOWDetail(item);
+  document.getElementById('sow-detail').style.display='block';
+  document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
+}
+
+function buildSOWDetail(item){
+  const fields = item.fields||[];
+  const title = item.title||'';
+  const namePart = title.replace(/^#\S+\s+/,'');
+  const name = namePart.split(' - ')[0]||title;
+  const address = namePart.split(' - ')[1]||'';
+
+  // Pull field values
+  const systemMatches = sowFV(fields, SOW_FIELD.systemSizeMatches);
+  const priceMatches = sowFV(fields, SOW_FIELD.contractPriceMatches);
+  const designMatches = sowFV(fields, SOW_FIELD.designMatches);
+  const electricalWork = sowFV(fields, SOW_FIELD.electricalWork);
+  const structuralUpgrade = sowFV(fields, SOW_FIELD.structuralUpgrade);
+  const roofReview = sowFV(fields, SOW_FIELD.roofReview);
+  const repScopeCreation = sowFV(fields, SOW_FIELD.repScopeCreation);
+  const repScopeApproval = sowFV(fields, SOW_FIELD.repScopeApproval);
+  const customerSOW = sowFV(fields, SOW_FIELD.customerSOWStatus);
+  const permitDesign = sowFV(fields, SOW_FIELD.permitDesign);
+  const systemSize = sowFV(fields, SOW_FIELD.systemSize);
+  const contractPrice = sowFV(fields, SOW_FIELD.contractPrice);
+  const sowNotes = sowFV(fields, SOW_FIELD.sowNotes);
+
+  // Get lat/lng from project for distance calc
+  // Pull from address fields if available
+  const latField = (fields).find(f=>f.field_id===270979699);
+  const lngField = (fields).find(f=>f.field_id===270979698);
+  const lat = latField?.values?.[0]?.value;
+  const lng = lngField?.values?.[0]?.value;
+  const distInfo = getDistanceAdder(lat, lng);
+
+  function checkIcon(val, goodVals=[], warnVals=[]){
+    if(!val) return '<span class="sow-check-icon empty">?</span>';
+    const isGood = goodVals.some(g=>val.toLowerCase().includes(g.toLowerCase()));
+    const isWarn = warnVals.some(w=>val.toLowerCase().includes(w.toLowerCase()));
+    if(isGood) return '<span class="sow-check-icon done">✓</span>';
+    if(isWarn) return '<span class="sow-check-icon warn">!</span>';
+    return '<span class="sow-check-icon empty">—</span>';
+  }
+
+  const checks = [
+    {
+      label: 'System Size Matches',
+      icon: checkIcon(systemMatches,['yes'],['no']),
+      value: systemSize ? systemSize + ' kW — ' + (systemMatches||'Not set') : (systemMatches||'Not set'),
+      cls: systemMatches==='Yes'?'good':systemMatches==='No'?'warn':''
+    },
+    {
+      label: 'Contract Price Matches',
+      icon: checkIcon(priceMatches,['yes'],['no']),
+      value: contractPrice ? '$' + parseFloat(contractPrice).toLocaleString() + ' — ' + (priceMatches||'Not set') : (priceMatches||'Not set'),
+      cls: priceMatches==='Yes'?'good':priceMatches==='No'?'warn':''
+    },
+    {
+      label: 'Design Matches',
+      icon: checkIcon(designMatches,['yes'],['no']),
+      value: designMatches||'Not set',
+      cls: designMatches==='Yes'?'good':designMatches==='No'?'warn':''
+    },
+    {
+      label: 'Roof Review',
+      icon: checkIcon(roofReview,['approved'],['issue','fail','reject']),
+      value: roofReview||'Not set',
+      cls: roofReview&&roofReview.toLowerCase().includes('approved')?'good':roofReview&&roofReview.toLowerCase().includes('issue')?'warn':''
+    },
+    {
+      label: 'Electrical Work',
+      icon: electricalWork&&electricalWork.toLowerCase()==='no'?'<span class="sow-check-icon done">✓</span>':'<span class="sow-check-icon warn">!</span>',
+      value: electricalWork||'Not set',
+      cls: electricalWork&&electricalWork.toLowerCase()==='no'?'good':'warn'
+    },
+    {
+      label: 'Structural Upgrade',
+      icon: checkIcon(structuralUpgrade,['no'],['yes']),
+      value: structuralUpgrade||'Not set',
+      cls: structuralUpgrade==='No'?'good':structuralUpgrade==='Yes'?'warn':''
+    },
+    {
+      label: 'Permit Package Design',
+      icon: checkIcon(permitDesign,['approved'],['pending','review']),
+      value: permitDesign||'Not set',
+      cls: permitDesign&&permitDesign.toLowerCase().includes('approved')?'good':''
+    },
+    {
+      label: 'Rep Scope Creation',
+      icon: checkIcon(repScopeCreation,['created','ready'],['pending']),
+      value: repScopeCreation||'Not set',
+      cls: ''
+    },
+    {
+      label: 'Rep Scope Approval',
+      icon: checkIcon(repScopeApproval,['approved'],['rejected','pending']),
+      value: repScopeApproval||'Not set',
+      cls: repScopeApproval&&repScopeApproval.toLowerCase().includes('approved')?'good':repScopeApproval&&repScopeApproval.toLowerCase().includes('rejected')?'warn':''
+    },
+    {
+      label: 'Customer SOW Status',
+      icon: checkIcon(customerSOW,['approved','sent'],['rejected']),
+      value: customerSOW||'Not set',
+      cls: ''
+    },
+  ];
+
+  const checksHTML = checks.map(c=>`
+    <div class="sow-check-row">
+      ${c.icon}
+      <div class="sow-check-content">
+        <div class="sow-check-label">${x(c.label)}</div>
+        <div class="sow-check-value ${c.cls}">${x(String(c.value))}</div>
+      </div>
+    </div>`).join('');
+
+  const distHTML = distInfo ? `
+    <div class="sow-check-row">
+      <span class="sow-check-icon ${distInfo.tier?'warn':'done'}">${distInfo.tier?'$':'✓'}</span>
+      <div class="sow-check-content">
+        <div class="sow-check-label">Distance Adder</div>
+        <div class="sow-check-value">${distInfo.dist} miles from ${x(distInfo.branch)}</div>
+        ${distInfo.tier?`<span class="sow-distance-badge" style="background:var(--amber-light);color:var(--amber-dark)">${x(distInfo.tier)} — ${x(distInfo.cost)}</span>`:'<span class="sow-distance-badge" style="background:var(--green-light);color:var(--green-dark)">No distance adder</span>'}
+      </div>
+    </div>` : '';
+
+  document.getElementById('sow-detail-body').innerHTML = `
+    <div style="padding:.75rem .75rem .25rem">
+      <div class="detail-id">${x(title.match(/^(#\S+)/)?.[1]||'')}</div>
+      <div class="detail-name">${x(name)}</div>
+      ${address?`<div class="detail-addr">${x(address)}</div>`:''}
+    </div>
+    <div class="sow-checklist">
+      <div class="sow-checklist-hdr">SOW Verification Checklist</div>
+      ${checksHTML}
+      ${distHTML}
+    </div>
+    ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
+    <div class="sow-production-box">
+      <div class="sow-production-hdr">&#9889; Production Check</div>
+      <div class="sow-production-body">
+        <div class="sow-production-row">
+          <span class="sow-production-label">Sold production (Podio)</span>
+          <span class="sow-production-val" id="sow-sold-prod-${item.item_id}">Loading...</span>
+        </div>
+        <div class="sow-production-row">
+          <span class="sow-production-label">New production (from planset)</span>
+          <span class="sow-production-val">Enter below</span>
+        </div>
+        <input type="number" class="sow-production-input" id="sow-new-prod-${item.item_id}" placeholder="Enter new kWh from planset e.g. 12500"/>
+        <button class="sow-co-btn" id="sow-co-btn-${item.item_id}" data-sowitemid="${item.item_id}">Check & Create Change Order if Needed</button>
+        <div class="sow-co-result" id="sow-co-result-${item.item_id}" style="display:none"></div>
+      </div>
+    </div>
+    <div style="padding:0 .75rem .75rem">
+      <a href="https://podio.com/aveyo/projects/apps/scope-of-work/items/${item.item_id}" target="_blank">
+        <button class="btn btn-outline" style="font-size:12px">Open in Podio</button>
+      </a>
+    </div>`;
+  // Load sold production from VPS
+  loadSoldProduction(item.item_id);
+}
+
+// ── SOW PRODUCTION CHECK ─────────────────────────────────
+async function loadSoldProduction(sowItemId){
+  const el = document.getElementById('sow-sold-prod-'+sowItemId);
+  if(!el) return;
+  if(DEMO_MODE){el.textContent='12,927 kWh';return;}
+  try{
+    const res = await fetch(VPS+'/sow-production-check',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sow_item_id: sowItemId, new_production: null})
+    });
+    const d = await res.json();
+    if(d.status==='ok' && d.sold_production){
+      el.textContent = parseInt(d.sold_production).toLocaleString() + ' kWh';
+    } else {
+      el.textContent = 'Not found';
+    }
+  }catch(e){
+    el.textContent = 'Error loading';
+  }
+}
+
+// Wire production check button
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.sow-co-btn[data-sowitemid]');
+  if(btn) checkProduction(parseInt(btn.dataset.sowitemid));
+});
+
+async function checkProduction(sowItemId){
+  const input = document.getElementById('sow-new-prod-'+sowItemId);
+  const btn = document.getElementById('sow-co-btn-'+sowItemId);
+  const result = document.getElementById('sow-co-result-'+sowItemId);
+  if(!input||!btn||!result) return;
+  const newProd = parseFloat(input.value);
+  if(!newProd||isNaN(newProd)){
+    result.className='sow-co-result error';
+    result.textContent='Please enter the new production value from the planset';
+    result.style.display='block';
+    return;
+  }
+  btn.disabled=true;
+  btn.textContent='Checking...';
+  result.style.display='none';
+  if(DEMO_MODE){
+    await delay(1000);
+    const sold=12927, diff=Math.abs(newProd-sold)/sold*100;
+    if(diff>5){
+      result.className='sow-co-result success';
+      result.textContent='⚠️ '+diff.toFixed(1)+'% difference — Change order comment posted to SOW in Podio!';
+    } else {
+      result.className='sow-co-result success';
+      result.textContent='✓ Within 5% tolerance ('+diff.toFixed(1)+'% difference) — No change order needed';
+    }
+    result.style.display='block';
+    btn.disabled=false;
+    btn.textContent='Check & Create Change Order if Needed';
+    return;
+  }
+  try{
+    const res = await fetch(VPS+'/sow-production-check',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sow_item_id: sowItemId, new_production: newProd})
+    });
+    const d = await res.json();
+    if(d.status!=='ok') throw new Error(d.message||'Failed');
+    if(d.change_needed){
+      result.className='sow-co-result success';
+      result.textContent='⚠️ '+d.diff_pct+'% difference — Change order comment posted to SOW in Podio!';
+    } else {
+      result.className='sow-co-result success';
+      result.textContent='✓ Within 5% tolerance ('+d.diff_pct+'% difference) — No change order needed';
+    }
+    result.style.display='block';
+    // Update sold production display
+    if(d.sold_production){
+      const el=document.getElementById('sow-sold-prod-'+sowItemId);
+      if(el) el.textContent=parseInt(d.sold_production).toLocaleString()+' kWh';
+    }
+  }catch(e){
+    result.className='sow-co-result error';
+    result.textContent='Error: '+e.message;
+    result.style.display='block';
+  }
+  btn.disabled=false;
+  btn.textContent='Check & Create Change Order if Needed';
+}
+
+// ── KNOWLEDGE BASE ────────────────────────────────────────
+const ADDERS = [
+  {name:'Battery - Installed w/Solar (Consumption Only) - First', cost:'$8,500 ea'},
+  {name:'Battery - Installed w/Solar (Consumption Only) - Each Additional', cost:'$7,500 ea'},
+  {name:'Battery - Installed w/Solar (Partial Backup) - First', cost:'$10,000 ea'},
+  {name:'Battery - Installed w/Solar (Full Backup, min 2) - First 2', cost:'$17,500 ea'},
+  {name:'Battery - Each Additional (All Applications)', cost:'$7,500 ea'},
+  {name:'Main Panel Upgrade (MPU) 200 Amp', cost:'$4,000 ea'},
+  {name:'Main Panel Upgrade (MPU) 400 Amp', cost:'$2,100 ea'},
+  {name:'Sub Panel - Additional 8 Circuit', cost:'$3,500 ea'},
+  {name:'Sub Panel Relocate', cost:'Quote'},
+  {name:'Meter Relocate', cost:'$2,000 ea'},
+  {name:'Meter Housing Upgrade', cost:'$500 ea'},
+  {name:'Production Meter', cost:'$500 ea'},
+  {name:'H Frame - Manufactured Home', cost:'$250 ea'},
+  {name:'DeRate In lieu of MPU', cost:'$750 ea'},
+  {name:'Steep Roof >39 degrees', cost:'$0.20/watt'},
+  {name:'Flat Roof', cost:'$0.10/watt'},
+  {name:'Clay Tile/Light Weight (Comp Out)', cost:'Quote'},
+  {name:'Aluminum Shingle Roof', cost:'$0.10/watt'},
+  {name:'Ballast System', cost:'Quote'},
+  {name:'Concrete/Tile Roof', cost:'$0.15/watt'},
+  {name:'Metal Roof', cost:'Quote'},
+  {name:'Hawaiian Tie-In', cost:'Quote'},
+  {name:'Ground Mount Illinois', cost:'$1,000 ea'},
+  {name:'Critterguard', cost:'$0.10/watt'},
+  {name:'Array Skirt', cost:'$0.10/watt'},
+  {name:'Distance Adder - Tier 1 (75-124 miles)', cost:'$0.50/watt'},
+  {name:'Distance Adder - Tier 2 (125-199 miles)', cost:'$0.65/watt'},
+  {name:'Distance Adder - Tier 3 (200+ miles)', cost:'Quote'},
+  {name:'Re-Roof Full and Partial', cost:'Quote'},
+  {name:'Small System <4kW (min 6 panels)', cost:'$500 ea'},
+  {name:'Trenching - Dirt', cost:'$17.50/ft'},
+  {name:'Trenching - Concrete', cost:'$27.50/ft'},
+  {name:'Generac Generator', cost:'Quote'},
+  {name:'HVAC', cost:'Quote'},
+  {name:'Tree Trimming', cost:'Quote'},
+  {name:'Roof Structural Upgrade', cost:'$1,500 ea'},
+  {name:'Territory Adder - Fairview Heights IL', cost:'Quote'},
+  {name:'Custom Engineering', cost:'Quote'},
+  {name:'Bollards (Set)', cost:'Quote'},
+  {name:'Uninstall/Reinstall', cost:'$0.50/watt'},
+];
+
+function loadKB(){
+  renderKB('');
+}
+
+function renderKB(query){
+  const q = query.toLowerCase();
+  const filtered = q ? ADDERS.filter(a=>a.name.toLowerCase().includes(q)||a.cost.toLowerCase().includes(q)) : ADDERS;
+  const html = `
+    <div class="kb-section">
+      <div class="kb-section-title">Adder Sheet (Updated 2.1.26)</div>
+      <div class="kb-card open">
+        <div class="kb-card-body" style="display:block;padding:0">
+          ${filtered.length ? filtered.map(a=>`
+            <div class="kb-adder-row">
+              <span class="kb-adder-name">${x(a.name)}</span>
+              <span class="kb-adder-cost">${x(a.cost)}</span>
+            </div>`).join('') : '<div style="padding:.875rem;color:var(--text3);font-size:13px">No adders match.</div>'}
+        </div>
+      </div>
+    </div>
+    <div class="kb-section">
+      <div class="kb-section-title">Change Order SOP</div>
+      <div class="kb-card" id="kb-sop-card">
+        <div class="kb-card-hdr" onclick="document.getElementById('kb-sop-card').classList.toggle('open')">
+          <div><div class="kb-card-title">Change Order Checklist</div><div class="kb-card-sub">When to create a change order</div></div>
+          <svg class="kb-card-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="kb-card-body">
+          <div style="font-size:13px;color:var(--text2);line-height:1.7">
+            <p style="margin-bottom:.5rem"><strong>Create a Change Order when:</strong></p>
+            <p>• System size in Podio does not match the planset or Aurora proposal</p>
+            <p>• Contract price in Podio does not match the finance portal</p>
+            <p>• Adders on the project do not match what was sold</p>
+            <p>• Electrical work or structural upgrades are required that weren't in original scope</p>
+            <p>• Roof issues discovered during site survey require additional work</p>
+            <p style="margin-top:.75rem"><strong>Distance Adder Rules:</strong></p>
+            <p>• Calculate from customer address to Springfield IL or Frankfort IL (whichever is closer)</p>
+            <p>• Tier 1: 75-124 miles — $0.50/watt</p>
+            <p>• Tier 2: 125-199 miles — $0.65/watt</p>
+            <p>• Tier 3: 200+ miles — Quote</p>
+            <p style="margin-top:.75rem"><strong>Manufactured/Mobile Home:</strong></p>
+            <p>• Verify property type is not manufactured or mobile home</p>
+            <p>• If manufactured home — H Frame adder required ($250 ea)</p>
+            <p>• Check county GIS/property tax records to confirm</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('kb-content').innerHTML = html;
+}
+
+document.getElementById('kb-search-input').addEventListener('input',function(){
+  renderKB(this.value);
+});
+
 // ── INIT ─────────────────────────────────────────────────
 TOKEN=loadToken();
 document.getElementById('auth-user').value=PODIO.user;
@@ -1690,7 +2262,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=48').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=50').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
