@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v57</title>
+<title>Aveyo Solar v58</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -355,7 +355,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     left:0;
     right:0;
     bottom:56px;
-    z-index:10;
+    z-index:50;
     background:var(--bg3);
   }
   .desktop-split-list{
@@ -391,7 +391,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v57</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v58</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -599,7 +599,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v57';
+const VERSION='v58';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -885,7 +885,6 @@ async function loadProjects(){
     ALL_ITEMS=[...DEMO_ITEMS];
     document.getElementById('progress-bar').style.width='100%';
     renderProjStats();renderChips();renderCards();
-  if(IS_DESKTOP()) setTimeout(addSplitToggleBtn, 100);
     document.getElementById('cards-loading').style.display='none';
     return;
   }
@@ -904,7 +903,6 @@ async function loadProjects(){
     document.getElementById('progress-bar').style.width='100%';
     ALL_ITEMS=all.map(parseItem);
     renderProjStats();renderChips();renderCards();
-  if(IS_DESKTOP()) setTimeout(addSplitToggleBtn, 100);
   }catch(e){
     document.getElementById('cards-list').innerHTML=`<div class="empty">${e.message}</div>`;
   }
@@ -2553,119 +2551,84 @@ document.getElementById('kb-search-input').addEventListener('input',function(){
 // ── DESKTOP SPLIT VIEW ───────────────────────────────────
 const IS_DESKTOP = ()=> window.innerWidth >= 768;
 
-function showDesktopSplit(items){
-  if(!IS_DESKTOP()) return false;
+function showDesktopSplit(items, selectedId){
   const split = document.getElementById('desktop-split');
   const listEl = document.getElementById('desktop-split-list');
   split.classList.add('active');
-  listEl.innerHTML = items.map((item,i)=>`
-    <div class="split-list-item" data-splitid="${item.id}">
+  // Hide the main view content so split takes over
+  document.getElementById('view-projects').style.display = 'none';
+
+  listEl.innerHTML = items.map(item=>`
+    <div class="split-list-item ${item.id===selectedId?'selected':''}" data-splitid="${item.id}">
       <div class="split-list-item-num">${x(item.num)}</div>
       <div class="split-list-item-name">${x(item.name)}</div>
       <div class="split-list-item-meta">
         <span class="badge ${msClass(item.milestone)}" style="font-size:10px">${x(item.milestone||'—')}</span>
-        ${item.daysSince!==null?`<span style="margin-left:6px">${item.daysSince}d ago</span>`:''}
+        ${item.daysSince!==null?`<span style="margin-left:6px;font-size:11px">${item.daysSince}d ago</span>`:''}
       </div>
     </div>`).join('');
 
-  // Click handler
   listEl.onclick = (e)=>{
     const el = e.target.closest('[data-splitid]');
     if(!el) return;
     const id = parseInt(el.dataset.splitid);
     const item = items.find(i=>i.id===id);
     if(!item) return;
-    // Highlight selected
     listEl.querySelectorAll('.split-list-item').forEach(el=>el.classList.remove('selected'));
     el.classList.add('selected');
-    // Render detail in right panel
     renderSplitDetail(item);
   };
 
-  // Auto-select first
-  if(items.length){
-    listEl.querySelector('.split-list-item')?.classList.add('selected');
-    renderSplitDetail(items[0]);
-  }
-  return true;
+  // Find and select the clicked item
+  const selEl = listEl.querySelector(`[data-splitid="${selectedId}"]`);
+  if(selEl) selEl.scrollIntoView({block:'nearest'});
 }
 
 function renderSplitDetail(item){
   CURRENT_ITEM_ID = item.id;
-  // Build detail in the hidden view-detail first, then clone to split
   buildDetail(item);
-  // Copy rendered content to split panel
   const src = document.getElementById('detail-body');
   const dst = document.getElementById('desktop-split-detail');
-  if(src && dst){
-    dst.innerHTML = src.innerHTML;
-    // Also copy proj-nav
-    const nav = document.querySelector('#view-detail .proj-nav');
-    const hdr = document.querySelector('#view-detail .detail-hdr');
-    let headerHTML = '';
-    if(hdr) headerHTML += hdr.outerHTML;
-    if(nav) headerHTML += nav.outerHTML;
-    dst.innerHTML = headerHTML + src.innerHTML;
-  }
+  const hdr = document.querySelector('#view-detail .detail-hdr');
+  const nav = document.querySelector('#view-detail .proj-nav');
+  const swipe = document.querySelector('#view-detail .swipe-nav');
+  let top = '';
+  if(hdr) top += hdr.outerHTML;
+  if(nav) top += nav.outerHTML;
+  if(src) dst.innerHTML = top + src.innerHTML;
+  dst.scrollTo(0,0);
 }
 
 function hideDesktopSplit(){
   document.getElementById('desktop-split').classList.remove('active');
-  const btn = document.getElementById('split-toggle-btn');
-  if(btn) btn.textContent = '⊞ Split View';
+  document.getElementById('view-projects').style.display = '';
 }
 
-// On desktop, card clicks open split view
+// Intercept card clicks on desktop — open split view
 document.addEventListener('click', function(e){
   if(!IS_DESKTOP()) return;
   const card = e.target.closest('.card[data-itemid]');
   if(!card) return;
-  // Don't intercept button clicks inside cards
-  if(e.target.closest('button')) return;
+  if(e.target.closest('button')) return; // don't intercept button clicks
   const id = parseInt(card.dataset.itemid);
-  const item = ALL_ITEMS.find(i=>i.id===id) || WLIST_ITEMS.find(i=>i.id===id);
+  const items = ALL_ITEMS.length ? ALL_ITEMS : WLIST_ITEMS;
+  const item = items.find(i=>i.id===id);
   if(!item) return;
   e.preventDefault();
-  e.stopPropagation();
-  const splitEl = document.getElementById('desktop-split');
-  if(!splitEl.classList.contains('active')){
-    // Activate split with current list
-    const listItems = ALL_ITEMS.length ? ALL_ITEMS : WLIST_ITEMS;
-    showDesktopSplit(listItems);
-  }
-  // Update selection
-  splitEl.querySelectorAll('.split-list-item').forEach(el=>{
-    el.classList.toggle('selected', parseInt(el.dataset.splitid)===id);
-  });
-  // Scroll selected into view
-  const selEl = splitEl.querySelector('.split-list-item.selected');
-  if(selEl) selEl.scrollIntoView({block:'nearest'});
+  e.stopImmediatePropagation();
+  // Show split with full list, selected item on right
+  showDesktopSplit(items, id);
   renderSplitDetail(item);
 }, true);
 
-// Add split view toggle button on desktop projects view
-function addSplitToggleBtn(){
-  if(!IS_DESKTOP()) return;
-  if(document.getElementById('split-toggle-btn')) return;
-  const searchWrap = document.querySelector('.search-wrap');
-  if(!searchWrap) return;
-  const btn = document.createElement('button');
-  btn.id = 'split-toggle-btn';
-  btn.className = 'btn btn-outline';
-  btn.style.cssText = 'font-size:12px;padding:6px 12px;white-space:nowrap';
-  btn.textContent = '⊞ Split View';
-  btn.onclick = ()=>{
-    const splitEl = document.getElementById('desktop-split');
-    if(splitEl.classList.contains('active')){
-      hideDesktopSplit();
-      btn.textContent = '⊞ Split View';
-    } else {
-      showDesktopSplit(ALL_ITEMS);
-      btn.textContent = '✕ Exit Split';
-    }
-  };
-  searchWrap.appendChild(btn);
-}
+// Back button in split view goes back to projects list
+document.getElementById('desktop-split').addEventListener('click', function(e){
+  const backBtn = e.target.closest('.back-bar, [id="detail-back"]');
+  if(backBtn){
+    e.preventDefault();
+    hideDesktopSplit();
+  }
+});
 
 // ── AUTO-REFRESH POLLING ──────────────────────────────────
 let POLL_INTERVAL = null;
@@ -2737,7 +2700,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=57').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=58').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
