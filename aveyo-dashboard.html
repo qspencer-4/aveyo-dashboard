@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v51</title>
+<title>Aveyo Solar v52</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -234,6 +234,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sow-check-value.warn{color:var(--amber-dark);font-weight:500}
 .sow-check-value.good{color:#3B6D11;font-weight:500}
 .sow-distance-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;margin-top:3px}
+.sow-parcel-box{margin:.75rem;background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.sow-parcel-hdr{padding:.875rem 1rem;background:var(--teal-light);color:var(--teal-dark);font-size:13px;font-weight:600}
+.sow-parcel-body{padding:.875rem 1rem}
+.sow-parcel-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid var(--border);font-size:12px}
+.sow-parcel-row:last-child{border-bottom:none}
+.sow-parcel-label{color:var(--text2)}
+.sow-parcel-val{font-weight:600;color:var(--text);text-align:right;max-width:60%}
+.sow-parcel-val.warn{color:var(--amber-dark)}
+.sow-parcel-val.bad{color:var(--red-dark)}
+.sow-parcel-val.good{color:#3B6D11}
+.sow-parcel-link{font-size:11px;color:var(--blue);text-decoration:none;display:block;margin-top:6px}
 .sow-production-box{margin:.75rem;background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
 .sow-production-hdr{padding:.875rem 1rem;background:var(--purple-light);color:var(--purple-dark);font-size:13px;font-weight:600}
 .sow-production-body{padding:.875rem 1rem}
@@ -337,7 +348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v51</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v52</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -545,7 +556,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v51';
+const VERSION='v52';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -2063,6 +2074,12 @@ function buildSOWDetail(item){
       ${distHTML}
     </div>
     ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
+    <div class="sow-parcel-box">
+      <div class="sow-parcel-hdr">&#127968; Property Lookup</div>
+      <div class="sow-parcel-body" id="sow-parcel-body-${item.item_id}">
+        <div style="font-size:12px;color:var(--text3)">Loading parcel data...</div>
+      </div>
+    </div>
     <div class="sow-production-box">
       <div class="sow-production-hdr">&#9889; Production Check</div>
       <div class="sow-production-body">
@@ -2086,6 +2103,173 @@ function buildSOWDetail(item){
     </div>`;
   // Load sold production from VPS
   loadSoldProduction(item.item_id);
+  // Load parcel data from free APIs
+  loadParcelData(item.item_id, address, item.fields||[]);
+}
+
+
+// ── PARCEL LOOKUP ─────────────────────────────────────────
+async function loadParcelData(sowItemId, address, fields){
+  const el = document.getElementById('sow-parcel-body-' + sowItemId);
+  if(!el) return;
+
+  if(DEMO_MODE){
+    el.innerHTML = renderParcelHTML({
+      parcel_number: '14-3-27-001-006',
+      owner: 'KITE, CLINTON',
+      property_class: 'Residential',
+      county: 'Macoupin County',
+      is_manufactured: false,
+      assessor_url: '#'
+    });
+    return;
+  }
+
+  // Get lat/lng from fields
+  let lat = null, lng = null;
+  for(const f of fields){
+    if(f.field_id === 270979699){ lat = f.values?.[0]?.value; }
+    if(f.field_id === 270979698){ lng = f.values?.[0]?.value; }
+  }
+
+  // If no lat/lng, try to geocode address
+  if(!lat || !lng){
+    if(address){
+      try{
+        const geo = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+          {headers:{'User-Agent':'Aveyo-Dashboard/1.0'}}
+        );
+        const geoData = await geo.json();
+        if(geoData.length){
+          lat = parseFloat(geoData[0].lat);
+          lng = parseFloat(geoData[0].lon);
+        }
+      }catch(e){}
+    }
+  }
+
+  if(!lat || !lng){
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3)">No coordinates available for this project.</div>';
+    return;
+  }
+
+  try{
+    // Step 1: Get county from FCC API (free, no key)
+    const fcc = await fetch(
+      `https://geo.fcc.gov/api/census/block/find?latitude=${lat}&longitude=${lng}&format=json`
+    );
+    const fccData = await fcc.json();
+    const county = fccData?.County?.name || '';
+    const state = fccData?.State?.code || '';
+    const fips = fccData?.County?.FIPS || '';
+
+    // Step 2: Try to find parcel via ArcGIS services
+    let parcelData = null;
+
+    // Try national ArcGIS parcel service
+    const arcgisUrls = [
+      `https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Parcels/FeatureServer/0/query?geometry=${lng},${lat}&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&inSR=4326&outFields=*&returnGeometry=false&f=json`,
+    ];
+
+    for(const url of arcgisUrls){
+      try{
+        const r = await fetch(url);
+        const d = await r.json();
+        const features = d?.features || [];
+        if(features.length){
+          const a = features[0].attributes || {};
+          parcelData = {
+            parcel_number: a.APN || a.PIN || a.PARCEL || a.PARCELNUMBER || a.parcelnumb || null,
+            owner: a.OWNER || a.OWNERNME1 || a.owner || null,
+            property_class: a.USEDESC || a.usedesc || a.PROPCLASS || a.propclass || null,
+            year_built: a.YEARBUILT || a.yearbuilt || a.YR_BLT || null,
+            county: county,
+            state: state,
+          };
+          break;
+        }
+      }catch(e){}
+    }
+
+    // Build assessor URL based on county/state
+    let assessorUrl = buildAssessorUrl(county, state, fips, address);
+
+    // Check if manufactured/mobile home
+    const propClass = (parcelData?.property_class || '').toLowerCase();
+    const isMfg = propClass.includes('mobile') || propClass.includes('manufactured') || propClass.includes('modular');
+
+    const result = {
+      parcel_number: parcelData?.parcel_number || null,
+      owner: parcelData?.owner || null,
+      property_class: parcelData?.property_class || null,
+      year_built: parcelData?.year_built || null,
+      county: county,
+      state: state,
+      is_manufactured: isMfg,
+      assessor_url: assessorUrl
+    };
+
+    el.innerHTML = renderParcelHTML(result);
+
+  }catch(e){
+    el.innerHTML = `<div style="font-size:12px;color:var(--red-dark)">Error loading parcel data: ${x(e.message)}</div>`;
+  }
+}
+
+function buildAssessorUrl(county, state, fips, address){
+  // Build direct county assessor URLs for common IL counties
+  const countyLower = county.toLowerCase().replace(' county','').trim();
+  const addrEnc = encodeURIComponent(address || '');
+  const assessorUrls = {
+    'macoupin': 'https://www.macoupincountyil.gov/assessor',
+    'sangamon': 'https://www.co.sangamon.il.us/departments/a-f/assessments-and-taxation/property-search',
+    'madison': 'https://www.co.madison.il.us/departments/assessor',
+    'st. clair': 'https://www.co.st-clair.il.us/departments/assessor',
+    'champaign': 'https://www.champaigncountyassessor.com',
+    'mclean': 'https://www.mcleancountyil.gov/112/Parcel-Information-Look-Up',
+    'will': 'https://www.willcountyillinois.com/County-Departments/Supervisor-of-Assessments',
+    'kane': 'https://kanecountyassessor.com',
+    'lake': 'https://www.lakecountyil.gov/assessor',
+    'peoria': 'https://www.peoriacounty.org/assessor',
+    'tazewell': 'https://www.tazewell.com/assessors-office',
+    'rock island': 'https://www.rockislandcounty.org/Assessor',
+    'whiteside': 'https://www.whiteside.org/departments/assessor',
+    'bureau': 'https://www.bureaucounty-il.gov/assessor',
+    'christian': 'https://www.christiancountyil.gov',
+    'montgomery': 'https://www.montgomeryco.com',
+    'bond': 'https://www.bondcountyil.gov',
+    'clinton': 'https://www.clintonco.illinois.gov',
+    'fayette': 'https://www.fayettecountyil.com',
+    'effingham': 'https://www.co.effingham.il.us',
+    'shelby': 'https://www.shelbycountyillinois.com',
+    'macon': 'https://www.co.macon.il.us',
+    'dewitt': 'https://www.dewittcountyil.gov',
+    'piatt': 'https://www.piattcounty.org',
+  };
+  return assessorUrls[countyLower] || `https://www.google.com/search?q=${encodeURIComponent(county + ' Illinois assessor property search')}`;
+}
+
+function renderParcelHTML(data){
+  const mfgWarning = data.is_manufactured
+    ? `<div style="background:var(--red-light);color:var(--red-dark);padding:8px 10px;border-radius:var(--radius);font-size:12px;font-weight:600;margin-bottom:8px">⚠️ MANUFACTURED/MOBILE HOME — LightReach does not fund. H-Frame adder required.</div>`
+    : '';
+
+  const rows = [
+    {label:'Parcel Number', val: data.parcel_number || '—', cls: data.parcel_number ? '' : 'warn'},
+    {label:'Owner', val: data.owner || '—', cls: ''},
+    {label:'Property Class', val: data.property_class || '—', cls: data.is_manufactured ? 'bad' : ''},
+    {label:'Year Built', val: data.year_built || '—', cls: ''},
+    {label:'County', val: data.county || '—', cls: ''},
+  ].filter(r => r.val !== '—' || r.label === 'Parcel Number');
+
+  return mfgWarning + rows.map(r =>
+    `<div class="sow-parcel-row">
+      <span class="sow-parcel-label">${x(r.label)}</span>
+      <span class="sow-parcel-val ${r.cls}">${x(String(r.val))}</span>
+    </div>`
+  ).join('') +
+  `<a class="sow-parcel-link" href="${data.assessor_url}" target="_blank">🔗 Open County Assessor Records →</a>`;
 }
 
 // ── SOW PRODUCTION CHECK ─────────────────────────────────
@@ -2293,7 +2477,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=51').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=52').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
