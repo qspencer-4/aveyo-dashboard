@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v60</title>
+<title>Aveyo Solar v61</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -343,35 +343,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 @media(min-width:768px){
   #view-detail.split-active{display:none}
-  .desktop-split{display:none}
-  .desktop-split.active{
-    display:grid;
-    grid-template-columns:380px 1fr;
-    gap:0;
-    height:calc(100vh - 113px);
-    overflow:hidden;
-    position:fixed;
-    top:57px;
-    left:0;
-    right:0;
-    bottom:56px;
-    z-index:50;
-    background:var(--bg3);
-  }
-  .desktop-split-list{
-    overflow-y:auto;
-    border-right:.5px solid var(--border2);
-    background:var(--bg);
-  }
-  .desktop-split-detail{
-    overflow-y:auto;
-    background:var(--bg3);
-  }
-  .desktop-split-detail .collapsible{margin:.5rem .75rem}
-  .desktop-split-detail .collapsible .coll-body{display:block!important;max-height:none!important}
-  .desktop-split-detail .collapsible .coll-arrow{transform:rotate(180deg)}
-  .desktop-split-detail .detail-hdr{margin:.75rem}
-  .desktop-split-detail .back-bar{display:none}
+
+
+
+
+
+
+
+
+
   .split-list-item{padding:.75rem 1rem;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s}
   .split-list-item:hover{background:var(--bg2)}
   .split-list-item.selected{background:var(--blue-light);border-left:3px solid var(--blue)}
@@ -391,7 +371,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v60</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v61</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -516,14 +496,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="kb-content"></div>
 </div>
 
-<!-- DESKTOP SPLIT VIEW -->
-<div class="desktop-split" id="desktop-split">
-  <div class="desktop-split-list" id="desktop-split-list"></div>
-  <div class="desktop-split-detail" id="desktop-split-detail">
-    <div style="padding:2rem;color:var(--text3);font-size:13px;text-align:center">Select a project to view details</div>
-  </div>
-</div>
-
 <!-- COMPOSE MINIMIZED BAR -->
 <div class="compose-mini" id="compose-mini">
   <span class="compose-mini-icon">&#9998;</span>
@@ -607,7 +579,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v60';
+const VERSION='v61';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -663,15 +635,7 @@ document.getElementById('wl-list').addEventListener('click',function(e){
 // Projects card clicks (delegated)
 document.getElementById('cards-list').addEventListener('click',function(e){
   const c=e.target.closest('[data-itemid]');
-  if(!c) return;
-  if(e.target.closest('button')) return;
-  const id = parseInt(c.dataset.itemid);
-  if(IS_DESKTOP()){
-    const items = ALL_ITEMS.length ? ALL_ITEMS : WLIST_ITEMS;
-    const item = items.find(i=>i.id===id);
-    if(item){ showDesktopSplit(items, id); renderSplitDetail(item); return; }
-  }
-  PREV_VIEW='projects'; openDetail(id);
+  if(c){PREV_VIEW='projects';openDetail(parseInt(c.dataset.itemid));}
 });
 // Chip clicks (delegated)
 document.getElementById('filter-chips').addEventListener('click',function(e){
@@ -1155,8 +1119,9 @@ function buildDetail(item){
     const desc=(b.match(/Description:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';
     const woId=(b.match(/\[WO-(\d+)\]/)||[])[1]||'';
     const woLink=(b.match(/\[WO-\d+\]\(([^)]+)\)/)||[])[1]||'';
-    const assigned=(b.match(/Assigned to:\*?\s*\*?\s*([^\n<*]+)/i)||[])[1]||'';
-    const contractorDisplay = (assigned&&assigned.trim()&&assigned.trim()!=='**')?assigned.trim():(item.contractor||'');
+    const assignedRaw=(b.match(/Assigned to:[\s*]+([^\n]+)/i)||[])[1]||'';
+    const assignedClean = assignedRaw.replace(/\*+/g,'').replace(/\s+/g,' ').trim();
+    const contractorDisplay = assignedClean || (item.contractor||'');
     return`<div class="te"><div class="te-date">${woId?`<a href="${woLink}" target="_blank" style="color:var(--blue);text-decoration:none">WO-${woId}</a>`:''}${appt?' · '+x(appt.trim()):''}</div>${type?`<div style="font-weight:600;font-size:12px;color:var(--text)">${x(type.trim())}</div>`:''} ${contractorDisplay?`<div style="font-size:11px;color:var(--text3);margin:2px 0">&#128295; ${x(contractorDisplay)}</div>`:''} ${desc?`<div class="te-body">${x(desc.trim().substring(0,200))}</div>`:''} ${status?`<span class="te-status ${status.toLowerCase().includes('complet')?'ts-complete':'ts-open'}">${x(status.trim())}</span>`:''}</div>`;
   }).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No work orders.</div></div>';
 
@@ -2564,84 +2529,6 @@ document.getElementById('kb-search-input').addEventListener('input',function(){
 
 
 
-// ── DESKTOP SPLIT VIEW ───────────────────────────────────
-const IS_DESKTOP = ()=> window.innerWidth >= 768;
-
-function showDesktopSplit(items, selectedId){
-  const split = document.getElementById('desktop-split');
-  const listEl = document.getElementById('desktop-split-list');
-  split.classList.add('active');
-  // Hide the main view content so split takes over
-  document.getElementById('view-projects').style.display = 'none';
-
-  listEl.innerHTML = items.map(item=>`
-    <div class="split-list-item ${item.id===selectedId?'selected':''}" data-splitid="${item.id}">
-      <div class="split-list-item-num">${x(item.num)}</div>
-      <div class="split-list-item-name">${x(item.name)}</div>
-      <div class="split-list-item-meta">
-        <span class="badge ${msClass(item.milestone)}" style="font-size:10px">${x(item.milestone||'—')}</span>
-        ${item.daysSince!==null?`<span style="margin-left:6px;font-size:11px">${item.daysSince}d ago</span>`:''}
-      </div>
-    </div>`).join('');
-
-  listEl.onclick = (e)=>{
-    const el = e.target.closest('[data-splitid]');
-    if(!el) return;
-    const id = parseInt(el.dataset.splitid);
-    const item = items.find(i=>i.id===id);
-    if(!item) return;
-    listEl.querySelectorAll('.split-list-item').forEach(el=>el.classList.remove('selected'));
-    el.classList.add('selected');
-    renderSplitDetail(item);
-  };
-
-  // Find and select the clicked item
-  const selEl = listEl.querySelector(`[data-splitid="${selectedId}"]`);
-  if(selEl) selEl.scrollIntoView({block:'nearest'});
-}
-
-function renderSplitDetail(item){
-  CURRENT_ITEM_ID = item.id;
-  buildDetail(item);
-  const src = document.getElementById('detail-body');
-  const dst = document.getElementById('desktop-split-detail');
-  const hdr = document.querySelector('#view-detail .detail-hdr');
-  const nav = document.querySelector('#view-detail .proj-nav');
-  const swipe = document.querySelector('#view-detail .swipe-nav');
-  let top = '';
-  if(hdr) top += hdr.outerHTML;
-  if(nav) top += nav.outerHTML;
-  if(src) dst.innerHTML = top + src.innerHTML;
-  dst.scrollTo(0,0);
-}
-
-function hideDesktopSplit(){
-  document.getElementById('desktop-split').classList.remove('active');
-  document.getElementById('view-projects').style.display = '';
-}
-
-// Back button in split view goes back to projects list
-document.addEventListener('DOMContentLoaded',function(){
-document.getElementById('desktop-split').addEventListener('click', function(e){
-  const backBtn = e.target.closest('.back-bar');
-  if(backBtn){
-    e.preventDefault();
-    hideDesktopSplit();
-  }
-  // Handle split list item click
-  const splitItem = e.target.closest('.split-list-item[data-splitid]');
-  if(splitItem){
-    const id = parseInt(splitItem.dataset.splitid);
-    const items = ALL_ITEMS.length ? ALL_ITEMS : WLIST_ITEMS;
-    const item = items.find(i=>i.id===id);
-    if(!item) return;
-    document.querySelectorAll('.split-list-item').forEach(el=>el.classList.remove('selected'));
-    splitItem.classList.add('selected');
-    renderSplitDetail(item);
-  }
-});
-}); // end DOMContentLoaded
-
 // ── AUTO-REFRESH POLLING ──────────────────────────────────
 let POLL_INTERVAL = null;
 const POLL_EVERY_MS = 60000; // 60 seconds
@@ -2712,7 +2599,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=60').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=61').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
