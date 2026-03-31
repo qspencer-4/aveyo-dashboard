@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v62</title>
+<title>Aveyo Solar v63</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -441,7 +441,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v62</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v63</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -513,24 +513,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <!-- SPLIT SECTION TABS (desktop only) -->
     <div class="split-section-tabs" id="split-section-tabs" style="display:none">
-      <span class="split-tab" data-section="milestones">Milestones</span>
-      <span class="split-tab" data-section="details">Details</span>
-      <span class="split-tab" data-section="comments">Comments</span>
-      <span class="split-tab" data-section="workorders">Work Orders</span>
-      <span class="split-tab" data-section="tickets">Support Tickets</span>
-      <span class="split-tab" data-section="notes">Notes</span>
-      <span class="split-tab" data-section="rep">Rep Update</span>
-      <span class="split-tab" data-section="customer">Customer Text</span>
-      <span class="split-tab" data-section="review">Project Review</span>
+      <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;align-self:center;margin-right:2px">Left:</span>
+      <span class="split-tab" data-section="milestones" data-side="left">Milestones</span>
+      <span class="split-tab" data-section="details" data-side="left">Details</span>
+      <span class="split-tab" data-section="comments" data-side="left">Comments</span>
+      <span class="split-tab" data-section="workorders" data-side="left">Work Orders</span>
+      <span class="split-tab" data-section="tickets" data-side="left">Tickets</span>
+      <span class="split-tab" data-section="notes" data-side="left">Notes</span>
+      <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;align-self:center;margin-left:6px;margin-right:2px">Right:</span>
+      <span class="split-tab" data-section="rep" data-side="right">Rep Update</span>
+      <span class="split-tab" data-section="customer" data-side="right">Customer Text</span>
+      <span class="split-tab" data-section="review" data-side="right">Project Review</span>
     </div>
     <!-- SPLIT PANELS (desktop only) -->
     <div class="split-panels" id="split-panels" style="display:none">
       <div class="split-panel" id="split-left">
-        <div class="split-panel-label">Panel A</div>
+        <div class="split-panel-label" id="split-left-label">Milestones</div>
         <div id="split-left-content"></div>
       </div>
       <div class="split-panel" id="split-right">
-        <div class="split-panel-label">Panel B</div>
+        <div class="split-panel-label" id="split-right-label">Rep Update</div>
         <div id="split-right-content"></div>
       </div>
     </div>
@@ -684,7 +686,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v62';
+const VERSION='v63';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -2642,7 +2644,7 @@ document.getElementById('kb-search-input').addEventListener('input',function(){
 const IS_DESKTOP = () => window.innerWidth >= 768;
 
 let SPLIT_LEFT = 'milestones';
-let SPLIT_RIGHT = 'comments';
+let SPLIT_RIGHT = 'rep';
 let SPLIT_ITEM = null;
 
 function initSplitView(item){
@@ -2676,15 +2678,16 @@ function initSplitView(item){
 function updateSplitTabs(){
   document.querySelectorAll('.split-tab').forEach(tab=>{
     const s = tab.dataset.section;
+    const side = tab.dataset.side;
     tab.classList.remove('active-left','active-right');
-    if(s === SPLIT_LEFT) tab.classList.add('active-left');
-    if(s === SPLIT_RIGHT) tab.classList.add('active-right');
+    if(side === 'left' && s === SPLIT_LEFT) tab.classList.add('active-left');
+    if(side === 'right' && s === SPLIT_RIGHT) tab.classList.add('active-right');
   });
 }
 
 function renderSplitPanel(side, section, item){
   const el = document.getElementById('split-'+side+'-content');
-  const label = document.querySelector('#split-'+side+' .split-panel-label');
+  const label = document.getElementById('split-'+side+'-label');
   if(!el || !item) return;
   const titles = {
     milestones:'Milestones', details:'Project Details', comments:'Comments',
@@ -2759,23 +2762,16 @@ document.addEventListener('click', function(e){
   const tab = e.target.closest('.split-tab');
   if(!tab || !SPLIT_ITEM) return;
   const section = tab.dataset.section;
-  if(section === SPLIT_LEFT){
-    // Already left — swap panels
-    const tmp = SPLIT_LEFT;
-    SPLIT_LEFT = SPLIT_RIGHT;
-    SPLIT_RIGHT = tmp;
-  } else if(section === SPLIT_RIGHT){
-    // Already right — swap
-    const tmp = SPLIT_RIGHT;
-    SPLIT_RIGHT = SPLIT_LEFT;
-    SPLIT_LEFT = tmp;
-  } else {
-    // New section — push left to right, new goes left
-    SPLIT_RIGHT = SPLIT_LEFT;
+  const side = tab.dataset.side;
+  // Left tabs always go to left panel
+  // Right tabs always go to right panel
+  if(side === 'left'){
     SPLIT_LEFT = section;
+    renderSplitPanel('left', SPLIT_LEFT, SPLIT_ITEM);
+  } else if(side === 'right'){
+    SPLIT_RIGHT = section;
+    renderSplitPanel('right', SPLIT_RIGHT, SPLIT_ITEM);
   }
-  renderSplitPanel('left', SPLIT_LEFT, SPLIT_ITEM);
-  renderSplitPanel('right', SPLIT_RIGHT, SPLIT_ITEM);
   updateSplitTabs();
 });
 
@@ -2858,7 +2854,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=62').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=63').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
