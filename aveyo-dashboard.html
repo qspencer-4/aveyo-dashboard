@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v61</title>
+<title>Aveyo Solar v62</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -360,6 +360,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .split-list-item-meta{font-size:11px;color:var(--text2)}
 }
 
+
+/* ── DESKTOP SPLIT VIEW ──────────────────────────────── */
+@media(min-width:768px){
+  #view-detail{ display:none !important }
+  #view-detail.split-view{
+    display:flex !important;
+    flex-direction:column;
+    height:calc(100vh - 56px);
+    overflow:hidden;
+    padding-bottom:0;
+  }
+  .split-top{
+    background:var(--bg);
+    border-bottom:.5px solid var(--border2);
+    padding:.75rem 1rem;
+    flex-shrink:0;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .split-top .detail-id{font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px}
+  .split-top .detail-name{font-size:17px;font-weight:700;color:var(--text);margin-bottom:3px}
+  .split-top .detail-addr{font-size:12px;color:var(--text2)}
+  .split-section-tabs{
+    display:flex;gap:6px;flex-wrap:wrap;padding:.5rem 1rem;
+    background:var(--bg2);border-bottom:.5px solid var(--border);
+    flex-shrink:0;
+  }
+  .split-tab{
+    font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;
+    cursor:pointer;border:.5px solid var(--border2);background:var(--bg);
+    color:var(--text2);white-space:nowrap;user-select:none;
+  }
+  .split-tab:hover{background:var(--bg3)}
+  .split-tab.active-left{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .split-tab.active-right{background:var(--purple-light);color:var(--purple-dark);border-color:var(--purple-dark)}
+  .split-panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    flex:1;
+    overflow:hidden;
+    min-height:0;
+  }
+  .split-panel{
+    overflow-y:auto;
+    padding:.75rem;
+    border-right:.5px solid var(--border);
+  }
+  .split-panel:last-child{border-right:none}
+  .split-panel-label{
+    font-size:10px;font-weight:700;color:var(--text3);
+    text-transform:uppercase;letter-spacing:.06em;
+    margin-bottom:.5rem;padding:0 .25rem;
+  }
+  .split-panel .collapsible{margin:0 0 .5rem}
+  .split-panel .collapsible .coll-body{display:block!important}
+  .split-panel .collapsible .coll-arrow{transform:rotate(180deg)}
+  .split-panel .inline-compose{margin:0 0 .5rem}
+  .split-panel .back-bar{display:none}
+  .split-panel .swipe-nav{display:none}
+  /* Hide normal detail elements on desktop */
+  #view-detail.split-view .back-bar,
+  #view-detail.split-view .swipe-nav,
+  #view-detail.split-view #detail-body{ display:none }
+}
+@media(max-width:767px){
+  .split-top,.split-section-tabs,.split-panels{display:none!important}
+}
+
 @media(min-width:1100px){
   .cards{grid-template-columns:repeat(3,minmax(0,1fr))}
   .wgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -371,7 +441,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v61</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v62</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -429,6 +499,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- DETAIL -->
   <div id="view-detail" class="view">
+    <!-- SPLIT VIEW TOP (desktop only) -->
+    <div class="split-top" id="split-top" style="display:none">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div>
+          <div class="detail-id" id="split-id"></div>
+          <div class="detail-name" id="split-name"></div>
+          <div class="detail-addr" id="split-addr"></div>
+        </div>
+        <span class="badge" id="split-badge" style="white-space:nowrap;flex-shrink:0"></span>
+      </div>
+      <div id="split-proj-nav" style="margin-top:6px"></div>
+    </div>
+    <!-- SPLIT SECTION TABS (desktop only) -->
+    <div class="split-section-tabs" id="split-section-tabs" style="display:none">
+      <span class="split-tab" data-section="milestones">Milestones</span>
+      <span class="split-tab" data-section="details">Details</span>
+      <span class="split-tab" data-section="comments">Comments</span>
+      <span class="split-tab" data-section="workorders">Work Orders</span>
+      <span class="split-tab" data-section="tickets">Support Tickets</span>
+      <span class="split-tab" data-section="notes">Notes</span>
+      <span class="split-tab" data-section="rep">Rep Update</span>
+      <span class="split-tab" data-section="customer">Customer Text</span>
+      <span class="split-tab" data-section="review">Project Review</span>
+    </div>
+    <!-- SPLIT PANELS (desktop only) -->
+    <div class="split-panels" id="split-panels" style="display:none">
+      <div class="split-panel" id="split-left">
+        <div class="split-panel-label">Panel A</div>
+        <div id="split-left-content"></div>
+      </div>
+      <div class="split-panel" id="split-right">
+        <div class="split-panel-label">Panel B</div>
+        <div id="split-right-content"></div>
+      </div>
+    </div>
     <div class="back-bar" id="detail-back">
       <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
       <span id="detail-back-label">Back</span>
@@ -579,7 +684,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v61';
+const VERSION='v62';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -609,6 +714,7 @@ document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
 document.getElementById('detail-back').addEventListener('click',()=>{
+  hideSplitView();
   showView(PREV_VIEW);
   setActiveNav(PREV_VIEW==='projects'?'projects':'home');
   // Restore scroll position
@@ -1080,6 +1186,8 @@ function openDetail(itemId){
   showView('detail');
   window.scrollTo(0,0);
   setActiveNav(PREV_VIEW==='projects'?'projects':'home');
+  // On desktop, activate split view after detail is built
+  if(IS_DESKTOP()) setTimeout(()=>initSplitView(item), 50);
 }
 function parseBlocks(raw,sep){if(!raw)return[];return raw.split(sep).map(b=>b.trim()).filter(Boolean);}
 function buildDetail(item){
@@ -2529,6 +2637,157 @@ document.getElementById('kb-search-input').addEventListener('input',function(){
 
 
 
+
+// ── DESKTOP SPLIT VIEW ────────────────────────────────────
+const IS_DESKTOP = () => window.innerWidth >= 768;
+
+let SPLIT_LEFT = 'milestones';
+let SPLIT_RIGHT = 'comments';
+let SPLIT_ITEM = null;
+
+function initSplitView(item){
+  if(!IS_DESKTOP()) return;
+  SPLIT_ITEM = item;
+
+  // Show split elements
+  document.getElementById('split-top').style.display = 'block';
+  document.getElementById('split-section-tabs').style.display = 'flex';
+  document.getElementById('split-panels').style.display = 'grid';
+  document.getElementById('view-detail').classList.add('split-view');
+
+  // Populate header
+  document.getElementById('split-id').textContent = item.num||'';
+  document.getElementById('split-name').textContent = item.name||'';
+  document.getElementById('split-addr').textContent = item.address||'';
+  const badge = document.getElementById('split-badge');
+  badge.className = 'badge ' + msClass(item.milestone);
+  badge.textContent = item.milestone||'';
+
+  // Proj nav links
+  const navHTML = buildProjNav(item.raw);
+  document.getElementById('split-proj-nav').innerHTML = navHTML;
+
+  // Render default panels
+  renderSplitPanel('left', SPLIT_LEFT, item);
+  renderSplitPanel('right', SPLIT_RIGHT, item);
+  updateSplitTabs();
+}
+
+function updateSplitTabs(){
+  document.querySelectorAll('.split-tab').forEach(tab=>{
+    const s = tab.dataset.section;
+    tab.classList.remove('active-left','active-right');
+    if(s === SPLIT_LEFT) tab.classList.add('active-left');
+    if(s === SPLIT_RIGHT) tab.classList.add('active-right');
+  });
+}
+
+function renderSplitPanel(side, section, item){
+  const el = document.getElementById('split-'+side+'-content');
+  const label = document.querySelector('#split-'+side+' .split-panel-label');
+  if(!el || !item) return;
+  const titles = {
+    milestones:'Milestones', details:'Project Details', comments:'Comments',
+    workorders:'Work Orders', tickets:'Support Tickets', notes:'Notes',
+    rep:'Rep Update', customer:'Customer Text', review:'Project Review'
+  };
+  if(label) label.textContent = titles[section]||section;
+  el.innerHTML = buildSplitSection(section, item);
+}
+
+function buildSplitSection(section, item){
+  // Reuse the already-built detail HTML sections
+  const detailBody = document.getElementById('detail-body');
+  if(!detailBody) return '<div style="color:var(--text3);font-size:13px;padding:.5rem">Loading...</div>';
+
+  const sectionMap = {
+    milestones: '.collapsible:has(.coll-title)',
+    details: '.collapsible:first-child',
+    comments: null,
+    workorders: null,
+    tickets: null,
+    notes: null,
+    rep: null,
+    customer: null,
+    review: null
+  };
+
+  // Find section in built detail body
+  const collapsibles = detailBody.querySelectorAll('.collapsible');
+  const inlineCompose = detailBody.querySelectorAll('.inline-compose');
+
+  const sectionLabels = {
+    details: ['Project details'],
+    milestones: ['Milestones', 'Funding'],
+    comments: ['Comments'],
+    workorders: ['Work orders'],
+    tickets: ['Support tickets'],
+    notes: ['Project notes'],
+  };
+
+  const composeSections = {
+    rep: 0,
+    customer: 1,
+    review: 2
+  };
+
+  if(section in composeSections){
+    const compose = inlineCompose[composeSections[section]];
+    return compose ? compose.outerHTML : '<div style="color:var(--text3);font-size:13px">Not found</div>';
+  }
+
+  if(section in sectionLabels){
+    const keywords = sectionLabels[section];
+    for(const coll of collapsibles){
+      const title = coll.querySelector('.coll-title');
+      if(title && keywords.some(k => title.textContent.toLowerCase().includes(k.toLowerCase()))){
+        // Clone and open it
+        const clone = coll.cloneNode(true);
+        clone.classList.add('open');
+        const arrow = clone.querySelector('.coll-arrow');
+        if(arrow) arrow.style.transform = 'rotate(180deg)';
+        return clone.outerHTML;
+      }
+    }
+  }
+
+  return '<div style="color:var(--text3);font-size:13px;padding:.5rem">No data available</div>';
+}
+
+// Tab click handler
+document.addEventListener('click', function(e){
+  const tab = e.target.closest('.split-tab');
+  if(!tab || !SPLIT_ITEM) return;
+  const section = tab.dataset.section;
+  if(section === SPLIT_LEFT){
+    // Already left — swap panels
+    const tmp = SPLIT_LEFT;
+    SPLIT_LEFT = SPLIT_RIGHT;
+    SPLIT_RIGHT = tmp;
+  } else if(section === SPLIT_RIGHT){
+    // Already right — swap
+    const tmp = SPLIT_RIGHT;
+    SPLIT_RIGHT = SPLIT_LEFT;
+    SPLIT_LEFT = tmp;
+  } else {
+    // New section — push left to right, new goes left
+    SPLIT_RIGHT = SPLIT_LEFT;
+    SPLIT_LEFT = section;
+  }
+  renderSplitPanel('left', SPLIT_LEFT, SPLIT_ITEM);
+  renderSplitPanel('right', SPLIT_RIGHT, SPLIT_ITEM);
+  updateSplitTabs();
+});
+
+function hideSplitView(){
+  document.getElementById('split-top').style.display = 'none';
+  document.getElementById('split-section-tabs').style.display = 'none';
+  document.getElementById('split-panels').style.display = 'none';
+  document.getElementById('view-detail').classList.remove('split-view');
+  SPLIT_ITEM = null;
+}
+
+
 // ── AUTO-REFRESH POLLING ──────────────────────────────────
 let POLL_INTERVAL = null;
 const POLL_EVERY_MS = 60000; // 60 seconds
@@ -2599,7 +2858,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=61').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=62').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
