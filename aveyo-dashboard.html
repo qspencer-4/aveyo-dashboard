@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v65</title>
+<title>Aveyo Solar v66</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -489,13 +489,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sow-info-key{color:var(--text3)}
 .sow-info-val{color:var(--text);font-weight:600;text-align:right;max-width:60%}
 
+
+.sow-run-btn{width:100%;padding:10px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin:.75rem 0 0}
+.sow-run-btn:disabled{opacity:.5}
+.sow-run-btn:active{opacity:.85}
+.sow-extract-result{margin:.75rem}
+.sow-check-item{display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border-bottom:.5px solid var(--border)}
+.sow-check-item:last-child{border-bottom:none}
+.sow-check-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.sow-check-dot.pass{background:var(--green-light);color:#3B6D11}
+.sow-check-dot.fail{background:var(--red-light);color:var(--red-dark)}
+.sow-check-dot.warn{background:var(--amber-light);color:var(--amber-dark)}
+.sow-check-dot.info{background:var(--blue-light);color:var(--blue)}
+.sow-check-dot.empty{background:var(--bg2);color:var(--text3);border:.5px solid var(--border2)}
+.sow-check-content{flex:1;min-width:0}
+.sow-check-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sow-check-detail{font-size:12px;color:var(--text2);line-height:1.5}
+.sow-check-detail.pass{color:#3B6D11}
+.sow-check-detail.fail{color:var(--red-dark)}
+.sow-check-detail.warn{color:var(--amber-dark)}
+.sow-adder-item{display:flex;justify-content:space-between;align-items:center;padding:6px 1rem;border-bottom:.5px solid var(--border);font-size:12px}
+.sow-adder-item:last-child{border-bottom:none}
+.sow-adder-name{color:var(--text);font-weight:500;flex:1}
+.sow-adder-cost{color:var(--amber-dark);font-weight:700;text-align:right;white-space:nowrap;margin-left:8px}
+.sow-adder-source{font-size:10px;color:var(--text3);margin-left:6px}
+.sow-funding-box{background:var(--blue-light);border:.5px solid var(--blue);border-radius:var(--radius);padding:.625rem .875rem;margin:.75rem;font-size:12px;color:var(--text)}
+.sow-funding-row{display:flex;justify-content:space-between;padding:2px 0;font-size:12px}
+.sow-funding-key{color:var(--text3)}
+.sow-funding-val{color:var(--text);font-weight:600}
+
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v65</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v66</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -743,7 +772,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v65';
+const VERSION='v66';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -2450,35 +2479,7 @@ function openSOWDetail(itemId){
   document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
 }
 
-// SOW DROPDOWN OPTIONS
-const SOW_OPTIONS = {
-  systemSizeMatches:  [{id:1,text:'Yes'},{id:2,text:'No'}],
-  contractPriceMatches:[{id:1,text:'Yes'},{id:2,text:'No'}],
-  designMatches:      [{id:1,text:'Yes'},{id:2,text:'No'}],
-  roofReview:         [{id:1,text:'Roof Work Needed'},{id:2,text:'Roof is Approved'}],
-  electricalWork:     [{id:2,text:'Not Needed'},{id:1,text:'Yes'},{id:3,text:'200 AMP'},{id:4,text:'400 AMP'},{id:5,text:'Derate'},{id:6,text:'Relocation'},{id:7,text:'Line Side Tap'},{id:8,text:'Battery System'},{id:9,text:'DMS'},{id:10,text:'Other'}],
-  structuralUpgrade:  [{id:1,text:'Yes'},{id:2,text:'No'}],
-  repScopeApproval:   [{id:1,text:'Ready to Send'},{id:2,text:'Sent for Approval'},{id:3,text:'Approved'},{id:4,text:'Rejected'},{id:5,text:'Resolving Issues'}],
-  customerSOWStatus:  [{id:1,text:'New'},{id:5,text:'Updated - Trigger Processing and Send'},{id:6,text:'Not Sent - Missing Design Doc'},{id:2,text:'Sent to Customer'},{id:7,text:'Approved'},{id:8,text:'Rejected'},{id:3,text:'Customer Comment Received'},{id:4,text:'Customer Comment Handled'}],
-};
-
-function sowDropdown(fieldKey, fieldId, currentVal, itemId){
-  const opts = SOW_OPTIONS[fieldKey]||[];
-  const options = opts.map(o=>`<option value="${o.id}" ${currentVal===o.text?'selected':''}>${x(o.text)}</option>`).join('');
-  return `<select class="sow-dropdown" data-sow-field="${fieldId}" data-sow-item="${itemId}" data-field-key="${fieldKey}">
-    <option value="">— Not set —</option>
-    ${options}
-  </select><span class="sow-save-indicator" id="sow-saved-${fieldId}-${itemId}">✓ Saved</span>`;
-}
-
-function valClass(val, good, warn){
-  if(!val) return '';
-  const v = val.toLowerCase();
-  if(good.some(g=>v.includes(g))) return 'good';
-  if(warn.some(w=>v.includes(w))) return 'warn';
-  return '';
-}
-
+// ── SOW DETAIL ───────────────────────────────────────────
 function buildSOWDetail(item){
   const fields = item.fields||[];
   const title = item.title||'';
@@ -2487,7 +2488,6 @@ function buildSOWDetail(item){
   const address = namePart.split(' - ')[1]||'';
   const iid = item.item_id;
 
-  // Pull all field values
   const systemMatches  = sowFV(fields, SOW_FIELD.systemSizeMatches);
   const priceMatches   = sowFV(fields, SOW_FIELD.contractPriceMatches);
   const designMatches  = sowFV(fields, SOW_FIELD.designMatches);
@@ -2503,341 +2503,259 @@ function buildSOWDetail(item){
   const contractPrice  = sowFV(fields, SOW_FIELD.contractPrice);
   const sowNotes       = sowFV(fields, SOW_FIELD.sowNotes);
 
-  // Get lat/lng
-  const latField = fields.find(f=>f.field_id===270979699);
-  const lngField = fields.find(f=>f.field_id===270979698);
-  const lat = latField?.values?.[0]?.value;
-  const lng = lngField?.values?.[0]?.value;
+  const latF = fields.find(f=>f.field_id===270979699);
+  const lngF = fields.find(f=>f.field_id===270979698);
+  const lat = latF?.values?.[0]?.value;
+  const lng = lngF?.values?.[0]?.value;
   const distInfo = getDistanceAdder(lat, lng);
 
-  // Detect adders from SOW fields
-  const adders = [];
-  if(electricalWork && electricalWork!=='Not Needed'){
-    const elecAdderMap = {
-      'Yes':'Electrical Work Required','200 AMP':'MPU 200 Amp — $2,100 ea',
-      '400 AMP':'MPU 400 Amp — $4,000 ea','Derate':'DeRate — $750 ea',
-      'Relocation':'Meter Relocate — $2,000 ea','Line Side Tap':'Line Side Tap',
-      'Battery System':'Battery System','DMS':'DMS','Other':'Electrical Work (Other)'
-    };
-    adders.push({text: elecAdderMap[electricalWork]||electricalWork, color:'amber'});
-  }
-  if(structUpgrade==='Yes') adders.push({text:'Structural Upgrade — $1,500 ea', color:'amber'});
-  if(roofReview==='Roof Work Needed') adders.push({text:'Roof Work Required', color:'red'});
-  if(distInfo && distInfo.tier) adders.push({text:`Distance: ${distInfo.tier} — ${distInfo.cost}`, color:'amber'});
+  const fundingField = fields.find(f=>f.field_id===268339026);
+  const fundingRaw = fundingField?.values?.[0]?.value || '';
+  const lrMatch = fundingRaw.match(/Contract Price[*\s:]+\$?([\d,\.]+)/);
+  const lrPrice = lrMatch ? lrMatch[1].replace(/,/g,'') : null;
 
-  // Build HTML sections
-  const infoRows = [
-    {k:'Project Number', v: title.match(/^(#\S+)/)?.[1]||''},
-    {k:'System Size', v: systemSize ? systemSize+' kW' : '—'},
-    {k:'Contract Price', v: contractPrice ? '$'+parseFloat(contractPrice).toLocaleString() : '—'},
-    {k:'Address', v: address||'—'},
+  // Google Drive folder links
+  const driveFolderDefs = [
+    {label:'Parent',fid:266618729},{label:'Site Survey',fid:266618728},
+    {label:'Design',fid:266618723},{label:'Approved',fid:268981903},
+    {label:'Customer Docs',fid:266618731},{label:'Permit',fid:266618725},
   ];
+  const driveLinks = driveFolderDefs.map(({label,fid})=>{
+    const f = fields.find(f=>f.field_id===fid);
+    const id = f?.values?.[0]?.value;
+    return id ? `<a href="https://drive.google.com/drive/folders/${id}" target="_blank" class="proj-nav-link" style="font-size:10px">${x(label)}</a>` : '';
+  }).filter(Boolean).join('');
 
-  const infoHTML = infoRows.map(r=>`
-    <div class="sow-info-row">
-      <span class="sow-info-key">${x(r.k)}</span>
-      <span class="sow-info-val">${x(r.v)}</span>
-    </div>`).join('');
+  function sowDD(key, fid, val){
+    const opts = {
+      systemSizeMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      contractPriceMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      designMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      roofReview:[{id:1,t:'Roof Work Needed'},{id:2,t:'Roof is Approved'}],
+      electricalWork:[{id:2,t:'Not Needed'},{id:1,t:'Yes'},{id:3,t:'200 AMP'},{id:4,t:'400 AMP'},{id:5,t:'Derate'},{id:6,t:'Relocation'},{id:7,t:'Line Side Tap'},{id:8,t:'Battery System'},{id:9,t:'DMS'},{id:10,t:'Other'}],
+      structuralUpgrade:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      repScopeApproval:[{id:1,t:'Ready to Send'},{id:2,t:'Sent for Approval'},{id:3,t:'Approved'},{id:4,t:'Rejected'},{id:5,t:'Resolving Issues'}],
+      customerSOWStatus:[{id:1,t:'New'},{id:5,t:'Updated - Trigger Processing'},{id:6,t:'Not Sent'},{id:2,t:'Sent to Customer'},{id:7,t:'Approved'},{id:8,t:'Rejected'},{id:3,t:'Comment Received'},{id:4,t:'Comment Handled'}],
+    }[key]||[];
+    const o = opts.map(o=>`<option value="${o.id}" ${val===o.t?'selected':''}>${x(o.t)}</option>`).join('');
+    return `<select class="sow-dropdown" data-sow-field="${fid}" data-sow-item="${iid}" style="max-width:200px"><option value="">— Not set —</option>${o}</select>`;
+  }
 
-  // Editable verification rows
+  function vc(val,good,warn){
+    if(!val) return '';
+    const v=val.toLowerCase();
+    if(good.some(g=>v.includes(g))) return 'good';
+    if(warn.some(w=>v.includes(w))) return 'warn';
+    return '';
+  }
+
   const verifyRows = [
-    {label:'System Size Matches', key:'systemSizeMatches', fid:SOW_FIELD.systemSizeMatches, val:systemMatches, good:['yes'], warn:['no']},
-    {label:'Contract Price Matches', key:'contractPriceMatches', fid:SOW_FIELD.contractPriceMatches, val:priceMatches, good:['yes'], warn:['no']},
-    {label:'Design Matches', key:'designMatches', fid:SOW_FIELD.designMatches, val:designMatches, good:['yes'], warn:['no']},
-    {label:'Roof Review', key:'roofReview', fid:SOW_FIELD.roofReview, val:roofReview, good:['approved'], warn:['needed']},
-    {label:'Electrical Work', key:'electricalWork', fid:SOW_FIELD.electricalWork, val:electricalWork, good:['not needed'], warn:['yes','200','400','derate','relocation','line','battery','dms','other']},
-    {label:'Structural Upgrade', key:'structuralUpgrade', fid:SOW_FIELD.structuralUpgrade, val:structUpgrade, good:['no'], warn:['yes']},
-    {label:'Rep Scope Approval', key:'repScopeApproval', fid:SOW_FIELD.repScopeApproval, val:repScopeApproval, good:['approved'], warn:['rejected']},
-    {label:'Customer SOW Status', key:'customerSOWStatus', fid:SOW_FIELD.customerSOWStatus, val:customerSOW, good:['approved'], warn:['rejected']},
+    {label:'System Size Matches',key:'systemSizeMatches',fid:SOW_FIELD.systemSizeMatches,val:systemMatches,good:['yes'],warn:['no'],hint:systemSize?`Podio: ${systemSize} kW`:''},
+    {label:'Contract Price Matches',key:'contractPriceMatches',fid:SOW_FIELD.contractPriceMatches,val:priceMatches,good:['yes'],warn:['no'],hint:contractPrice?`Podio: $${parseFloat(contractPrice).toLocaleString()}${lrPrice?' · LR: $'+parseFloat(lrPrice).toLocaleString():''}` :''},
+    {label:'Design Matches',key:'designMatches',fid:SOW_FIELD.designMatches,val:designMatches,good:['yes'],warn:['no'],hint:'Customer docs vs approved planset'},
+    {label:'Roof Review',key:'roofReview',fid:SOW_FIELD.roofReview,val:roofReview,good:['approved'],warn:['needed'],hint:'Check site survey report'},
+    {label:'Electrical Work',key:'electricalWork',fid:SOW_FIELD.electricalWork,val:electricalWork,good:['not needed'],warn:['yes','200','400','derate','reloc','line','battery','dms','other'],hint:''},
+    {label:'Structural Upgrade',key:'structuralUpgrade',fid:SOW_FIELD.structuralUpgrade,val:structUpgrade,good:['no'],warn:['yes'],hint:'Check PE letter'},
+    {label:'Rep Scope Approval',key:'repScopeApproval',fid:SOW_FIELD.repScopeApproval,val:repScopeApproval,good:['approved'],warn:['rejected'],hint:''},
+    {label:'Customer SOW Status',key:'customerSOWStatus',fid:SOW_FIELD.customerSOWStatus,val:customerSOW,good:['approved'],warn:['rejected'],hint:''},
   ];
 
   const verifyHTML = verifyRows.map(r=>{
-    const cls = valClass(r.val, r.good, r.warn);
-    const dot = cls==='good'?'&#10003;':cls==='warn'?'&#33;':'&#8212;';
-    const dotColor = cls==='good'?'#3B6D11':cls==='warn'?'var(--red-dark)':'var(--text3)';
+    const cls=vc(r.val,r.good,r.warn);
+    const dot=cls==='good'?'✓':cls==='warn'?'!':'—';
+    const dc=cls==='good'?'#3B6D11':cls==='warn'?'var(--red-dark)':'var(--text3)';
     return `<div class="sow-field-row">
-      <span style="font-size:14px;font-weight:700;color:${dotColor};flex-shrink:0;width:18px">${dot}</span>
-      <span class="sow-field-label">${x(r.label)}</span>
-      ${sowDropdown(r.key, r.fid, r.val, iid)}
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:700;color:${dc};width:16px">${dot}</span>
+          <span style="font-size:12px;font-weight:600;color:var(--text)">${x(r.label)}</span>
+        </div>
+        ${r.hint?`<div style="font-size:11px;color:var(--text3);margin:0 0 4px 22px">${x(r.hint)}</div>`:''}
+        <div style="margin-left:22px">${sowDD(r.key,r.fid,r.val)}</div>
+      </div>
     </div>`;
   }).join('');
 
-  // Read-only status rows
-  const statusRows = [
-    {label:'Permit Package Design', val:permitDesign, good:['approved'], warn:['rejected']},
-    {label:'Rep Design Approval', val:repDesign, good:['approved'], warn:['rejected']},
-    {label:'Redline Analysis', val:redline, good:['above'], warn:['below','trigger']},
-  ];
-  const statusHTML = statusRows.map(r=>{
-    const cls = valClass(r.val, r.good, r.warn);
-    return `<div class="sow-info-row">
-      <span class="sow-info-key">${x(r.label)}</span>
-      <span class="sow-info-val ${cls}">${x(r.val||'—')}</span>
-    </div>`;
-  }).join('');
-
-  // Distance adder section
   const distHTML = distInfo ? `
-    <div class="sow-info-row">
-      <span class="sow-info-key">Distance to nearest branch</span>
-      <span class="sow-info-val">${distInfo.dist} mi · ${x(distInfo.branch)}</span>
-    </div>
-    <div class="sow-info-row">
-      <span class="sow-info-key">Distance Adder</span>
-      <span class="sow-info-val ${distInfo.tier?'amber':'good'}">${distInfo.tier ? x(distInfo.tier)+' — '+x(distInfo.cost) : 'None required'}</span>
-    </div>` : '';
+    <div class="sow-info-row"><span class="sow-info-key">Nearest branch</span><span class="sow-info-val">${distInfo.dist} mi · ${x(distInfo.branch)}</span></div>
+    <div class="sow-info-row"><span class="sow-info-key">Distance adder</span><span class="sow-info-val ${distInfo.tier?'amber':'good'}">${distInfo.tier?x(distInfo.tier)+' — '+x(distInfo.cost):'None required'}</span></div>` : '';
 
-  // Adders summary
-  const addersHTML = adders.length ? adders.map(a=>
-    `<span class="sow-adder-tag ${a.color==='red'?'':'green'}" style="${a.color==='amber'?'background:var(--amber-light);color:var(--amber-dark);border-color:var(--amber-dark)':a.color==='red'?'background:var(--red-light);color:var(--red-dark);border-color:var(--red-dark)':''}">${x(a.text)}</span>`
-  ).join('') : '<span style="font-size:12px;color:var(--text3)">No adders detected</span>';
+  const statusHTML = [
+    {label:'Permit Design',val:permitDesign,good:['approved'],warn:['rejected']},
+    {label:'Rep Design Approval',val:repDesign,good:['approved'],warn:['rejected']},
+    {label:'Redline Analysis',val:redline,good:['above'],warn:['below','trigger']},
+  ].map(r=>`<div class="sow-info-row"><span class="sow-info-key">${x(r.label)}</span><span class="sow-info-val ${vc(r.val,r.good,r.warn)}">${x(r.val||'—')}</span></div>`).join('');
+
+  const cached = SOW_EXTRACT_CACHE[iid];
 
   document.getElementById('sow-detail-body').innerHTML = `
     <div style="padding:.75rem .75rem .375rem">
       <div class="detail-id">${x(title.match(/^(#\S+)/)?.[1]||'')}</div>
       <div class="detail-name">${x(name)}</div>
       ${address?`<div class="detail-addr">${x(address)}</div>`:''}
+      ${driveLinks?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${driveLinks}</div>`:''}
     </div>
-
     <div class="sow-section">
       <div class="sow-section-hdr">Project Info</div>
-      ${infoHTML}
+      <div class="sow-info-row"><span class="sow-info-key">System Size</span><span class="sow-info-val">${x(systemSize?systemSize+' kW':'—')}</span></div>
+      <div class="sow-info-row"><span class="sow-info-key">Contract Price (Podio)</span><span class="sow-info-val">${x(contractPrice?'$'+parseFloat(contractPrice).toLocaleString():'—')}</span></div>
+      ${lrPrice?`<div class="sow-info-row"><span class="sow-info-key">Contract Price (LightReach)</span><span class="sow-info-val ${Math.abs(parseFloat(contractPrice||0)-parseFloat(lrPrice))<1?'good':'warn'}">$${parseFloat(lrPrice).toLocaleString()}</span></div>`:''}
     </div>
-
     <div class="sow-section">
-      <div class="sow-section-hdr">Verification Checklist <span style="font-weight:400;text-transform:none;font-size:10px">(tap to update Podio)</span></div>
+      <div class="sow-section-hdr">Verification Checklist <span style="font-weight:400;text-transform:none;font-size:10px;letter-spacing:0">(saves to Podio)</span></div>
       ${verifyHTML}
     </div>
-
     <div class="sow-section">
       <div class="sow-section-hdr">Status</div>
       ${statusHTML}
     </div>
-
     <div class="sow-section">
-      <div class="sow-section-hdr">Distance & Adders</div>
+      <div class="sow-section-hdr">Distance</div>
       ${distHTML}
-      <div style="padding:.5rem 1rem;border-bottom:.5px solid var(--border)">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Detected Adders</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">${addersHTML}</div>
-      </div>
     </div>
-
+    <div class="sow-section">
+      <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
+        <span>PDF Analysis & Adders</span>
+        <button class="btn" style="font-size:11px;padding:3px 10px" data-sowrun="${iid}">⚡ Run Check</button>
+      </div>
+      <div id="sow-extract-results-${iid}">${buildExtractHTML(cached)}</div>
+    </div>
     ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
-
     <div class="sow-production-box">
-      <div class="sow-production-hdr">&#9889; Production Check</div>
+      <div class="sow-production-hdr">⚡ Production Check</div>
       <div class="sow-production-body">
-        <div class="sow-production-row">
-          <span class="sow-production-label">Sold production (Podio)</span>
-          <span class="sow-production-val" id="sow-sold-prod-${iid}">Loading...</span>
-        </div>
-        <div class="sow-production-row">
-          <span class="sow-production-label">New production (planset)</span>
-          <span class="sow-production-val">Enter below</span>
-        </div>
-        <input type="number" class="sow-production-input" id="sow-new-prod-${iid}" placeholder="Enter new kWh from planset e.g. 12500"/>
+        <div class="sow-production-row"><span class="sow-production-label">Sold production (Podio)</span><span class="sow-production-val" id="sow-sold-prod-${iid}">Loading...</span></div>
+        <div class="sow-production-row"><span class="sow-production-label">New production (planset)</span><span class="sow-production-val">Enter below</span></div>
+        <input type="number" class="sow-production-input" id="sow-new-prod-${iid}" placeholder="Enter new kWh e.g. 12500"/>
         <button class="sow-co-btn" id="sow-co-btn-${iid}" data-sowitemid="${iid}">Check & Create Change Order if Needed</button>
         <div class="sow-co-result" id="sow-co-result-${iid}" style="display:none"></div>
       </div>
     </div>
-
     <div style="padding:0 .75rem .75rem">
       <a href="https://podio.com/aveyo/projects/apps/scope-of-work/items/${iid}" target="_blank">
         <button class="btn btn-outline" style="font-size:12px">Open in Podio ↗</button>
       </a>
     </div>`;
-
   loadSoldProduction(iid);
 }
 
-// ── SOW DROPDOWN SAVE TO PODIO ────────────────────────────
+const SOW_EXTRACT_CACHE = {};
+
+function buildExtractHTML(data){
+  if(!data) return '<div style="padding:.875rem 1rem;font-size:12px;color:var(--text3)">Tap ⚡ Run Check to extract data from planset, site survey and PE letter.</div>';
+  const planset=data.planset||{}, survey=data.site_survey||{}, pe=data.pe_letter||{};
+  const checks=data.checks||{}, adders=data.adders||[], errors=data.errors||[];
+  let h='';
+
+  // Checks
+  if(checks.system_size){
+    const c=checks.system_size, m=c.match;
+    h+=`<div class="sow-info-row" style="background:${m?'var(--green-light)':'var(--red-light)'}"><span class="sow-info-key">System size</span><span class="sow-info-val ${m?'good':'warn'}">${m?'✓ Match':'✗ Mismatch'} (Podio:${c.podio}kW / Plan:${c.planset}kW)</span></div>`;
+  }
+  if(checks.contract_price){
+    const c=checks.contract_price, m=c.match;
+    h+=`<div class="sow-info-row" style="background:${m?'var(--green-light)':m===false?'var(--red-light)':''}"><span class="sow-info-key">Contract price</span><span class="sow-info-val ${m?'good':m===false?'warn':''}">${m===true?'✓ Match':m===false?'✗ Mismatch':'~ Pending'}${c.podio?' Podio:$'+parseFloat(c.podio).toLocaleString():''}${c.lightreach?' / LR:$'+parseFloat(c.lightreach).toLocaleString():''}</span></div>`;
+    if(c.note) h+=`<div class="sow-info-row"><span class="sow-info-key" style="color:var(--amber-dark)">${x(c.note)}</span></div>`;
+  }
+
+  // Planset
+  if(planset.file_name){
+    h+=`<div style="padding:.5rem 1rem;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-top:.5px solid var(--border)">Planset: ${x(planset.file_name)}</div>`;
+    [[`System`,planset.system_size_kw?planset.system_size_kw+' kW':null],
+     [`Panels`,planset.panel_count?`${planset.panel_count}x ${planset.panel_model||''} ${planset.panel_wattage||''}W`:null],
+     [`Inverter`,planset.inverter_model?`${planset.inverter_count||1}x ${planset.inverter_model}`:null],
+     [`Battery`,planset.battery_count?`${planset.battery_count}x ${planset.battery_model||''}`:null],
+     [`Tilt`,Array.isArray(planset.tilt_angle)?planset.tilt_angle.join('°, ')+'°':planset.tilt_angle?planset.tilt_angle+'°':null],
+     [`Roof pitch`,planset.roof_pitch],[`Azimuth`,Array.isArray(planset.azimuth)?planset.azimuth.join('°, ')+'°':planset.azimuth?planset.azimuth+'°':null],
+     [`Roof material`,planset.roof_material],[`Mount`,planset.mount_type],
+     [`Trenching`,planset.trenching_required?(planset.trenching_ft?planset.trenching_ft+' ft':'Required'):'No'],
+     [`Production`,planset.estimated_production_kwh?planset.estimated_production_kwh.toLocaleString()+' kWh':null],
+    ].filter(r=>r[1]).forEach(([k,v])=>{
+      h+=`<div class="sow-info-row"><span class="sow-info-key">${x(k)}</span><span class="sow-info-val">${x(String(v))}</span></div>`;
+    });
+  }
+
+  // Site survey
+  if(survey.file_name){
+    h+=`<div style="padding:.5rem 1rem;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-top:.5px solid var(--border)">Site Survey: ${x(survey.file_name)}</div>`;
+    [[`Condition`,survey.roof_condition],[`Type`,survey.roof_type],
+     [`Age`,survey.roof_age_years?survey.roof_age_years+' years':null],
+     [`Approved`,survey.roof_approved===true?'Yes ✓':survey.roof_approved===false?'No ✗':survey.roof_approved],
+     [`Property type`,survey.property_type],[`Shading`,survey.shading_issues],
+     [`Panel amps`,survey.electrical_panel_amps?survey.electrical_panel_amps+'A':null],
+     [`Survey date`,survey.survey_date],
+    ].filter(r=>r[1]!=null).forEach(([k,v])=>{
+      const c=k==='Approved'&&String(v).includes('✗')?'warn':k==='Approved'&&String(v).includes('✓')?'good':'';
+      h+=`<div class="sow-info-row"><span class="sow-info-key">${x(k)}</span><span class="sow-info-val ${c}">${x(String(v))}</span></div>`;
+    });
+  }
+
+  // PE letter
+  if(pe.file_name){
+    h+=`<div style="padding:.5rem 1rem;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-top:.5px solid var(--border)">PE Letter: ${x(pe.file_name)}</div>`;
+    const ok=pe.structural_adequate===true||String(pe.structural_adequate||'').toLowerCase().includes('true')||String(pe.structural_adequate||'').toLowerCase().includes('yes');
+    if(pe.structural_adequate!=null) h+=`<div class="sow-info-row" style="background:${ok?'var(--green-light)':'var(--red-light)'}"><span class="sow-info-key">Structural adequate</span><span class="sow-info-val ${ok?'good':'warn'}">${ok?'✓ Yes':'✗ No'}</span></div>`;
+    if(pe.key_statement) h+=`<div style="padding:.5rem 1rem;font-size:12px;color:var(--text2);font-style:italic;border-bottom:.5px solid var(--border)">"${x(pe.key_statement)}"</div>`;
+    if(pe.engineer_name) h+=`<div class="sow-info-row"><span class="sow-info-key">Engineer</span><span class="sow-info-val">${x(pe.engineer_name)}</span></div>`;
+  }
+
+  // Adders
+  if(adders.length){
+    h+=`<div style="padding:.5rem 1rem;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-top:.5px solid var(--border)">Detected Adders</div>`;
+    adders.forEach(a=>{h+=`<div class="sow-info-row"><span class="sow-info-key">${x(a.name)}<br><span style="font-size:10px;color:var(--text3)">${x(a.detail)}</span></span><span class="sow-info-val amber">${x(a.cost)}</span></div>`;});
+  }
+  if(errors.length){
+    h+=`<div style="padding:.5rem 1rem;border-top:.5px solid var(--border)">${errors.map(e=>`<div style="font-size:11px;color:var(--amber-dark)">⚠ ${x(e)}</div>`).join('')}</div>`;
+  }
+  return h||'<div style="padding:.875rem 1rem;font-size:12px;color:var(--text3)">No data extracted.</div>';
+}
+
+// Run SOW Check button
+document.addEventListener('click', async function(e){
+  const btn = e.target.closest('[data-sowrun]');
+  if(!btn) return;
+  const iid = parseInt(btn.dataset.sowrun);
+  btn.disabled=true; btn.textContent='⏳ Running...';
+  const el = document.getElementById('sow-extract-results-'+iid);
+  if(el) el.innerHTML='<div style="padding:.875rem 1rem;font-size:12px;color:var(--text3)">Downloading and analyzing PDFs... 30-60 seconds.</div>';
+  try{
+    const res = await fetch(VPS+'/sow-extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:iid})});
+    const d = await res.json();
+    if(d.status==='ok'){
+      SOW_EXTRACT_CACHE[iid]=d.result;
+      if(el) el.innerHTML=buildExtractHTML(d.result);
+      btn.textContent='↻ Re-run';
+    } else {
+      if(el) el.innerHTML=`<div style="padding:.875rem 1rem;font-size:12px;color:var(--red-dark)">Error: ${x(d.message)}</div>`;
+      btn.textContent='⚡ Run Check';
+    }
+  }catch(err){
+    if(el) el.innerHTML=`<div style="padding:.875rem 1rem;font-size:12px;color:var(--red-dark)">Failed: ${x(err.message)}</div>`;
+    btn.textContent='⚡ Run Check';
+  }
+  btn.disabled=false;
+});
+
+// SOW dropdown → save to Podio
 document.addEventListener('change', async function(e){
   const dd = e.target.closest('.sow-dropdown[data-sow-field]');
   if(!dd) return;
-  const fieldId = parseInt(dd.dataset.sowField);
-  const itemId  = parseInt(dd.dataset.sowItem);
-  const optId   = parseInt(dd.value);
+  const fieldId=parseInt(dd.dataset.sowField);
+  const itemId=parseInt(dd.dataset.sowItem);
+  const optId=parseInt(dd.value);
   if(!optId) return;
-  dd.classList.add('saving');
-  const savedEl = document.getElementById('sow-saved-'+fieldId+'-'+itemId);
+  dd.style.opacity='0.5';
   try{
-    const res = await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId, {
-      method:'PUT',
-      headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
-      body: JSON.stringify({value: optId})
+    const res = await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId,{
+      method:'PUT',headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({value:optId})
     });
-    if(res.ok){
-      if(savedEl){ savedEl.style.display='inline'; setTimeout(()=>savedEl.style.display='none',2000); }
-    }
+    if(res.ok){ dd.style.borderColor='#3B6D11'; setTimeout(()=>dd.style.borderColor='',2000); }
   }catch(e){}
-  dd.classList.remove('saving');
+  dd.style.opacity='1';
 });
 
 
-// ── PARCEL LOOKUP ─────────────────────────────────────────
-async function loadParcelData(sowItemId, address, fields){
-  const el = document.getElementById('sow-parcel-body-' + sowItemId);
-  if(!el) return;
-
-  if(DEMO_MODE){
-    el.innerHTML = renderParcelHTML({
-      parcel_number: '14-3-27-001-006',
-      owner: 'KITE, CLINTON',
-      property_class: 'Residential',
-      county: 'Macoupin County',
-      is_manufactured: false,
-      assessor_url: '#'
-    });
-    return;
-  }
-
-  // Get lat/lng from fields
-  let lat = null, lng = null;
-  for(const f of fields){
-    if(f.field_id === 270979699){ lat = f.values?.[0]?.value; }
-    if(f.field_id === 270979698){ lng = f.values?.[0]?.value; }
-  }
-
-  // If no lat/lng, try to geocode address
-  if(!lat || !lng){
-    if(address){
-      try{
-        const geo = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-          {headers:{'User-Agent':'Aveyo-Dashboard/1.0'}}
-        );
-        const geoData = await geo.json();
-        if(geoData.length){
-          lat = parseFloat(geoData[0].lat);
-          lng = parseFloat(geoData[0].lon);
-        }
-      }catch(e){}
-    }
-  }
-
-  if(!lat || !lng){
-    el.innerHTML = '<div style="font-size:12px;color:var(--text3)">No coordinates available for this project.</div>';
-    return;
-  }
-
-  try{
-    // Step 1: Get county from FCC API (free, no key)
-    const fcc = await fetch(
-      `https://geo.fcc.gov/api/census/block/find?latitude=${lat}&longitude=${lng}&format=json`
-    );
-    const fccData = await fcc.json();
-    const county = fccData?.County?.name || '';
-    const state = fccData?.State?.code || '';
-    const fips = fccData?.County?.FIPS || '';
-
-    // Step 2: Try to find parcel via ArcGIS services
-    let parcelData = null;
-
-    // Try national ArcGIS parcel service
-    const arcgisUrls = [
-      `https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Parcels/FeatureServer/0/query?geometry=${lng},${lat}&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&inSR=4326&outFields=*&returnGeometry=false&f=json`,
-    ];
-
-    for(const url of arcgisUrls){
-      try{
-        const r = await fetch(url);
-        const d = await r.json();
-        const features = d?.features || [];
-        if(features.length){
-          const a = features[0].attributes || {};
-          parcelData = {
-            parcel_number: a.APN || a.PIN || a.PARCEL || a.PARCELNUMBER || a.parcelnumb || null,
-            owner: a.OWNER || a.OWNERNME1 || a.owner || null,
-            property_class: a.USEDESC || a.usedesc || a.PROPCLASS || a.propclass || null,
-            year_built: a.YEARBUILT || a.yearbuilt || a.YR_BLT || null,
-            county: county,
-            state: state,
-          };
-          break;
-        }
-      }catch(e){}
-    }
-
-    // Build assessor URL based on county/state
-    let assessorUrl = buildAssessorUrl(county, state, fips, address);
-
-    // Check if manufactured/mobile home
-    const propClass = (parcelData?.property_class || '').toLowerCase();
-    const isMfg = propClass.includes('mobile') || propClass.includes('manufactured') || propClass.includes('modular');
-
-    const result = {
-      parcel_number: parcelData?.parcel_number || null,
-      owner: parcelData?.owner || null,
-      property_class: parcelData?.property_class || null,
-      year_built: parcelData?.year_built || null,
-      county: county,
-      state: state,
-      is_manufactured: isMfg,
-      assessor_url: assessorUrl
-    };
-
-    el.innerHTML = renderParcelHTML(result);
-
-  }catch(e){
-    el.innerHTML = `<div style="font-size:12px;color:var(--red-dark)">Error loading parcel data: ${x(e.message)}</div>`;
-  }
-}
-
-function buildAssessorUrl(county, state, fips, address){
-  // Build direct county assessor URLs for common IL counties
-  const countyLower = county.toLowerCase().replace(' county','').trim();
-  const addrEnc = encodeURIComponent(address || '');
-  const assessorUrls = {
-    'macoupin': 'https://www.macoupincountyil.gov/assessor',
-    'sangamon': 'https://www.co.sangamon.il.us/departments/a-f/assessments-and-taxation/property-search',
-    'madison': 'https://www.co.madison.il.us/departments/assessor',
-    'st. clair': 'https://www.co.st-clair.il.us/departments/assessor',
-    'champaign': 'https://www.champaigncountyassessor.com',
-    'mclean': 'https://www.mcleancountyil.gov/112/Parcel-Information-Look-Up',
-    'will': 'https://www.willcountyillinois.com/County-Departments/Supervisor-of-Assessments',
-    'kane': 'https://kanecountyassessor.com',
-    'lake': 'https://www.lakecountyil.gov/assessor',
-    'peoria': 'https://www.peoriacounty.org/assessor',
-    'tazewell': 'https://www.tazewell.com/assessors-office',
-    'rock island': 'https://www.rockislandcounty.org/Assessor',
-    'whiteside': 'https://www.whiteside.org/departments/assessor',
-    'bureau': 'https://www.bureaucounty-il.gov/assessor',
-    'christian': 'https://www.christiancountyil.gov',
-    'montgomery': 'https://www.montgomeryco.com',
-    'bond': 'https://www.bondcountyil.gov',
-    'clinton': 'https://www.clintonco.illinois.gov',
-    'fayette': 'https://www.fayettecountyil.com',
-    'effingham': 'https://www.co.effingham.il.us',
-    'shelby': 'https://www.shelbycountyillinois.com',
-    'macon': 'https://www.co.macon.il.us',
-    'dewitt': 'https://www.dewittcountyil.gov',
-    'piatt': 'https://www.piattcounty.org',
-  };
-  return assessorUrls[countyLower] || `https://www.google.com/search?q=${encodeURIComponent(county + ' Illinois assessor property search')}`;
-}
-
-function renderParcelHTML(data){
-  const mfgWarning = data.is_manufactured
-    ? `<div style="background:var(--red-light);color:var(--red-dark);padding:8px 10px;border-radius:var(--radius);font-size:12px;font-weight:600;margin-bottom:8px">⚠️ MANUFACTURED/MOBILE HOME — LightReach does not fund. H-Frame adder required.</div>`
-    : '';
-
-  const rows = [
-    {label:'Parcel Number', val: data.parcel_number || '—', cls: data.parcel_number ? '' : 'warn'},
-    {label:'Owner', val: data.owner || '—', cls: ''},
-    {label:'Property Class', val: data.property_class || '—', cls: data.is_manufactured ? 'bad' : ''},
-    {label:'Year Built', val: data.year_built || '—', cls: ''},
-    {label:'County', val: data.county || '—', cls: ''},
-  ].filter(r => r.val !== '—' || r.label === 'Parcel Number');
-
-  return mfgWarning + rows.map(r =>
-    `<div class="sow-parcel-row">
-      <span class="sow-parcel-label">${x(r.label)}</span>
-      <span class="sow-parcel-val ${r.cls}">${x(String(r.val))}</span>
-    </div>`
-  ).join('') +
-  `<a class="sow-parcel-link" href="${data.assessor_url}" target="_blank">🔗 Open County Assessor Records →</a>`;
-}
 
 // ── SOW PRODUCTION CHECK ─────────────────────────────────
 async function loadSoldProduction(sowItemId){
@@ -3243,7 +3161,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=65').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=66').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
