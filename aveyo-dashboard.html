@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v63</title>
+<title>Aveyo Solar v64</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -435,13 +435,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .wgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 
+
+/* ── ACTION TAB ─────────────────────────────────────────── */
+.action-card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);margin:0 .75rem .625rem;overflow:hidden}
+.action-card-hdr{display:flex;align-items:flex-start;gap:10px;padding:.875rem 1rem;cursor:pointer}
+.action-card-hdr:active{background:var(--bg2)}
+.action-flag{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.action-flag.red{background:var(--red-dark)}
+.action-flag.amber{background:var(--amber-dark)}
+.action-flag.blue{background:var(--blue)}
+.action-card-body{flex:1;min-width:0}
+.action-card-proj{font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px}
+.action-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.action-reasons{display:flex;flex-direction:column;gap:4px}
+.action-reason{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.action-reason-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.action-reason-dot.red{background:var(--red-dark)}
+.action-reason-dot.amber{background:var(--amber-dark)}
+.action-reason-dot.blue{background:var(--blue)}
+.action-followup-box{padding:0 1rem .875rem}
+.action-followup-input{width:100%;padding:7px 10px;font-size:12px;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
+.action-followup-input:focus{border-color:var(--blue)}
+.action-followup-list{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.action-followup-item{display:flex;align-items:center;gap:6px;font-size:12px;background:var(--bg2);padding:5px 8px;border-radius:var(--radius);border:.5px solid var(--border)}
+.action-followup-item-text{flex:1;color:var(--text2)}
+.action-followup-done{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:var(--radius);border:.5px solid var(--border);background:var(--bg)}
+.action-followup-done:active{background:var(--green-light)}
+.action-empty{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:13px}
+.action-stats{display:flex;gap:.5rem;padding:.75rem;margin-bottom:.25rem}
+.action-stat{flex:1;background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius);padding:.625rem;text-align:center}
+.action-stat-num{font-size:20px;font-weight:700}
+.action-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.action-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:.5rem .75rem .25rem}
+
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v63</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v64</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -558,6 +591,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
     <button class="bnav-btn" id="nav-sow">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>SOW</span>
+    </button>
+    <button class="bnav-btn" id="nav-action">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Action</span>
     </button>
     <button class="bnav-btn" id="nav-kb">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge</span>
@@ -686,14 +722,14 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v63';
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base'};
+const VERSION='v64';
+const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
-  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow')?'block':'none';
+  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='action')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
   if(isAuth){ stopPolling(); } else { startPolling(); }
   document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
@@ -702,6 +738,7 @@ function setActiveNav(tab){
   document.getElementById('nav-home').classList.toggle('active',tab==='home');
   document.getElementById('nav-projects').classList.toggle('active',tab==='projects');
   document.getElementById('nav-sow').classList.toggle('active',tab==='sow');
+  document.getElementById('nav-action').classList.toggle('active',tab==='action');
   document.getElementById('nav-kb').classList.toggle('active',tab==='kb');
 }
 
@@ -712,6 +749,7 @@ document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
 document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sow');loadSOW();});
+document.getElementById('nav-action').addEventListener('click',()=>{setActiveNav('action');showView('action');loadAction();});
 document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
@@ -796,6 +834,7 @@ function doRefresh(){
   if(active.id==='view-home'){clearCache();loadHome();}
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
   else if(active.id==='view-sow'){SOW_ITEMS=[];loadSOW();}
+  else if(active.id==='view-action'){loadAction();}
 }
 
 
@@ -878,6 +917,8 @@ function buildHomeShell(){
   });
   if(gridOpen)html+='</div>';
   html+=`<div style="padding:0 .75rem;margin-top:.5rem"><button class="btn btn-secondary" id="home-signout" style="font-size:12px">Sign out</button></div>`;
+  updateActionBadge();
+  setTimeout(()=>{renderActionWidget();}, 100);
   document.getElementById('home-content').innerHTML=html;
   document.getElementById('home-signout').addEventListener('click',doLogout);
 }
@@ -973,6 +1014,8 @@ async function loadProjects(){
     ALL_ITEMS=[...DEMO_ITEMS];
     document.getElementById('progress-bar').style.width='100%';
     renderProjStats();renderChips();renderCards();
+  updateActionBadge();
+  setTimeout(renderActionWidget, 200);
     document.getElementById('cards-loading').style.display='none';
     return;
   }
@@ -991,6 +1034,8 @@ async function loadProjects(){
     document.getElementById('progress-bar').style.width='100%';
     ALL_ITEMS=all.map(parseItem);
     renderProjStats();renderChips();renderCards();
+  updateActionBadge();
+  setTimeout(renderActionWidget, 200);
   }catch(e){
     document.getElementById('cards-list').innerHTML=`<div class="empty">${e.message}</div>`;
   }
@@ -1967,6 +2012,271 @@ async function saveReviewDate(itemId){
 }
 
 
+
+// ── ACTION NEEDED TAB ─────────────────────────────────────
+const ACTION_STORAGE_KEY = 'aveyo_followups_v1';
+
+function getFollowups(){
+  try{ return JSON.parse(localStorage.getItem(ACTION_STORAGE_KEY)||'{}'); }catch(e){ return {}; }
+}
+function saveFollowups(data){
+  try{ localStorage.setItem(ACTION_STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+}
+
+function detectActionReasons(item){
+  const reasons = [];
+
+  // 1. Review overdue >7 days
+  if(item.daysSince !== null && item.daysSince > 7){
+    reasons.push({text: `Review overdue — ${item.daysSince} days since last review`, color:'red'});
+  }
+
+  // 2. Open support ticket
+  const tickets = item.repTickets || '';
+  const openTicket = tickets.split(/(?=\d{2}\/\d{2}\/\d{4})/g)
+    .filter(b=>b.trim().length>5)
+    .some(b=>{
+      const status=(b.match(/Status:[*\s]*([^<*\[\n]+)/i)||[])[1]||'';
+      return !status.toLowerCase().includes('complet') && !status.toLowerCase().includes('cancel');
+    });
+  if(openTicket) reasons.push({text:'Open support ticket needs attention', color:'red'});
+
+  // 3. Open work order
+  const raw = item.raw || {};
+  const fields = raw.fields || [];
+  const openWO = fields.find(f=>f.field_id===268839983);
+  const openWOVal = openWO?.values?.[0]?.value;
+  if(parseFloat(openWOVal)>0) reasons.push({text:'Work order open — check for updates', color:'amber'});
+
+  // 4. SOW rejection pending
+  const sowField = fields.find(f=>f.field_id===269342834);
+  const sowText = sowField?.values?.[0]?.value||'';
+  if(sowText.toLowerCase().includes('rejected')||sowText.toLowerCase().includes('rep rejected')){
+    reasons.push({text:'SOW rejection — response needed', color:'red'});
+  }
+
+  // 5. Customer SOW not approved
+  if(sowText.toLowerCase().includes('sent') && !sowText.toLowerCase().includes('approved')){
+    reasons.push({text:'Customer SOW sent — awaiting approval', color:'amber'});
+  }
+
+  // 6. Funding milestone stalled
+  const funding = item.fundingMilestones || '';
+  const m2status = (funding.match(/M2 Status:[*\s]*([^*\n]+)/i)||[])[1]||'';
+  const m1approved = funding.toLowerCase().includes('m1 status') && funding.toLowerCase().includes('approved');
+  if(m1approved && m2status && !m2status.toLowerCase().includes('approved') && !m2status.toLowerCase().includes('complete')){
+    reasons.push({text:'M1 approved — M2 milestone pending', color:'amber'});
+  }
+
+  // 7. Install ready but not scheduled
+  const milestone = (item.milestone||'').toLowerCase();
+  const milestones = item.milestones || '';
+  if(milestones.toLowerCase().includes('install ready? | yes') && !milestones.toLowerCase().includes('install status | complete')){
+    const hasOpenWO = parseFloat(openWOVal) > 0;
+    if(!hasOpenWO) reasons.push({text:'Install ready — no work order scheduled', color:'red'});
+  }
+
+  // 8. Permit stalled >30 days
+  if(milestone.includes('permit')){
+    const permitMatch = milestones.match(/Permit[^|]*\|\s*([\d\/]{6,10})/i);
+    if(permitMatch){
+      const permitDate = new Date(permitMatch[1]);
+      const daysSince = Math.floor((Date.now()-permitDate.getTime())/86400000);
+      if(daysSince>30) reasons.push({text:`Permit submitted ${daysSince} days ago — follow up with AHJ`, color:'amber'});
+    }
+  }
+
+  return reasons;
+}
+
+function loadAction(){
+  if(!ALL_ITEMS.length){ 
+    document.getElementById('action-content').innerHTML = '<div class="action-empty">Load your projects first from the Projects tab.</div>';
+    return;
+  }
+  renderAction();
+}
+
+function renderAction(){
+  const followups = getFollowups();
+  const actionItems = [];
+
+  ALL_ITEMS.forEach(item=>{
+    const reasons = detectActionReasons(item);
+    const myFollowups = (followups[item.id]||[]).filter(f=>!f.done);
+    if(reasons.length || myFollowups.length){
+      actionItems.push({item, reasons, followups: followups[item.id]||[]});
+    }
+  });
+
+  // Stats
+  const redCount = actionItems.filter(a=>a.reasons.some(r=>r.color==='red')).length;
+  const amberCount = actionItems.filter(a=>a.reasons.every(r=>r.color!=='red') && a.reasons.length).length;
+  const followupCount = Object.values(followups).flat().filter(f=>!f.done).length;
+
+  document.getElementById('action-stats').innerHTML = `
+    <div class="action-stat">
+      <div class="action-stat-num" style="color:var(--red-dark)">${redCount}</div>
+      <div class="action-stat-lbl">Urgent</div>
+    </div>
+    <div class="action-stat">
+      <div class="action-stat-num" style="color:var(--amber-dark)">${amberCount}</div>
+      <div class="action-stat-lbl">Watch</div>
+    </div>
+    <div class="action-stat">
+      <div class="action-stat-num" style="color:var(--blue)">${followupCount}</div>
+      <div class="action-stat-lbl">Follow-ups</div>
+    </div>
+    <div class="action-stat">
+      <div class="action-stat-num">${actionItems.length}</div>
+      <div class="action-stat-lbl">Total</div>
+    </div>`;
+
+  if(!actionItems.length){
+    document.getElementById('action-content').innerHTML = '<div class="action-empty">&#10003; No action items right now. Great work!</div>';
+    return;
+  }
+
+  // Sort: red first, then amber
+  actionItems.sort((a,b)=>{
+    const aRed = a.reasons.some(r=>r.color==='red') ? 0 : 1;
+    const bRed = b.reasons.some(r=>r.color==='red') ? 0 : 1;
+    return aRed - bRed;
+  });
+
+  const html = actionItems.map(({item, reasons, followups: fups})=>{
+    const topColor = reasons.some(r=>r.color==='red') ? 'red' : reasons.length ? 'amber' : 'blue';
+    const activeFups = fups.filter(f=>!f.done);
+    const doneFups = fups.filter(f=>f.done);
+
+    const reasonsHTML = reasons.map(r=>
+      `<div class="action-reason">
+        <div class="action-reason-dot ${r.color}"></div>
+        <span>${x(r.text)}</span>
+      </div>`
+    ).join('');
+
+    const fupListHTML = activeFups.map((f,i)=>
+      `<div class="action-followup-item">
+        <span class="action-followup-item-text">${x(f.text)}</span>
+        <button class="action-followup-done" data-fup-done data-itemid="${item.id}" data-fupidx="${fups.indexOf(f)}">✓ Done</button>
+      </div>`
+    ).join('');
+
+    return `<div class="action-card" data-action-itemid="${item.id}">
+      <div class="action-card-hdr" data-action-open="${item.id}">
+        <div class="action-flag ${topColor}"></div>
+        <div class="action-card-body">
+          <div class="action-card-proj">${x(item.num)} · ${x(item.milestone||'—')}</div>
+          <div class="action-card-name">${x(item.name)}</div>
+          <div class="action-reasons">${reasonsHTML}</div>
+          ${activeFups.length?`<div class="action-followup-list">${fupListHTML}</div>`:''}
+        </div>
+      </div>
+      <div class="action-followup-box">
+        <input class="action-followup-input" type="text" placeholder="+ Add follow-up note..." data-fup-input="${item.id}" />
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('action-content').innerHTML = html;
+}
+
+// Open project detail from action card
+document.addEventListener('click', function(e){
+  const opener = e.target.closest('[data-action-open]');
+  if(opener && !e.target.closest('[data-fup-done]') && !e.target.closest('.action-followup-input')){
+    const id = parseInt(opener.dataset.actionOpen);
+    PREV_VIEW = 'action';
+    openDetail(id);
+  }
+
+  // Mark followup done
+  const doneBtn = e.target.closest('[data-fup-done]');
+  if(doneBtn){
+    const id = parseInt(doneBtn.dataset.itemid);
+    const idx = parseInt(doneBtn.dataset.fupidx);
+    const followups = getFollowups();
+    if(followups[id] && followups[id][idx]){
+      followups[id][idx].done = true;
+      saveFollowups(followups);
+      renderAction();
+    }
+  }
+});
+
+// Add followup on Enter
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  const input = e.target.closest('[data-fup-input]');
+  if(!input) return;
+  const id = parseInt(input.dataset.fupInput);
+  const text = input.value.trim();
+  if(!text) return;
+  const followups = getFollowups();
+  if(!followups[id]) followups[id] = [];
+  followups[id].push({text, done:false, created: Date.now()});
+  saveFollowups(followups);
+  input.value = '';
+  renderAction();
+});
+
+// Add action count badge to nav button
+function updateActionBadge(){
+  if(!ALL_ITEMS.length) return;
+  let count = 0;
+  ALL_ITEMS.forEach(item=>{
+    const reasons = detectActionReasons(item);
+    if(reasons.length) count++;
+  });
+  const followups = getFollowups();
+  const fupCount = Object.values(followups).flat().filter(f=>!f.done).length;
+  const total = count + fupCount;
+  const btn = document.getElementById('nav-action');
+  if(!btn) return;
+  let badge = btn.querySelector('.action-badge');
+  if(total > 0){
+    if(!badge){
+      badge = document.createElement('span');
+      badge.className = 'action-badge';
+      badge.style.cssText = 'position:absolute;top:6px;right:calc(50% - 18px);background:var(--red-dark);color:#fff;font-size:9px;font-weight:700;border-radius:99px;padding:1px 5px;min-width:14px;text-align:center';
+      btn.style.position = 'relative';
+      btn.appendChild(badge);
+    }
+    badge.textContent = total > 99 ? '99+' : total;
+  } else if(badge){
+    badge.remove();
+  }
+}
+
+// Also add widget to home screen
+function renderActionWidget(){
+  if(!ALL_ITEMS.length) return;
+  let count = 0;
+  const urgent = [];
+  ALL_ITEMS.forEach(item=>{
+    const reasons = detectActionReasons(item);
+    if(reasons.some(r=>r.color==='red')){ urgent.push(item); count++; }
+    else if(reasons.length) count++;
+  });
+  const followups = getFollowups();
+  const fupCount = Object.values(followups).flat().filter(f=>!f.done).length;
+  const total = count + fupCount;
+  const el = document.getElementById('action-widget');
+  if(!el) return;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1">
+        <div style="font-size:22px;font-weight:700;color:var(--red-dark)">${total}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:1px">Action Needed</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--text3)">${urgent.length} urgent</div>
+        <div style="font-size:12px;color:var(--text3)">${fupCount} follow-ups</div>
+      </div>
+    </div>`;
+}
+
 // ── SOW TAB ──────────────────────────────────────────────
 const SOW_APP_ID = 29839685;
 let SOW_ITEMS = [];
@@ -2854,7 +3164,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=63').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=64').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
