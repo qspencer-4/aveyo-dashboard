@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v64</title>
+<title>Aveyo Solar v65</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -468,13 +468,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .action-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .action-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:.5rem .75rem .25rem}
 
+
+.sow-section{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius-lg);margin:.75rem;overflow:hidden}
+.sow-section-hdr{padding:.75rem 1rem;background:var(--bg2);border-bottom:.5px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.sow-field-row{display:flex;align-items:center;gap:8px;padding:.625rem 1rem;border-bottom:.5px solid var(--border)}
+.sow-field-row:last-child{border-bottom:none}
+.sow-field-label{font-size:12px;color:var(--text2);flex:1;min-width:0}
+.sow-field-val{font-size:12px;font-weight:600;color:var(--text);text-align:right}
+.sow-field-val.good{color:#3B6D11}
+.sow-field-val.warn{color:var(--red-dark)}
+.sow-field-val.amber{color:var(--amber-dark)}
+.sow-dropdown{font-size:12px;padding:4px 8px;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit;cursor:pointer;max-width:180px}
+.sow-dropdown:focus{border-color:var(--blue)}
+.sow-dropdown.saving{opacity:.5}
+.sow-save-indicator{font-size:11px;color:#3B6D11;margin-left:4px;display:none}
+.sow-adder-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--amber-light);color:var(--amber-dark);border:.5px solid var(--amber-dark);padding:2px 8px;border-radius:99px;margin:2px}
+.sow-adder-tag.green{background:var(--green-light);color:#3B6D11;border-color:#3B6D11}
+.sow-info-row{display:flex;justify-content:space-between;padding:.5rem 1rem;font-size:12px;border-bottom:.5px solid var(--border)}
+.sow-info-row:last-child{border-bottom:none}
+.sow-info-key{color:var(--text3)}
+.sow-info-val{color:var(--text);font-weight:600;text-align:right;max-width:60%}
+
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v64</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v65</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -722,7 +743,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v64';
+const VERSION='v65';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -2429,171 +2450,229 @@ function openSOWDetail(itemId){
   document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
 }
 
+// SOW DROPDOWN OPTIONS
+const SOW_OPTIONS = {
+  systemSizeMatches:  [{id:1,text:'Yes'},{id:2,text:'No'}],
+  contractPriceMatches:[{id:1,text:'Yes'},{id:2,text:'No'}],
+  designMatches:      [{id:1,text:'Yes'},{id:2,text:'No'}],
+  roofReview:         [{id:1,text:'Roof Work Needed'},{id:2,text:'Roof is Approved'}],
+  electricalWork:     [{id:2,text:'Not Needed'},{id:1,text:'Yes'},{id:3,text:'200 AMP'},{id:4,text:'400 AMP'},{id:5,text:'Derate'},{id:6,text:'Relocation'},{id:7,text:'Line Side Tap'},{id:8,text:'Battery System'},{id:9,text:'DMS'},{id:10,text:'Other'}],
+  structuralUpgrade:  [{id:1,text:'Yes'},{id:2,text:'No'}],
+  repScopeApproval:   [{id:1,text:'Ready to Send'},{id:2,text:'Sent for Approval'},{id:3,text:'Approved'},{id:4,text:'Rejected'},{id:5,text:'Resolving Issues'}],
+  customerSOWStatus:  [{id:1,text:'New'},{id:5,text:'Updated - Trigger Processing and Send'},{id:6,text:'Not Sent - Missing Design Doc'},{id:2,text:'Sent to Customer'},{id:7,text:'Approved'},{id:8,text:'Rejected'},{id:3,text:'Customer Comment Received'},{id:4,text:'Customer Comment Handled'}],
+};
+
+function sowDropdown(fieldKey, fieldId, currentVal, itemId){
+  const opts = SOW_OPTIONS[fieldKey]||[];
+  const options = opts.map(o=>`<option value="${o.id}" ${currentVal===o.text?'selected':''}>${x(o.text)}</option>`).join('');
+  return `<select class="sow-dropdown" data-sow-field="${fieldId}" data-sow-item="${itemId}" data-field-key="${fieldKey}">
+    <option value="">— Not set —</option>
+    ${options}
+  </select><span class="sow-save-indicator" id="sow-saved-${fieldId}-${itemId}">✓ Saved</span>`;
+}
+
+function valClass(val, good, warn){
+  if(!val) return '';
+  const v = val.toLowerCase();
+  if(good.some(g=>v.includes(g))) return 'good';
+  if(warn.some(w=>v.includes(w))) return 'warn';
+  return '';
+}
+
 function buildSOWDetail(item){
   const fields = item.fields||[];
   const title = item.title||'';
   const namePart = title.replace(/^#\S+\s+/,'');
   const name = namePart.split(' - ')[0]||title;
   const address = namePart.split(' - ')[1]||'';
+  const iid = item.item_id;
 
-  // Pull field values
-  const systemMatches = sowFV(fields, SOW_FIELD.systemSizeMatches);
-  const priceMatches = sowFV(fields, SOW_FIELD.contractPriceMatches);
-  const designMatches = sowFV(fields, SOW_FIELD.designMatches);
+  // Pull all field values
+  const systemMatches  = sowFV(fields, SOW_FIELD.systemSizeMatches);
+  const priceMatches   = sowFV(fields, SOW_FIELD.contractPriceMatches);
+  const designMatches  = sowFV(fields, SOW_FIELD.designMatches);
   const electricalWork = sowFV(fields, SOW_FIELD.electricalWork);
-  const structuralUpgrade = sowFV(fields, SOW_FIELD.structuralUpgrade);
-  const roofReview = sowFV(fields, SOW_FIELD.roofReview);
-  const repScopeCreation = sowFV(fields, SOW_FIELD.repScopeCreation);
+  const structUpgrade  = sowFV(fields, SOW_FIELD.structuralUpgrade);
+  const roofReview     = sowFV(fields, SOW_FIELD.roofReview);
   const repScopeApproval = sowFV(fields, SOW_FIELD.repScopeApproval);
-  const customerSOW = sowFV(fields, SOW_FIELD.customerSOWStatus);
-  const permitDesign = sowFV(fields, SOW_FIELD.permitDesign);
-  const systemSize = sowFV(fields, SOW_FIELD.systemSize);
-  const contractPrice = sowFV(fields, SOW_FIELD.contractPrice);
-  const sowNotes = sowFV(fields, SOW_FIELD.sowNotes);
+  const customerSOW    = sowFV(fields, SOW_FIELD.customerSOWStatus);
+  const permitDesign   = sowFV(fields, SOW_FIELD.permitDesign);
+  const repDesign      = sowFV(fields, SOW_FIELD.repDesignApproval);
+  const redline        = sowFV(fields, SOW_FIELD.redlineAnalysis);
+  const systemSize     = sowFV(fields, SOW_FIELD.systemSize);
+  const contractPrice  = sowFV(fields, SOW_FIELD.contractPrice);
+  const sowNotes       = sowFV(fields, SOW_FIELD.sowNotes);
 
-  // Get lat/lng from project for distance calc
-  // Pull from address fields if available
-  const latField = (fields).find(f=>f.field_id===270979699);
-  const lngField = (fields).find(f=>f.field_id===270979698);
+  // Get lat/lng
+  const latField = fields.find(f=>f.field_id===270979699);
+  const lngField = fields.find(f=>f.field_id===270979698);
   const lat = latField?.values?.[0]?.value;
   const lng = lngField?.values?.[0]?.value;
   const distInfo = getDistanceAdder(lat, lng);
 
-  function checkIcon(val, goodVals=[], warnVals=[]){
-    if(!val) return '<span class="sow-check-icon empty">?</span>';
-    const isGood = goodVals.some(g=>val.toLowerCase().includes(g.toLowerCase()));
-    const isWarn = warnVals.some(w=>val.toLowerCase().includes(w.toLowerCase()));
-    if(isGood) return '<span class="sow-check-icon done">✓</span>';
-    if(isWarn) return '<span class="sow-check-icon warn">!</span>';
-    return '<span class="sow-check-icon empty">—</span>';
+  // Detect adders from SOW fields
+  const adders = [];
+  if(electricalWork && electricalWork!=='Not Needed'){
+    const elecAdderMap = {
+      'Yes':'Electrical Work Required','200 AMP':'MPU 200 Amp — $2,100 ea',
+      '400 AMP':'MPU 400 Amp — $4,000 ea','Derate':'DeRate — $750 ea',
+      'Relocation':'Meter Relocate — $2,000 ea','Line Side Tap':'Line Side Tap',
+      'Battery System':'Battery System','DMS':'DMS','Other':'Electrical Work (Other)'
+    };
+    adders.push({text: elecAdderMap[electricalWork]||electricalWork, color:'amber'});
   }
+  if(structUpgrade==='Yes') adders.push({text:'Structural Upgrade — $1,500 ea', color:'amber'});
+  if(roofReview==='Roof Work Needed') adders.push({text:'Roof Work Required', color:'red'});
+  if(distInfo && distInfo.tier) adders.push({text:`Distance: ${distInfo.tier} — ${distInfo.cost}`, color:'amber'});
 
-  const checks = [
-    {
-      label: 'System Size Matches',
-      icon: checkIcon(systemMatches,['yes'],['no']),
-      value: systemSize ? systemSize + ' kW — ' + (systemMatches||'Not set') : (systemMatches||'Not set'),
-      cls: systemMatches==='Yes'?'good':systemMatches==='No'?'warn':''
-    },
-    {
-      label: 'Contract Price Matches',
-      icon: checkIcon(priceMatches,['yes'],['no']),
-      value: contractPrice ? '$' + parseFloat(contractPrice).toLocaleString() + ' — ' + (priceMatches||'Not set') : (priceMatches||'Not set'),
-      cls: priceMatches==='Yes'?'good':priceMatches==='No'?'warn':''
-    },
-    {
-      label: 'Design Matches',
-      icon: checkIcon(designMatches,['yes'],['no']),
-      value: designMatches||'Not set',
-      cls: designMatches==='Yes'?'good':designMatches==='No'?'warn':''
-    },
-    {
-      label: 'Roof Review',
-      icon: checkIcon(roofReview,['approved'],['issue','fail','reject']),
-      value: roofReview||'Not set',
-      cls: roofReview&&roofReview.toLowerCase().includes('approved')?'good':roofReview&&roofReview.toLowerCase().includes('issue')?'warn':''
-    },
-    {
-      label: 'Electrical Work',
-      icon: electricalWork&&electricalWork.toLowerCase()==='no'?'<span class="sow-check-icon done">✓</span>':'<span class="sow-check-icon warn">!</span>',
-      value: electricalWork||'Not set',
-      cls: electricalWork&&electricalWork.toLowerCase()==='no'?'good':'warn'
-    },
-    {
-      label: 'Structural Upgrade',
-      icon: checkIcon(structuralUpgrade,['no'],['yes']),
-      value: structuralUpgrade||'Not set',
-      cls: structuralUpgrade==='No'?'good':structuralUpgrade==='Yes'?'warn':''
-    },
-    {
-      label: 'Permit Package Design',
-      icon: checkIcon(permitDesign,['approved'],['pending','review']),
-      value: permitDesign||'Not set',
-      cls: permitDesign&&permitDesign.toLowerCase().includes('approved')?'good':''
-    },
-    {
-      label: 'Rep Scope Creation',
-      icon: checkIcon(repScopeCreation,['created','ready'],['pending']),
-      value: repScopeCreation||'Not set',
-      cls: ''
-    },
-    {
-      label: 'Rep Scope Approval',
-      icon: checkIcon(repScopeApproval,['approved'],['rejected','pending']),
-      value: repScopeApproval||'Not set',
-      cls: repScopeApproval&&repScopeApproval.toLowerCase().includes('approved')?'good':repScopeApproval&&repScopeApproval.toLowerCase().includes('rejected')?'warn':''
-    },
-    {
-      label: 'Customer SOW Status',
-      icon: checkIcon(customerSOW,['approved','sent'],['rejected']),
-      value: customerSOW||'Not set',
-      cls: ''
-    },
+  // Build HTML sections
+  const infoRows = [
+    {k:'Project Number', v: title.match(/^(#\S+)/)?.[1]||''},
+    {k:'System Size', v: systemSize ? systemSize+' kW' : '—'},
+    {k:'Contract Price', v: contractPrice ? '$'+parseFloat(contractPrice).toLocaleString() : '—'},
+    {k:'Address', v: address||'—'},
   ];
 
-  const checksHTML = checks.map(c=>`
-    <div class="sow-check-row">
-      ${c.icon}
-      <div class="sow-check-content">
-        <div class="sow-check-label">${x(c.label)}</div>
-        <div class="sow-check-value ${c.cls}">${x(String(c.value))}</div>
-      </div>
+  const infoHTML = infoRows.map(r=>`
+    <div class="sow-info-row">
+      <span class="sow-info-key">${x(r.k)}</span>
+      <span class="sow-info-val">${x(r.v)}</span>
     </div>`).join('');
 
+  // Editable verification rows
+  const verifyRows = [
+    {label:'System Size Matches', key:'systemSizeMatches', fid:SOW_FIELD.systemSizeMatches, val:systemMatches, good:['yes'], warn:['no']},
+    {label:'Contract Price Matches', key:'contractPriceMatches', fid:SOW_FIELD.contractPriceMatches, val:priceMatches, good:['yes'], warn:['no']},
+    {label:'Design Matches', key:'designMatches', fid:SOW_FIELD.designMatches, val:designMatches, good:['yes'], warn:['no']},
+    {label:'Roof Review', key:'roofReview', fid:SOW_FIELD.roofReview, val:roofReview, good:['approved'], warn:['needed']},
+    {label:'Electrical Work', key:'electricalWork', fid:SOW_FIELD.electricalWork, val:electricalWork, good:['not needed'], warn:['yes','200','400','derate','relocation','line','battery','dms','other']},
+    {label:'Structural Upgrade', key:'structuralUpgrade', fid:SOW_FIELD.structuralUpgrade, val:structUpgrade, good:['no'], warn:['yes']},
+    {label:'Rep Scope Approval', key:'repScopeApproval', fid:SOW_FIELD.repScopeApproval, val:repScopeApproval, good:['approved'], warn:['rejected']},
+    {label:'Customer SOW Status', key:'customerSOWStatus', fid:SOW_FIELD.customerSOWStatus, val:customerSOW, good:['approved'], warn:['rejected']},
+  ];
+
+  const verifyHTML = verifyRows.map(r=>{
+    const cls = valClass(r.val, r.good, r.warn);
+    const dot = cls==='good'?'&#10003;':cls==='warn'?'&#33;':'&#8212;';
+    const dotColor = cls==='good'?'#3B6D11':cls==='warn'?'var(--red-dark)':'var(--text3)';
+    return `<div class="sow-field-row">
+      <span style="font-size:14px;font-weight:700;color:${dotColor};flex-shrink:0;width:18px">${dot}</span>
+      <span class="sow-field-label">${x(r.label)}</span>
+      ${sowDropdown(r.key, r.fid, r.val, iid)}
+    </div>`;
+  }).join('');
+
+  // Read-only status rows
+  const statusRows = [
+    {label:'Permit Package Design', val:permitDesign, good:['approved'], warn:['rejected']},
+    {label:'Rep Design Approval', val:repDesign, good:['approved'], warn:['rejected']},
+    {label:'Redline Analysis', val:redline, good:['above'], warn:['below','trigger']},
+  ];
+  const statusHTML = statusRows.map(r=>{
+    const cls = valClass(r.val, r.good, r.warn);
+    return `<div class="sow-info-row">
+      <span class="sow-info-key">${x(r.label)}</span>
+      <span class="sow-info-val ${cls}">${x(r.val||'—')}</span>
+    </div>`;
+  }).join('');
+
+  // Distance adder section
   const distHTML = distInfo ? `
-    <div class="sow-check-row">
-      <span class="sow-check-icon ${distInfo.tier?'warn':'done'}">${distInfo.tier?'$':'✓'}</span>
-      <div class="sow-check-content">
-        <div class="sow-check-label">Distance Adder</div>
-        <div class="sow-check-value">${distInfo.dist} miles from ${x(distInfo.branch)}</div>
-        ${distInfo.tier?`<span class="sow-distance-badge" style="background:var(--amber-light);color:var(--amber-dark)">${x(distInfo.tier)} — ${x(distInfo.cost)}</span>`:'<span class="sow-distance-badge" style="background:var(--green-light);color:var(--green-dark)">No distance adder</span>'}
-      </div>
+    <div class="sow-info-row">
+      <span class="sow-info-key">Distance to nearest branch</span>
+      <span class="sow-info-val">${distInfo.dist} mi · ${x(distInfo.branch)}</span>
+    </div>
+    <div class="sow-info-row">
+      <span class="sow-info-key">Distance Adder</span>
+      <span class="sow-info-val ${distInfo.tier?'amber':'good'}">${distInfo.tier ? x(distInfo.tier)+' — '+x(distInfo.cost) : 'None required'}</span>
     </div>` : '';
 
+  // Adders summary
+  const addersHTML = adders.length ? adders.map(a=>
+    `<span class="sow-adder-tag ${a.color==='red'?'':'green'}" style="${a.color==='amber'?'background:var(--amber-light);color:var(--amber-dark);border-color:var(--amber-dark)':a.color==='red'?'background:var(--red-light);color:var(--red-dark);border-color:var(--red-dark)':''}">${x(a.text)}</span>`
+  ).join('') : '<span style="font-size:12px;color:var(--text3)">No adders detected</span>';
+
   document.getElementById('sow-detail-body').innerHTML = `
-    <div style="padding:.75rem .75rem .25rem">
+    <div style="padding:.75rem .75rem .375rem">
       <div class="detail-id">${x(title.match(/^(#\S+)/)?.[1]||'')}</div>
       <div class="detail-name">${x(name)}</div>
       ${address?`<div class="detail-addr">${x(address)}</div>`:''}
     </div>
-    <div class="sow-checklist">
-      <div class="sow-checklist-hdr">SOW Verification Checklist</div>
-      ${checksHTML}
-      ${distHTML}
+
+    <div class="sow-section">
+      <div class="sow-section-hdr">Project Info</div>
+      ${infoHTML}
     </div>
-    ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
-    <div class="sow-parcel-box">
-      <div class="sow-parcel-hdr">&#127968; Property Lookup</div>
-      <div class="sow-parcel-body" id="sow-parcel-body-${item.item_id}">
-        <div style="font-size:12px;color:var(--text3)">Loading parcel data...</div>
+
+    <div class="sow-section">
+      <div class="sow-section-hdr">Verification Checklist <span style="font-weight:400;text-transform:none;font-size:10px">(tap to update Podio)</span></div>
+      ${verifyHTML}
+    </div>
+
+    <div class="sow-section">
+      <div class="sow-section-hdr">Status</div>
+      ${statusHTML}
+    </div>
+
+    <div class="sow-section">
+      <div class="sow-section-hdr">Distance & Adders</div>
+      ${distHTML}
+      <div style="padding:.5rem 1rem;border-bottom:.5px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Detected Adders</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${addersHTML}</div>
       </div>
     </div>
+
+    ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
+
     <div class="sow-production-box">
       <div class="sow-production-hdr">&#9889; Production Check</div>
       <div class="sow-production-body">
         <div class="sow-production-row">
           <span class="sow-production-label">Sold production (Podio)</span>
-          <span class="sow-production-val" id="sow-sold-prod-${item.item_id}">Loading...</span>
+          <span class="sow-production-val" id="sow-sold-prod-${iid}">Loading...</span>
         </div>
         <div class="sow-production-row">
-          <span class="sow-production-label">New production (from planset)</span>
+          <span class="sow-production-label">New production (planset)</span>
           <span class="sow-production-val">Enter below</span>
         </div>
-        <input type="number" class="sow-production-input" id="sow-new-prod-${item.item_id}" placeholder="Enter new kWh from planset e.g. 12500"/>
-        <button class="sow-co-btn" id="sow-co-btn-${item.item_id}" data-sowitemid="${item.item_id}">Check & Create Change Order if Needed</button>
-        <div class="sow-co-result" id="sow-co-result-${item.item_id}" style="display:none"></div>
+        <input type="number" class="sow-production-input" id="sow-new-prod-${iid}" placeholder="Enter new kWh from planset e.g. 12500"/>
+        <button class="sow-co-btn" id="sow-co-btn-${iid}" data-sowitemid="${iid}">Check & Create Change Order if Needed</button>
+        <div class="sow-co-result" id="sow-co-result-${iid}" style="display:none"></div>
       </div>
     </div>
+
     <div style="padding:0 .75rem .75rem">
-      <a href="https://podio.com/aveyo/projects/apps/scope-of-work/items/${item.item_id}" target="_blank">
-        <button class="btn btn-outline" style="font-size:12px">Open in Podio</button>
+      <a href="https://podio.com/aveyo/projects/apps/scope-of-work/items/${iid}" target="_blank">
+        <button class="btn btn-outline" style="font-size:12px">Open in Podio ↗</button>
       </a>
     </div>`;
-  // Load sold production from VPS
-  loadSoldProduction(item.item_id);
-  // Load parcel data from free APIs
-  loadParcelData(item.item_id, address, item.fields||[]);
+
+  loadSoldProduction(iid);
 }
+
+// ── SOW DROPDOWN SAVE TO PODIO ────────────────────────────
+document.addEventListener('change', async function(e){
+  const dd = e.target.closest('.sow-dropdown[data-sow-field]');
+  if(!dd) return;
+  const fieldId = parseInt(dd.dataset.sowField);
+  const itemId  = parseInt(dd.dataset.sowItem);
+  const optId   = parseInt(dd.value);
+  if(!optId) return;
+  dd.classList.add('saving');
+  const savedEl = document.getElementById('sow-saved-'+fieldId+'-'+itemId);
+  try{
+    const res = await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId, {
+      method:'PUT',
+      headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+      body: JSON.stringify({value: optId})
+    });
+    if(res.ok){
+      if(savedEl){ savedEl.style.display='inline'; setTimeout(()=>savedEl.style.display='none',2000); }
+    }
+  }catch(e){}
+  dd.classList.remove('saving');
+});
 
 
 // ── PARCEL LOOKUP ─────────────────────────────────────────
@@ -3164,7 +3243,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=64').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=65').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
