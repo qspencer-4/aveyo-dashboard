@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v77</title>
+<title>Aveyo Solar v78</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -454,18 +454,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .action-card-hdr{display:flex;align-items:flex-start;gap:10px;padding:.875rem 1rem;cursor:pointer}
 .action-card-hdr:active{background:var(--bg2)}
 .action-flag{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.action-flag.red{background:var(--red-dark)}
-.action-flag.amber{background:var(--amber-dark)}
-.action-flag.blue{background:var(--blue)}
+.action-flag.red{background:#C97850}
+.action-flag.amber{background:#C9A96E}
+.action-flag.blue{background:#ADD8E6}
 .action-card-body{flex:1;min-width:0}
 .action-card-proj{font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px}
 .action-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
 .action-reasons{display:flex;flex-direction:column;gap:4px}
 .action-reason{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .action-reason-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.action-reason-dot.red{background:var(--red-dark)}
-.action-reason-dot.amber{background:var(--amber-dark)}
-.action-reason-dot.blue{background:var(--blue)}
+.action-reason-dot.red{background:#C97850}
+.action-reason-dot.amber{background:#C9A96E}
+.action-reason-dot.blue{background:#ADD8E6}
 .action-followup-box{padding:0 1rem .875rem}
 .action-followup-input{width:100%;padding:7px 10px;font-size:12px;border:.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit}
 .action-followup-input:focus{border-color:var(--blue)}
@@ -682,7 +682,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 .sow-info-row{padding:8px 1.25rem!important;border-bottom:1px solid rgba(255,255,255,.04)!important;display:flex;justify-content:space-between;align-items:center}
 .sow-info-key{font-size:9px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:rgba(255,255,255,.28)!important}
 .sow-info-val{color:rgba(255,255,255,.75)!important;font-size:12px!important}
-.sow-info-val.good{color:#a8d870!important}.sow-info-val.warn{color:#f08080!important}.sow-info-val.amber{color:#f5c060!important}
+.sow-info-val.good{color:rgba(255,255,255,.9)!important;font-weight:700!important}.sow-info-val.warn{color:#C97850!important}.sow-info-val.amber{color:#C9A96E!important}
 .sow-field-row{padding:10px 1.25rem!important;border-bottom:1px solid rgba(255,255,255,.04)!important}
 .sow-dropdown{background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.1)!important;color:#fff!important;border-radius:2px!important;font-size:11px!important}
 .sow-production-box{background:transparent!important;border:none!important;border-bottom:1px solid rgba(255,255,255,.05)!important;border-radius:0!important}
@@ -759,7 +759,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v77</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v78</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1029,7 +1029,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v77';
+const VERSION='v78';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1445,16 +1445,16 @@ function renderProjStats(){
   };
   const onHold = (counts['On Hold']||0);
   const groupColors = {
-    'Pre-Approvals':'var(--purple-dark)',
-    'Approvals':    'var(--blue)',
-    'Construction': 'var(--amber-dark)',
-    'Final Stage':  '#3B6D11',
+    'Pre-Approvals':'rgba(255,255,255,.7)',
+    'Approvals':    '#ADD8E6',
+    'Construction': '#C9A96E',
+    'Final Stage':  'rgba(255,255,255,.55)',
   };
   const groupBgs = {
-    'Pre-Approvals':'var(--purple-light)',
-    'Approvals':    'var(--blue-light)',
-    'Construction': 'var(--amber-light)',
-    'Final Stage':  'var(--green-light)',
+    'Pre-Approvals':'rgba(255,255,255,.04)',
+    'Approvals':    'rgba(173,216,230,.07)',
+    'Construction': 'rgba(201,169,110,.07)',
+    'Final Stage':  'rgba(255,255,255,.04)',
   };
 
   let dashHTML = `
@@ -1467,9 +1467,9 @@ function renderProjStats(){
         <div style="font-size:24px;font-weight:700;color:var(--blue)">${active}</div>
         <div style="font-size:11px;color:var(--text2);margin-top:2px">Active</div>
       </div>
-      <div id="stat-overdue" style="background:var(--amber-light);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--amber-dark);cursor:pointer" onclick="openOverdueReview()">
-        <div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div>
-        <div style="font-size:11px;color:var(--amber-dark);margin-top:2px;font-weight:600">Review >7d ›</div>
+      <div id="stat-overdue" style="background:rgba(201,169,110,.06);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid rgba(201,169,110,.3);cursor:pointer" onclick="openOverdueReview()">
+        <div style="font-size:24px;font-weight:700;color:#C9A96E">${overdue}</div>
+        <div style="font-size:11px;color:#C9A96E;margin-top:2px;font-weight:600">Review >7d ›</div>
       </div>
     </div>
     <div style="background:var(--bg);border-radius:var(--radius-lg);margin:0 .75rem .75rem;border:.5px solid var(--border);overflow:hidden">
@@ -2673,15 +2673,15 @@ function renderAction(){
 
   document.getElementById('action-stats').innerHTML = `
     <div class="action-stat">
-      <div class="action-stat-num" style="color:var(--red-dark)">${redCount}</div>
+      <div class="action-stat-num" style="color:#C97850">${redCount}</div>
       <div class="action-stat-lbl">Urgent</div>
     </div>
     <div class="action-stat">
-      <div class="action-stat-num" style="color:var(--amber-dark)">${amberCount}</div>
+      <div class="action-stat-num" style="color:#C9A96E">${amberCount}</div>
       <div class="action-stat-lbl">Watch</div>
     </div>
     <div class="action-stat">
-      <div class="action-stat-num" style="color:var(--blue)">${followupCount}</div>
+      <div class="action-stat-num" style="color:#ADD8E6">${followupCount}</div>
       <div class="action-stat-lbl">Follow-ups</div>
     </div>
     <div class="action-stat">
@@ -3070,7 +3070,7 @@ function buildSOWDetail(item){
   const verifyHTML = verifyRows.map(r=>{
     const cls=vc(r.val,r.good,r.warn);
     const dot=cls==='good'?'✓':cls==='warn'?'!':'—';
-    const dc=cls==='good'?'#3B6D11':cls==='warn'?'var(--red-dark)':'var(--text3)';
+    const dc=cls==='good'?'rgba(255,255,255,.9)':cls==='warn'?'#C97850':'rgba(255,255,255,.3)';
     return `<div class="sow-field-row">
       <div style="flex:1">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
@@ -3739,7 +3739,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=77').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=78').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -3939,20 +3939,41 @@ if('serviceWorker' in navigator){
 
 
 // ── BF2015 TAB TRANSITIONS ─────────────────────────
-const _origShowView = showView;
-function showView(v){
-  const prev = document.querySelector('.view.active');
-  if(prev && prev.id !== 'view-'+v){
-    prev.classList.add('bf-leaving');
-    setTimeout(()=>{ prev.classList.remove('bf-leaving'); }, 200);
-  }
-  _origShowView(v);
-  const next = document.getElementById('view-'+v);
-  if(next){
-    next.classList.add('bf-entering');
-    setTimeout(()=>{ next.classList.remove('bf-entering'); }, 320);
-  }
-}
+// Patch showView to add slide animations without redeclaring it
+(function(){
+  const orig = window.showView || showView;
+  const patched = function(v){
+    const prev = document.querySelector('.view.active');
+    orig(v);
+    if(prev && prev.id !== 'view-'+v){
+      prev.classList.add('bf-leaving');
+      setTimeout(()=>prev.classList.remove('bf-leaving'), 220);
+    }
+    const next = document.getElementById('view-'+v);
+    if(next){
+      next.classList.add('bf-entering');
+      setTimeout(()=>next.classList.remove('bf-entering'), 320);
+    }
+  };
+  // Patch all nav click handlers to use the animation
+  document.addEventListener('DOMContentLoaded', ()=>{
+    ['home','projects','sow','action','kb'].forEach(id=>{
+      const btn = document.getElementById('nav-'+id);
+      if(btn){
+        const orig_click = btn.onclick;
+        btn.addEventListener('click', ()=>{
+          const cur = document.querySelector('.view.active');
+          if(cur && cur.id !== 'view-'+id){
+            cur.classList.add('bf-leaving');
+            setTimeout(()=>cur.classList.remove('bf-leaving'), 220);
+            const next = document.getElementById('view-'+id);
+            if(next){ next.classList.add('bf-entering'); setTimeout(()=>next.classList.remove('bf-entering'),320); }
+          }
+        });
+      }
+    });
+  });
+})();
 
 </script>
 
