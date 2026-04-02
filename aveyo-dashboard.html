@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v70</title>
+<title>Aveyo Solar v71</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -522,7 +522,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v70</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v71</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -781,7 +781,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v70';
+const VERSION='v71';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1117,6 +1117,41 @@ const PIPELINE_STAGES = [
   {key:'On Hold',         label:'On Hold',         group:'',              step:null},
 ];
 
+function getDetailedStage(item){
+  // Get detailed stage from milestone text field (e.g. "Permit Status | In Progress")
+  const ms = item.milestone||'';
+  const mlText = item.milestones||'';
+
+  // Check milestones text for specific stages in progress/scheduled
+  const checks = [
+    {keys:['PTO Status'],          stage:'PTO'},
+    {keys:['Inspection Status','AHJ Inspection Status'], stage:'Inspection'},
+    {keys:['Install Status','Install Complete'],         stage:'Install'},
+    {keys:['Install Ready? | Yes'], stage:'Install Ready'},
+    {keys:['Permit Status'],        stage:'Permit'},
+    {keys:['Utility Status','Interconnection'], stage:'Utility'},
+    {keys:['NTP Received'],         stage:'NTP'},
+    {keys:['Scope of Work','SOW'],  stage:'Scope of Work'},
+    {keys:['Engineering Complete','CAD Complete'], stage:'Design'},
+    {keys:['SS Status','Site Survey'], stage:'Site Survey'},
+    {keys:['Packet Approval Status'], stage:'Packet Approval'},
+  ];
+
+  for(const c of checks){
+    for(const k of c.keys){
+      if(mlText.includes(k)){
+        return c.stage;
+      }
+    }
+  }
+  // Fall back to milestone group
+  if(ms.includes('Final')) return 'PTO';
+  if(ms.includes('Construction')) return 'Install';
+  if(ms.includes('Approvals')) return 'Design';
+  if(ms.includes('Pre-Approvals')) return 'Site Survey';
+  return ms;
+}
+
 function getStageFromMilestone(ms){
   if(!ms) return null;
   const ml = ms.toLowerCase();
@@ -1138,11 +1173,11 @@ function renderProjStats(){
   const active  = ALL_ITEMS.filter(i=>(i.status||'').toLowerCase().includes('active')).length;
   const total   = ALL_ITEMS.length;
 
-  // Count by milestone
+  // Count by DETAILED stage (from milestones text)
   const counts = {};
   ALL_ITEMS.forEach(i=>{
-    const ms = i.milestone||'Unknown';
-    counts[ms] = (counts[ms]||0)+1;
+    const ds = getDetailedStage(i);
+    counts[ds] = (counts[ds]||0)+1;
   });
 
   // Build pipeline overview
@@ -1151,7 +1186,7 @@ function renderProjStats(){
       .filter(([ms])=>ms.toLowerCase().includes(s.key.toLowerCase()))
       .reduce((sum,[,c])=>sum+c, 0);
     return {...s, count};
-  }).filter((s,i,arr)=>!s.parallel||arr.findIndex(x=>x.key===s.parallel)>i); // dedupe parallel
+  }).filter((s,i,arr)=>!s.parallel||arr.findIndex(x=>x.key===s.parallel)>i);
 
   // Group by pipeline group
   const groups = {
@@ -1247,10 +1282,14 @@ function renderProjStats(){
 }
 
 function filterByMilestone(ms){
+  // When clicking pipeline stage, filter by that stage keyword
   FILTER = ms;
-  renderChips();
-  renderCards();
-  // Scroll to cards
+  // Temporarily override renderCards to use detailed stage filter
+  const filtered = ALL_ITEMS.filter(i=>getDetailedStage(i).toLowerCase().includes(ms.toLowerCase()));
+  const composeType = COMPOSE_WIDGET[CURRENT_WI]||null;
+  document.getElementById('cards-list').innerHTML = filtered.length
+    ? filtered.map(item=>cardHTML(item,composeType)).join('')
+    : '<div class="empty">No projects in this stage.</div>';
   document.getElementById('cards-list').scrollIntoView({behavior:'smooth'});
 }
 
@@ -1445,7 +1484,7 @@ function openDetail(itemId){
 function parseBlocks(raw,sep){if(!raw)return[];return raw.split(sep).map(b=>b.trim()).filter(Boolean);}
 // ── PROJECT STATUS BAR & OVERVIEW HEADER ─────────────────
 function buildProjectStatusBar(item){
-  const ms = item.milestone||'';
+  const ms = getDetailedStage(item);
   const progress = getStageProgress(ms);
   const stage = getStageFromMilestone(ms);
 
@@ -3190,6 +3229,16 @@ function initSplitView(item){
   const badge = document.getElementById('split-badge');
   badge.className = 'badge ' + msClass(item.milestone);
   badge.textContent = item.milestone||'';
+  // Build full status bar for split top
+  const splitStatusBar = buildProjectStatusBar(item);
+  let splitStatusEl = document.getElementById('split-status-bar');
+  if(!splitStatusEl){
+    splitStatusEl = document.createElement('div');
+    splitStatusEl.id = 'split-status-bar';
+    document.getElementById('split-top').appendChild(splitStatusEl);
+  }
+  splitStatusEl.innerHTML = splitStatusBar;
+
   // Add progress bar to split-top
   let splitProgress = document.getElementById('split-progress-bar');
   if(!splitProgress){
@@ -3442,7 +3491,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=70').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=71').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
