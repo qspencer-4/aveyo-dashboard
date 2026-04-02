@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v83</title>
+<title>Aveyo Solar v84</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1106,6 +1106,146 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   font-size:8px!important;letter-spacing:.22em!important;padding:.75rem 1.25rem!important;
 }
 
+
+/* ── COMMUNICATION TAB ── */
+.comm-subtabs{
+  display:flex;border-bottom:1px solid rgba(255,255,255,.06);
+  padding:0 1.25rem;gap:0;
+}
+.comm-subtab{
+  background:none;border:none;padding:.875rem 1.25rem .75rem;
+  font-family:'PPTelegraf',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);
+  cursor:pointer;transition:color .15s;border-bottom:2px solid transparent;
+}
+.comm-subtab.active{color:#fff;border-bottom-color:#ADD8E6;}
+.comm-scan-bar{
+  display:flex;align-items:center;gap:1rem;
+  padding:.75rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.comm-scan-status{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.comm-card{
+  border-bottom:1px solid rgba(255,255,255,.05);
+  animation:bfFadeUp .22s ease both;
+}
+.comm-card-hdr{display:flex;gap:0;padding:1rem 1.25rem .625rem;}
+.comm-priority-bar{width:2px;flex-shrink:0;margin-right:12px;border-radius:1px}
+.comm-card-actions{
+  display:flex;gap:1px;padding:0 1.25rem .875rem;
+}
+.comm-action-btn{
+  flex:1;padding:8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  font-family:'PPTelegraf',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);
+  cursor:pointer;border-radius:2px;transition:all .15s;
+}
+.comm-action-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+.comm-action-btn-ghost{
+  background:transparent;color:rgba(255,255,255,.28);
+}
+/* AI flag header in action cards */
+.action-card-ai-header{cursor:pointer}
+.action-card-ai-header:active{opacity:.8}
+.action-ai-flag{padding:6px 0;margin:4px 0;padding-left:10px;}
+/* Scan spinner */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.spinner{animation:spin 1s linear infinite}
+
+
+/* ── PROJECT BANNER ────────────────────────────────────── */
+.proj-banner{
+  padding:1rem 1.5rem .875rem;
+  background:rgba(0,0,0,.97);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.proj-banner-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.75rem;
+}
+.proj-banner-back{
+  display:flex;align-items:center;gap:6px;
+  background:none;border:none;padding:0;cursor:pointer;
+  font-family:'PPTelegraf',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.28);
+  transition:color .15s;
+}
+.proj-banner-back:hover{color:rgba(255,255,255,.6)}
+.proj-banner-nav-btn{
+  background:none;border:none;padding:0;cursor:pointer;
+  font-family:'PPTelegraf',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.28);
+  transition:color .15s;
+}
+.proj-banner-nav-btn:hover{color:#fff}
+.proj-banner-nav-btn:disabled{color:rgba(255,255,255,.1);cursor:default}
+.proj-banner-pos{
+  font-size:8px;letter-spacing:.18em;color:rgba(255,255,255,.2);
+  font-family:'PPTelegraf',sans-serif;min-width:50px;text-align:center;
+}
+.proj-banner-main{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  margin-bottom:.75rem;
+}
+.proj-banner-left{flex:1;min-width:0}
+.proj-banner-num{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);margin-bottom:4px;
+}
+.proj-banner-name{
+  font-size:20px;font-weight:700;letter-spacing:-.01em;text-transform:uppercase;
+  color:#fff;line-height:1.1;
+}
+.proj-banner-addr{
+  font-size:11px;color:rgba(255,255,255,.38);text-transform:uppercase;
+  letter-spacing:.04em;margin-top:4px;
+}
+.proj-banner-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;
+}
+.proj-banner-meta{
+  font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);
+}
+.proj-banner-badge{
+  font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 10px;border-radius:2px;
+}
+.proj-banner-badge.amber{color:#C9A96E;border:1px solid rgba(201,169,110,.3);background:rgba(201,169,110,.06)}
+.proj-banner-badge.red{color:#C97850;border:1px solid rgba(201,120,80,.3);background:rgba(201,120,80,.06)}
+.proj-banner-progress{margin-top:6px}
+.proj-banner-stage{
+  font-size:8px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);margin-top:5px;
+}
+
+/* Make split-top use the banner */
+.split-top{padding:0!important;background:transparent!important;border-bottom:none!important}
+
+/* Split panels fill full height */
+@media(min-width:768px){
+  .split-panels{
+    height:calc(100vh - 220px)!important;
+  }
+  .split-panel{
+    height:100%!important;
+    overflow-y:auto!important;
+  }
+}
+
+/* Mobile: split panels stack vertically */
+@media(max-width:767px){
+  .split-panels{
+    grid-template-columns:1fr!important;
+  }
+  .split-panel{
+    max-height:50vh;
+    overflow-y:auto;
+    border-right:none!important;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1115,7 +1255,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v83</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v84</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1262,6 +1402,9 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <button class="bnav-btn" id="nav-action">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Action</span>
     </button>
+    <button class="bnav-btn" id="nav-comm">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Comms</span>
+    </button>
     <button class="bnav-btn" id="nav-kb">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge</span>
     </button>
@@ -1390,14 +1533,14 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v83';
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
+const VERSION='v84';
+const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
-  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='action')?'block':'none';
+  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='action'||v==='comm')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
   if(isAuth){ stopPolling(); } else { startPolling(); }
   document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
@@ -1407,6 +1550,7 @@ function setActiveNav(tab){
   document.getElementById('nav-projects').classList.toggle('active',tab==='projects');
   document.getElementById('nav-sow').classList.toggle('active',tab==='sow');
   document.getElementById('nav-action').classList.toggle('active',tab==='action');
+  document.getElementById('nav-comm').classList.toggle('active',tab==='comm');
   document.getElementById('nav-kb').classList.toggle('active',tab==='kb');
 }
 
@@ -1418,6 +1562,7 @@ document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
 document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sow');loadSOW();});
 document.getElementById('nav-action').addEventListener('click',()=>{setActiveNav('action');showView('action');loadAction();});
+document.getElementById('nav-comm').addEventListener('click',()=>{setActiveNav('comm');showView('comm');loadComm();});
 document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
@@ -1503,6 +1648,7 @@ function doRefresh(){
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
   else if(active.id==='view-sow'){SOW_ITEMS=[];loadSOW();}
   else if(active.id==='view-action'){loadAction();}
+  else if(active.id==='view-comm'){loadComm();}
 }
 
 
@@ -1787,7 +1933,7 @@ function buildHomeDashboard(){
       if(!item) return;
       PREV_VIEW='home'; CURRENT_LIST=[...ALL_ITEMS]; CURRENT_ITEM_ID=id;
       buildDetail(item); showView('detail');
-      if(IS_DESKTOP()) initSplitView(item);
+      initSplitView(item);
     });
   });
 
@@ -2310,29 +2456,53 @@ function cardHTML(item,composeType=null){
 
 // ── DETAIL VIEW ──────────────────────────────────────────
 function openDetail(itemId){
-  const item=ALL_ITEMS.find(i=>i.id===itemId)||WLIST_ITEMS.find(i=>i.id===itemId);
-  if(!item)return;
-  // Save scroll position before leaving
+  const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId);
+  if(!item) return;
+
+  // Save scroll position
   SCROLL_POS[PREV_VIEW+'_scroll'] = window.scrollY;
   CURRENT_ITEM_ID = itemId;
-  // Set current list for swipe
+
+  // Build the navigation list for Prev/Next
   if(PREV_VIEW==='projects'){
-    const q=(document.getElementById('search-input').value||'').toLowerCase();
+    const q=(document.getElementById('search-input')?.value||'').toLowerCase();
     let items=ALL_ITEMS;
-    if(FILTER!=='All')items=items.filter(i=>i.milestone===FILTER);
-    if(q)items=items.filter(i=>[i.name,i.address,i.milestone,i.status,i.notes,i.num].join(' ').toLowerCase().includes(q));
+    if(FILTER!=='All') items=items.filter(i=>i.milestone===FILTER);
+    if(q) items=items.filter(i=>[i.name,i.address,i.milestone,i.status,i.notes,i.num].join(' ').toLowerCase().includes(q));
     CURRENT_LIST=[...items];
-  } else {
+  } else if(WLIST_ITEMS.length){
     CURRENT_LIST=[...WLIST_ITEMS];
+  } else {
+    CURRENT_LIST=[...ALL_ITEMS];
   }
-  const labels={home:'Dashboard',projects:'My Projects',wlist:WLIST_LABEL};
-  document.getElementById('detail-back-label').textContent=labels[PREV_VIEW]||'Back';
+
+  // Back button label — show where user came from
+  const backLabels={
+    home:'Dashboard', projects:'Projects', wlist:WLIST_LABEL||'List',
+    action:'Action', sow:'SOW', kb:'Knowledge'
+  };
+  const backLabel = backLabels[PREV_VIEW]||'Back';
+  const backEl = document.getElementById('detail-back-label');
+  if(backEl) backEl.textContent = backLabel;
+  const splitBackEl = document.getElementById('split-back-label');
+  if(splitBackEl) splitBackEl.textContent = backLabel;
+
+  // Always reset to default tabs: Milestones left, Rep Update right
+  SPLIT_LEFT = 'milestones';
+  SPLIT_RIGHT = 'rep';
+
   buildDetail(item);
   showView('detail');
   window.scrollTo(0,0);
-  setActiveNav(PREV_VIEW==='projects'?'projects':'home');
-  // On desktop, activate split view after detail is built
-  if(IS_DESKTOP()) setTimeout(()=>initSplitView(item), 50);
+
+  // Active nav — highlight where user came from
+  const navSource = ['home','action','kb'].includes(PREV_VIEW)?PREV_VIEW:'projects';
+  setActiveNav(navSource);
+
+  // Always init split view — both desktop and mobile
+  setTimeout(()=>initSplitView(item), 30);
+
+  updateSwipeNav();
 }
 function parseBlocks(raw,sep){if(!raw)return[];return raw.split(sep).map(b=>b.trim()).filter(Boolean);}
 // ── PROJECT STATUS BAR & OVERVIEW HEADER ─────────────────
@@ -2457,7 +2627,7 @@ function buildDetail(item){
   }).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No tickets.</div></div>';
 
   updateSwipeNav();
-  const statusBarHTML = buildProjectStatusBar(item);
+  const statusBarHTML = ''; // Banner in split-top handles this
   document.getElementById('detail-body').innerHTML=statusBarHTML+`
     <div class="detail-hdr">
       <div class="detail-id">${x(item.num)}</div>
@@ -3100,11 +3270,11 @@ function updateSwipeNav(){
 }
 document.getElementById('swipe-prev').addEventListener('click',()=>{
   const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
-  if(idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); if(IS_DESKTOP()) initSplitView(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
+  if(idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); initSplitView(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
 });
 document.getElementById('swipe-next').addEventListener('click',()=>{
   const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
-  if(idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); if(IS_DESKTOP()) initSplitView(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
+  if(idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); initSplitView(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
 });
 // Touch swipe support
 let touchStartX=0;
@@ -3113,8 +3283,8 @@ document.getElementById('view-detail').addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-touchStartX;
   if(Math.abs(dx)>60){
     const idx=CURRENT_LIST.findIndex(i=>i.id===CURRENT_ITEM_ID);
-    if(dx<0&&idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); if(IS_DESKTOP()) initSplitView(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
-    if(dx>0&&idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); if(IS_DESKTOP()) initSplitView(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
+    if(dx<0&&idx<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[idx+1].id; buildDetail(CURRENT_LIST[idx+1]); initSplitView(CURRENT_LIST[idx+1]); window.scrollTo(0,0); updateSwipeNav(); }
+    if(dx>0&&idx>0){ CURRENT_ITEM_ID=CURRENT_LIST[idx-1].id; buildDetail(CURRENT_LIST[idx-1]); initSplitView(CURRENT_LIST[idx-1]); window.scrollTo(0,0); updateSwipeNav(); }
   }
 },{passive:true});
 
@@ -3173,6 +3343,194 @@ async function saveReviewDate(itemId){
   btn.disabled=false;
 }
 
+
+
+
+// ══════════════════════════════════════════════════════
+// COMMUNICATIONS TAB — AI-powered rep + customer flags
+// ══════════════════════════════════════════════════════
+let COMM_FLAGS = null;          // cached AI results
+let COMM_ACTIVE_TAB = 'rep';   // 'rep' | 'customer'
+let COMM_SCANNING = false;
+
+function switchCommTab(tab){
+  COMM_ACTIVE_TAB = tab;
+  document.getElementById('comm-tab-rep').classList.toggle('active', tab==='rep');
+  document.getElementById('comm-tab-customer').classList.toggle('active', tab==='customer');
+  renderCommContent();
+}
+
+function loadComm(){
+  if(!ALL_ITEMS.length){
+    document.getElementById('comm-content').innerHTML = '<div class="action-empty">Load your projects first from the Projects tab.</div>';
+    return;
+  }
+  // Show cached or prompt to scan
+  if(COMM_FLAGS){
+    renderCommContent();
+  } else {
+    document.getElementById('comm-content').innerHTML = `
+      <div style="padding:2rem 1.25rem;text-align:center">
+        <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem">
+          AI will analyze your ${ALL_ITEMS.length} projects and identify who needs an update
+        </div>
+        <button class="btn" onclick="runAIScan()" style="margin:0 auto">Scan Projects</button>
+      </div>`;
+  }
+}
+
+async function runAIScan(){
+  if(COMM_SCANNING) return;
+  COMM_SCANNING = true;
+  const btn = document.getElementById('comm-scan-btn');
+  const status = document.getElementById('comm-scan-status');
+  if(btn) btn.disabled = true;
+  if(status) status.textContent = 'Scanning...';
+  document.getElementById('comm-content').innerHTML = `
+    <div style="padding:3rem 0;text-align:center">
+      <div class="spinner" style="margin:0 auto 1rem;width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);animation:spin 1s linear infinite"></div>
+      <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3)">Analyzing ${ALL_ITEMS.length} projects...</div>
+    </div>`;
+
+  try{
+    // Build payload
+    const projects = ALL_ITEMS.map(item=>{
+      const raw = item.raw?.fields||[];
+      const openWOF = raw.find(f=>f.field_id===268839983);
+      const openWO = parseFloat(openWOF?.values?.[0]?.value||0)||0;
+      // Last comment text
+      const comments = item.comments||'';
+      const lastComment = comments.split('***')[0]?.trim()||'';
+      return {
+        id:item.id, num:item.num, name:item.name,
+        stage: getDetailedStage(item),
+        milestone: item.milestone,
+        daysSince: item.daysSince,
+        lender: item.lender, finance: item.finance,
+        fundingMilestones: item.fundingMilestones,
+        milestones: item.milestones,
+        lastComment: lastComment.slice(0,300),
+        openWO, openTickets:0,
+      };
+    });
+
+    const res = await fetch(VPS+'/ai-flag-projects', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({projects, type:'all'})
+    });
+    const d = await res.json();
+    if(d.status==='ok'){
+      COMM_FLAGS = d.flags;
+      // Also update action tab with ai flags
+      AI_ACTION_FLAGS = d.flags.action_flags || [];
+      if(status) status.textContent = 'Scan complete';
+      renderCommContent();
+      renderAction(); // refresh action tab too
+    } else {
+      if(status) status.textContent = 'Error: '+d.message;
+      document.getElementById('comm-content').innerHTML = `<div style="padding:1.5rem;font-size:11px;color:#C97850">${x(d.message)}</div>`;
+    }
+  }catch(e){
+    if(status) status.textContent = 'Failed';
+    document.getElementById('comm-content').innerHTML = `<div style="padding:1.5rem;font-size:11px;color:#C97850">Scan failed: ${x(e.message)}</div>`;
+  }
+  COMM_SCANNING = false;
+  if(btn) btn.disabled = false;
+}
+
+function renderCommContent(){
+  if(!COMM_FLAGS){
+    loadComm();
+    return;
+  }
+  const tab = COMM_ACTIVE_TAB;
+  const list = tab==='rep' ? (COMM_FLAGS.rep_updates||[]) : (COMM_FLAGS.customer_updates||[]);
+
+  if(!list.length){
+    document.getElementById('comm-content').innerHTML = `
+      <div style="padding:2rem 0;text-align:center;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.18)">
+        No ${tab==='rep'?'rep':'customer'} updates needed
+      </div>`;
+    return;
+  }
+
+  // Sort by priority
+  const sorted = [...list].sort((a,b)=>{
+    const p = {high:0,medium:1,low:2};
+    return (p[a.priority]||1)-(p[b.priority]||1);
+  });
+
+  const html = sorted.map(flag=>{
+    const item = ALL_ITEMS.find(i=>i.id===flag.id);
+    if(!item) return '';
+    const priColor = flag.priority==='high'?'#C97850':flag.priority==='medium'?'#C9A96E':'rgba(255,255,255,.35)';
+    const priLabel = (flag.priority||'medium').toUpperCase();
+    const stage = getDetailedStage(item);
+    const composeType = tab==='rep'?'rep':'customer';
+    return `<div class="comm-card">
+      <div class="comm-card-hdr">
+        <div class="comm-priority-bar" style="background:${priColor}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:${priColor}">${priLabel}</span>
+            <span style="font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25)">${x(item.num)}</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#fff">${x(item.name)}</div>
+          <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:2px">${x(stage)}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;line-height:1.5">${x(flag.reason)}</div>
+        </div>
+      </div>
+      <div class="comm-card-actions">
+        <button class="comm-action-btn" onclick="openComposeFromComm(${item.id},'${composeType}')">
+          Draft ${tab==='rep'?'Rep Update':'Customer Text'}
+        </button>
+        <button class="comm-action-btn comm-action-btn-ghost" onclick="openDetailFromComm(${item.id})">
+          Open Project
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('comm-content').innerHTML = html;
+}
+
+function openComposeFromComm(itemId, type){
+  const item = ALL_ITEMS.find(i=>i.id===itemId);
+  if(!item) return;
+  PREV_VIEW='comm';
+  CURRENT_LIST=[...ALL_ITEMS];
+  CURRENT_ITEM_ID=itemId;
+  buildDetail(item);
+  showView('detail');
+  initSplitView(item);
+  // Auto-open the compose panel
+  setTimeout(()=>{
+    const tab = type==='rep'?'rep':'customer';
+    const tabEl = document.querySelector(`.split-tab[data-section="${tab}"][data-side="right"]`);
+    if(tabEl) tabEl.click();
+  }, 400);
+}
+
+function openDetailFromComm(itemId){
+  const item = ALL_ITEMS.find(i=>i.id===itemId);
+  if(!item) return;
+  PREV_VIEW='comm';
+  CURRENT_LIST=[...ALL_ITEMS];
+  CURRENT_ITEM_ID=itemId;
+  buildDetail(item);
+  showView('detail');
+  initSplitView(item);
+}
+
+// ══════════════════════════════════════════════════════
+// AI ACTION FLAGS — stored from AI scan, used in Action tab
+// ══════════════════════════════════════════════════════
+let AI_ACTION_FLAGS = [];   // [{id, action, priority, type}]
+
+function getAIActionFlag(itemId){
+  return AI_ACTION_FLAGS.find(f=>f.id===itemId) || null;
+}
 
 
 // ── ACTION NEEDED TAB ─────────────────────────────────────
@@ -3325,7 +3683,22 @@ function renderAction(){
       </div>`
     ).join('');
 
+    // AI flag for this item
+    const aiFlag = getAIActionFlag(item.id);
+    const aiFlagHTML = aiFlag ? `
+      <div class="action-ai-flag" style="border-left:2px solid ${aiFlag.priority==='high'?'#C97850':aiFlag.priority==='medium'?'#C9A96E':'rgba(255,255,255,.2)'}">
+        <span style="font-size:7px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${aiFlag.priority==='high'?'#C97850':'#C9A96E'}">AI — ${(aiFlag.type||'action').toUpperCase()}</span>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:2px">${x(aiFlag.action)}</div>
+      </div>` : '';
+
     return `<div class="action-card" data-action-itemid="${item.id}">
+      ${aiFlag?`<div class="action-card-ai-header" style="background:${aiFlag.priority==='high'?'rgba(201,120,80,.08)':'rgba(201,169,110,.06)'};padding:6px 1rem;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px">
+        <div style="width:4px;height:4px;border-radius:50%;background:${aiFlag.priority==='high'?'#C97850':'#C9A96E'};flex-shrink:0"></div>
+        <div>
+          <span style="font-size:7px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${aiFlag.priority==='high'?'#C97850':'#C9A96E'}">Action Needed — ${(aiFlag.type||'').toUpperCase()}</span>
+          <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:1px">${x(aiFlag.action)}</div>
+        </div>
+      </div>`:''}
       <div class="action-card-hdr" data-action-open="${item.id}">
         <div class="action-flag ${topColor}"></div>
         <div class="action-card-body">
@@ -3336,7 +3709,7 @@ function renderAction(){
         </div>
       </div>
       <div class="action-followup-box">
-        <input class="action-followup-input" type="text" placeholder="+ Add follow-up note..." data-fup-input="${item.id}" />
+        <input class="action-followup-input" type="text" placeholder="Add follow-up note..." data-fup-input="${item.id}" />
       </div>
     </div>`;
   }).join('');
@@ -4077,7 +4450,6 @@ let SPLIT_RIGHT = 'rep';
 let SPLIT_ITEM = null;
 
 function initSplitView(item){
-  if(!IS_DESKTOP()) return;
   SPLIT_ITEM = item;
 
   // Show split elements
@@ -4086,43 +4458,86 @@ function initSplitView(item){
   document.getElementById('split-panels').style.display = 'grid';
   document.getElementById('view-detail').classList.add('split-view');
 
-  // Populate header
-  document.getElementById('split-id').textContent = item.num||'';
-  document.getElementById('split-name').textContent = item.name||'';
-  document.getElementById('split-addr').textContent = item.address||'';
-  const badge = document.getElementById('split-badge');
-  badge.className = 'badge ' + msClass(item.milestone);
-  badge.textContent = item.milestone||'';
-  // Build full status bar for split top
-  const splitStatusBar = buildProjectStatusBar(item);
-  let splitStatusEl = document.getElementById('split-status-bar');
-  if(!splitStatusEl){
-    splitStatusEl = document.createElement('div');
-    splitStatusEl.id = 'split-status-bar';
-    document.getElementById('split-top').appendChild(splitStatusEl);
-  }
-  splitStatusEl.innerHTML = splitStatusBar;
-
-  // Add progress bar to split-top
-  let splitProgress = document.getElementById('split-progress-bar');
-  if(!splitProgress){
-    splitProgress = document.createElement('div');
-    splitProgress.id = 'split-progress-bar';
-    document.getElementById('split-top').appendChild(splitProgress);
-  }
-  const prog = getStageProgress(item.milestone||'');
-  const stg  = getStageFromMilestone(item.milestone||'');
-  const segs = PIPELINE_STAGES.filter(s=>s.step!==null&&!s.parallel);
-  const curStep = stg?.step||0;
-  const segH = segs.map(s=>{
-    const done=s.step<curStep, cur=s.step===curStep;
-    return '<div style="flex:1;height:5px;background:'+(done?'#3B6D11':cur?'var(--blue)':'var(--bg3)')+(cur?';border:1.5px solid var(--blue)':'')+';border-radius:2px"></div>';
+  // ── Build full-width project banner ──
+  const repRaw2 = item.repInfo||'';
+  const repName2 = (repRaw2.match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const wos2 = item.workOrders||'';
+  const openWOs2 = (wos2.match(/WO-\d+/g)||[]).length;
+  const tickets2 = item.repTickets||'';
+  const openTickets2 = tickets2.split(/(?=\d{2}\/\d{2}\/\d{4})/g)
+    .filter(b=>b.trim().length>5)
+    .filter(b=>{ const s=(b.match(/Status:[*\s]*([^\n[*]+)/i)||[])[1]||''; return !s.toLowerCase().includes('complet')&&!s.toLowerCase().includes('cancel'); }).length;
+  const detailedStage = getDetailedStage(item);
+  const prog2 = getStageProgress(detailedStage)||0;
+  const stg2  = getStageFromMilestone(detailedStage);
+  const curStep2 = stg2?.step||0;
+  const segs2 = PIPELINE_STAGES.filter(s=>s.step!==null&&!s.parallel);
+  const segH2 = segs2.map(s=>{
+    const done=s.step<curStep2, cur=s.step===curStep2;
+    const bg = done?'rgba(255,255,255,.3)':cur?'#ADD8E6':'rgba(255,255,255,.07)';
+    const glow = cur?';box-shadow:0 0 6px rgba(173,216,230,.6)':'';
+    return `<div style="flex:1;height:3px;background:${bg}${glow};transition:all .3s"></div>`;
   }).join('');
-  splitProgress.innerHTML = '<div style="display:flex;gap:2px;margin-top:6px">'+segH+'</div><div style="font-size:10px;color:var(--text3);margin-top:3px;text-align:right">'+(item.milestone||'')+' · '+(prog||0)+'%</div>';
+  const idx2 = CURRENT_LIST.findIndex(i=>i.id===item.id);
+  const total2 = CURRENT_LIST.length;
+
+  document.getElementById('split-top').innerHTML = `
+    <div class="proj-banner">
+      <div class="proj-banner-nav">
+        <button class="proj-banner-back" id="split-back-btn">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+          <span id="split-back-label">Back</span>
+        </button>
+        <div style="display:flex;align-items:center;gap:1.5rem">
+          <button class="proj-banner-nav-btn" id="split-prev-btn">Prev</button>
+          <span class="proj-banner-pos" id="split-nav-pos">${total2?(idx2+1)+' of '+total2:''}</span>
+          <button class="proj-banner-nav-btn" id="split-next-btn">Next</button>
+        </div>
+      </div>
+      <div class="proj-banner-main">
+        <div class="proj-banner-left">
+          <div class="proj-banner-num">${x(item.num||'')}</div>
+          <div class="proj-banner-name">${x(item.name||'')}</div>
+          <div class="proj-banner-addr">${x(item.address||'')}</div>
+        </div>
+        <div class="proj-banner-right">
+          <span class="badge ${msClass(item.milestone)}">${x(item.milestone||'')}</span>
+          ${repName2?`<span class="proj-banner-meta">${x(repName2.trim())}</span>`:''}
+          ${item.lender?`<span class="proj-banner-meta">${x(item.lender)}</span>`:''}
+          ${item.finance?`<span class="proj-banner-meta">${x(item.finance)}</span>`:''}
+          ${openWOs2>0?`<span class="proj-banner-badge amber">${openWOs2} WO${openWOs2!==1?'s':''}</span>`:''}
+          ${openTickets2>0?`<span class="proj-banner-badge red">${openTickets2} Ticket${openTickets2!==1?'s':''}</span>`:''}
+        </div>
+      </div>
+      <div class="proj-banner-progress">
+        <div style="display:flex;gap:2px">${segH2}</div>
+        <div class="proj-banner-stage">${x(detailedStage)} &nbsp;·&nbsp; ${prog2}%</div>
+      </div>
+      <div id="split-proj-nav" style="margin-top:8px"></div>
+    </div>`;
+
+  // Re-wire back/prev/next after innerHTML rebuild
+  document.getElementById('split-back-btn')?.addEventListener('click',()=>{
+    hideSplitView();
+    showView(PREV_VIEW);
+    setActiveNav(['home','action','kb'].includes(PREV_VIEW)?PREV_VIEW:'projects');
+    if(SCROLL_POS[PREV_VIEW+'_scroll']) window.scrollTo(0,SCROLL_POS[PREV_VIEW+'_scroll']);
+  });
+  document.getElementById('split-prev-btn')?.addEventListener('click',()=>{
+    const i=CURRENT_LIST.findIndex(c=>c.id===CURRENT_ITEM_ID);
+    if(i>0){ CURRENT_ITEM_ID=CURRENT_LIST[i-1].id; buildDetail(CURRENT_LIST[i-1]); initSplitView(CURRENT_LIST[i-1]); window.scrollTo(0,0); updateSwipeNav(); }
+  });
+  document.getElementById('split-next-btn')?.addEventListener('click',()=>{
+    const i=CURRENT_LIST.findIndex(c=>c.id===CURRENT_ITEM_ID);
+    if(i<CURRENT_LIST.length-1){ CURRENT_ITEM_ID=CURRENT_LIST[i+1].id; buildDetail(CURRENT_LIST[i+1]); initSplitView(CURRENT_LIST[i+1]); window.scrollTo(0,0); updateSwipeNav(); }
+  });
+  if(document.getElementById('split-prev-btn')) document.getElementById('split-prev-btn').disabled = idx2<=0;
+  if(document.getElementById('split-next-btn')) document.getElementById('split-next-btn').disabled = idx2>=total2-1;
 
   // Proj nav links
   const navHTML = buildProjNav(item.raw);
-  document.getElementById('split-proj-nav').innerHTML = navHTML;
+  const navEl = document.getElementById('split-proj-nav');
+  if(navEl) navEl.innerHTML = navHTML;
 
   // Back button label
   const labels = {home:'Dashboard', projects:'My Projects', wlist: WLIST_LABEL, action:'Action', sow:'SOW'};
@@ -4358,7 +4773,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=83').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=84').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
