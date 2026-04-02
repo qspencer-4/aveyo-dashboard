@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v82</title>
+<title>Aveyo Solar v83</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -379,6 +379,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .split-panel .inline-compose{margin:0 0 .5rem}
   .split-panel .back-bar{display:none}
   .split-panel .swipe-nav{display:none}
+  /* On desktop, hide the mobile back-bar and swipe-nav — split-top has them */
+  #view-detail.split-view #detail-back{display:none!important}
+  #view-detail.split-view .swipe-nav{display:none!important}
   /* Hide normal detail elements on desktop */
   #view-detail.split-view #detail-body{ display:none }
 }
@@ -958,6 +961,151 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   .view{max-width:100%!important;padding:1.5rem 2.5rem 2rem!important;box-sizing:border-box}
 }
 
+
+/* ── SPLIT VIEW OVERHAUL ─────────────────────────────────── */
+
+/* Split top — cleaner, tighter */
+.split-top{
+  padding:1.25rem 1.5rem .875rem!important;
+  background:rgba(0,0,0,.97)!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+}
+
+/* Borderless back/prev/next — just text */
+.split-nav-back{
+  background:none!important;border:none!important;padding:0!important;
+  font-family:'PPTelegraf',sans-serif!important;font-size:8px!important;
+  font-weight:700!important;letter-spacing:.22em!important;text-transform:uppercase!important;
+  color:rgba(255,255,255,.28)!important;cursor:pointer!important;
+  transition:color .15s!important;
+}
+.split-nav-back:hover{color:rgba(255,255,255,.6)!important}
+
+.split-nav-btn{
+  background:none!important;border:none!important;padding:0!important;
+  font-family:'PPTelegraf',sans-serif!important;font-size:8px!important;
+  font-weight:700!important;letter-spacing:.22em!important;text-transform:uppercase!important;
+  color:rgba(255,255,255,.28)!important;cursor:pointer!important;
+  transition:color .15s!important;
+}
+.split-nav-btn:hover{color:#fff!important}
+.split-nav-btn:disabled{color:rgba(255,255,255,.1)!important;cursor:default!important}
+
+.split-nav-pos{
+  font-size:9px!important;letter-spacing:.18em!important;text-transform:uppercase!important;
+  color:rgba(255,255,255,.22)!important;font-family:'PPTelegraf',sans-serif!important;
+  min-width:60px!important;text-align:center!important;
+}
+
+/* Split section tabs — centered with group labels */
+.split-section-tabs{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+  padding:0!important;
+  background:rgba(0,0,0,.9)!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+  height:42px!important;
+}
+.split-tab-group{
+  display:flex;align-items:center;gap:2px;padding:0 1rem;
+}
+.split-tab-group-label{
+  font-size:7px!important;letter-spacing:.24em!important;text-transform:uppercase!important;
+  color:rgba(255,255,255,.15)!important;margin-right:8px!important;
+  font-family:'PPTelegraf',sans-serif!important;
+}
+.split-tab-div{
+  width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 .5rem;
+}
+.split-tab{
+  padding:5px 12px!important;font-size:8px!important;letter-spacing:.14em!important;
+  text-transform:uppercase!important;background:transparent!important;border:none!important;
+  color:rgba(255,255,255,.3)!important;cursor:pointer;transition:color .15s;
+  border-radius:0!important;
+  border-bottom:2px solid transparent!important;
+  font-family:'PPTelegraf',sans-serif!important;
+}
+.split-tab:hover{color:rgba(255,255,255,.6)!important}
+.split-tab.active-left{
+  color:#fff!important;
+  border-bottom-color:#fff!important;
+}
+.split-tab.active-right{
+  color:#ADD8E6!important;
+  border-bottom-color:#ADD8E6!important;
+  text-shadow:0 0 12px rgba(173,216,230,.5)!important;
+}
+
+/* Split panels — full height, no top padding */
+.split-panels{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+}
+.split-panel{
+  height:calc(100vh - 280px)!important;
+  overflow-y:auto!important;
+  background:#000!important;
+  border-right:1px solid rgba(255,255,255,.04)!important;
+}
+.split-panel-label{
+  display:none!important;
+}
+
+/* Active glow on selected elements */
+.split-tab.active-left,.split-tab.active-right{
+  position:relative;
+}
+.split-tab.active-right::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(173,216,230,.04);border-radius:2px;pointer-events:none;
+}
+
+/* Active nav glow */
+.bnav-btn.active span{
+  text-shadow:0 0 10px rgba(173,216,230,.6)!important;
+}
+.bnav-btn.active svg{
+  filter:drop-shadow(0 0 5px rgba(173,216,230,.5))!important;
+}
+
+/* Active chip glow */
+.chip.active{
+  text-shadow:0 0 8px rgba(255,255,255,.4)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 12px rgba(255,255,255,.08)!important;
+}
+
+/* Active card glow on tap */
+.card:active::before{
+  content:'';position:absolute;inset:0;
+  box-shadow:inset 0 0 0 1px rgba(173,216,230,.2);pointer-events:none;
+}
+
+/* Swipe nav on mobile — borderless */
+.swipe-nav{
+  background:transparent!important;
+  border:none!important;
+  border-bottom:none!important;
+  padding:.625rem 1.25rem!important;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.swipe-btn{
+  background:none!important;border:none!important;
+  font-family:'PPTelegraf',sans-serif!important;
+  font-size:8px!important;letter-spacing:.22em!important;text-transform:uppercase!important;
+  color:rgba(255,255,255,.3)!important;cursor:pointer!important;padding:0!important;
+}
+.swipe-btn:disabled{color:rgba(255,255,255,.1)!important;cursor:default!important}
+.swipe-btn:hover{color:#fff!important}
+.swipe-pos{font-size:8px!important;letter-spacing:.18em!important;color:rgba(255,255,255,.2)!important}
+
+/* Back bar — borderless */
+.back-bar{
+  background:transparent!important;border:none!important;border-bottom:none!important;
+  font-size:8px!important;letter-spacing:.22em!important;padding:.75rem 1.25rem!important;
+}
+
 </style>
 </head>
 <body>
@@ -967,7 +1115,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v82</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v83</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1038,14 +1186,14 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   <div id="view-detail" class="view">
     <!-- SPLIT VIEW TOP (desktop only) -->
     <div class="split-top" id="split-top" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-        <button class="back-bar" id="split-back-btn" style="margin:0;font-size:12px;padding:0">
-          <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:8px">
+        <button class="split-nav-back" id="split-back-btn">
           <span id="split-back-label">Back</span>
         </button>
-        <div style="display:flex;gap:6px">
-          <button class="swipe-btn" id="split-prev-btn" style="font-size:11px;padding:4px 10px">Prev</button>
-          <button class="swipe-btn" id="split-next-btn" style="font-size:11px;padding:4px 10px">Next</button>
+        <div style="display:flex;align-items:center;gap:1rem;flex:1;justify-content:flex-end">
+          <button class="split-nav-btn" id="split-prev-btn">Prev</button>
+          <span class="split-nav-pos" id="split-nav-pos"></span>
+          <button class="split-nav-btn" id="split-next-btn">Next</button>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
@@ -1060,17 +1208,22 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     </div>
     <!-- SPLIT SECTION TABS (desktop only) -->
     <div class="split-section-tabs" id="split-section-tabs" style="display:none">
-      <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;align-self:center;margin-right:2px">Left:</span>
-      <span class="split-tab" data-section="milestones" data-side="left">Milestones</span>
-      <span class="split-tab" data-section="details" data-side="left">Details</span>
-      <span class="split-tab" data-section="comments" data-side="left">Comments</span>
-      <span class="split-tab" data-section="workorders" data-side="left">Work Orders</span>
-      <span class="split-tab" data-section="tickets" data-side="left">Tickets</span>
-      <span class="split-tab" data-section="notes" data-side="left">Notes</span>
-      <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;align-self:center;margin-left:6px;margin-right:2px">Right:</span>
-      <span class="split-tab" data-section="rep" data-side="right">Rep Update</span>
-      <span class="split-tab" data-section="customer" data-side="right">Customer Text</span>
-      <span class="split-tab" data-section="review" data-side="right">Project Review</span>
+      <div class="split-tab-group">
+        <span class="split-tab-group-label">View</span>
+        <span class="split-tab active-left" data-section="milestones" data-side="left">Milestones</span>
+        <span class="split-tab" data-section="details" data-side="left">Details</span>
+        <span class="split-tab" data-section="comments" data-side="left">Comments</span>
+        <span class="split-tab" data-section="workorders" data-side="left">Work Orders</span>
+        <span class="split-tab" data-section="tickets" data-side="left">Tickets</span>
+        <span class="split-tab" data-section="notes" data-side="left">Notes</span>
+      </div>
+      <div class="split-tab-div"></div>
+      <div class="split-tab-group">
+        <span class="split-tab-group-label">Action</span>
+        <span class="split-tab active-right" data-section="rep" data-side="right">Rep Update</span>
+        <span class="split-tab" data-section="customer" data-side="right">Customer Text</span>
+        <span class="split-tab" data-section="review" data-side="right">Project Review</span>
+      </div>
     </div>
     <!-- SPLIT PANELS (desktop only) -->
     <div class="split-panels" id="split-panels" style="display:none">
@@ -1237,7 +1390,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v82';
+const VERSION='v83';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -3978,10 +4131,13 @@ function initSplitView(item){
 
   // Prev/Next state
   const idx = CURRENT_LIST.findIndex(i=>i.id===item.id);
+  const total = CURRENT_LIST.length;
   const prevBtn = document.getElementById('split-prev-btn');
   const nextBtn = document.getElementById('split-next-btn');
+  const posEl  = document.getElementById('split-nav-pos');
   if(prevBtn) prevBtn.disabled = idx <= 0;
-  if(nextBtn) nextBtn.disabled = idx >= CURRENT_LIST.length-1;
+  if(nextBtn) nextBtn.disabled = idx >= total-1;
+  if(posEl && total) posEl.textContent = (idx+1) + ' of ' + total;
 
   // Render default panels
   renderSplitPanel('left', SPLIT_LEFT, item);
@@ -4202,7 +4358,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=82').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=83').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
