@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v78</title>
+<title>Aveyo Solar v79</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -296,64 +296,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .kb-adder-name{color:var(--text);flex:1}
 .kb-adder-cost{color:var(--blue);font-weight:600;text-align:right;white-space:nowrap}
 /* ── DESKTOP LAYOUT (768px+) ─────────────────────────── */
-@media(min-width:768px){
-  body{background:var(--bg3)}
-  #app{max-width:100%;padding-bottom:0;display:block;min-height:100vh}
-
-  .hdr{position:sticky;top:0;z-index:100;padding:1rem 1.5rem;max-width:100%}
-
-  /* Keep bottom nav fixed on desktop too */
-  .bnav{position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%;transform:none;flex-direction:row;height:56px;padding:0;border-top:.5px solid var(--border2);z-index:200}
-  .bnav-btn{flex-direction:column;padding:8px 0 10px;gap:3px}
-  .bnav-btn svg{width:22px;height:22px}
-  .bnav-btn span{font-size:10px}
-
-  /* Main content area - full width with bottom padding for nav */
-  .view{grid-column:1/-1;max-width:960px;margin:0 auto;padding:0 1.5rem 5rem;width:100%}
-  .view.active{display:block}
-
-  /* Home widgets - 3 column grid on desktop */
-  .wgrid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 .5rem}
-  .sec-label{padding:1rem 0 .5rem}
-  .w-wide{margin:0 0 .5rem}
-
-  /* Cards - 2 column on desktop */
-  .cards{padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.625rem}
-  .card{margin-bottom:0}
-
-  /* Search and filters */
-  .search-wrap{margin:.75rem 0}
-  .chips{padding:0 0 .75rem}
-
-  /* Detail view */
-  #view-detail .collapsible{margin:0 0 .625rem}
-  #view-detail .detail-hdr{margin:0 0 .75rem}
-  #view-detail .inline-compose{margin:.625rem 0 0}
-
-  /* Widget list */
-  #view-wlist .cards{padding-top:.75rem}
-  .wl-header{padding:.875rem 0}
-
-  /* Compose sheet - centered modal on desktop */
-  .compose-overlay{align-items:center}
-  .compose-sheet{border-radius:var(--radius-lg);max-width:540px;max-height:80vh}
-  .compose-mini{max-width:500px}
-
-  /* Proj stats */
-  #proj-stats{margin:0 0 .75rem}
-
-  /* Collapsibles in detail */
-  .collapsible{margin:0 0 .625rem}
-
-  /* Back bar */
-  .back-bar{margin:.75rem 0}
-
-  /* Swipe nav */
-  .swipe-nav{padding:.25rem 0}
-
-  /* Review filter */
-  .review-filter-chips{padding:.5rem 0}
-}
+/* desktop styles now in BF2015 NAV section */
 
 
 @media(min-width:768px){
@@ -750,6 +693,146 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 ::-webkit-scrollbar{width:1px}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
 
+
+/* BF2015 NAV */
+/* ═══════════════════════════════════════════════════════
+   BF2015 NAVIGATION — Horizontal tab bar like BF2015
+   Active tab: white text + bottom accent line (like gold ring)
+   Tabs are ALL CAPS, spaced, clean — no boxes or borders
+═══════════════════════════════════════════════════════ */
+
+/* Replace bottom nav with horizontal top-style nav on desktop */
+@media(min-width:768px){
+  body{background:#000!important}
+  #app{max-width:100%;display:grid;grid-template-rows:auto auto 1fr;grid-template-columns:1fr;min-height:100vh;padding-bottom:0!important}
+
+  /* Header spans full width */
+  .hdr{grid-row:1;grid-column:1/-1;max-width:100%;padding:1rem 2.5rem!important}
+
+  /* BF2015-style horizontal tab nav — full width bar */
+  .bnav{
+    grid-row:2!important;
+    position:relative!important;
+    left:auto!important;right:auto!important;bottom:auto!important;
+    transform:none!important;
+    width:100%!important;max-width:100%!important;
+    height:48px!important;
+    flex-direction:row!important;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    padding:0 2.5rem!important;
+    gap:0!important;
+    border-top:none!important;
+    border-bottom:1px solid rgba(255,255,255,.08)!important;
+    background:rgba(0,0,0,.9)!important;
+    backdrop-filter:blur(20px)!important;
+  }
+  .bnav-btn{
+    flex:0 0 auto!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    padding:0 1.5rem!important;
+    gap:8px!important;
+    height:100%!important;
+    position:relative!important;
+    border:none!important;
+  }
+  .bnav-btn svg{width:16px!important;height:16px!important;}
+  .bnav-btn span{font-size:9px!important;letter-spacing:.2em!important;}
+  /* Active indicator: thin line below like BF2015 gold ring */
+  .bnav-btn.active::after{
+    content:''!important;
+    position:absolute!important;
+    bottom:0!important;left:1.5rem!important;right:1.5rem!important;
+    height:2px!important;
+    top:auto!important;
+    background:#ADD8E6!important;
+  }
+
+  /* Content area below nav */
+  .view{
+    grid-row:3!important;
+    max-width:1100px!important;
+    margin:0 auto!important;
+    padding:2rem 2.5rem 2rem!important;
+    width:100%!important;
+  }
+
+  /* Desktop card grid */
+  .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0!important;padding:0!important;}
+  .card{margin-bottom:0!important;border-right:none!important;}
+  .card:nth-child(odd){border-right:1px solid rgba(255,255,255,.05)!important;}
+
+  /* Wider content areas */
+  .wgrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;margin:0 0 1rem!important;}
+  .w-wide{margin:0 0 1rem!important;}
+  .sec-label{padding:1.5rem 0 .625rem!important}
+  .search-wrap{margin:.75rem 0!important}
+  .chips{padding:0 0 .875rem!important}
+  #proj-stats{margin:0 0 1rem!important}
+
+  /* Compose sheet */
+  .compose-overlay{align-items:center!important}
+  .compose-sheet{border-radius:4px!important;max-width:560px!important;max-height:80vh!important;}
+  .compose-mini{max-width:520px!important}
+
+  /* Back bar */
+  .back-bar{margin:.75rem 0!important}
+  .swipe-nav{padding:.35rem 0!important}
+  .review-filter-chips{padding:.5rem 0!important}
+  #view-detail .detail-hdr{margin:0 0 .75rem!important}
+}
+
+/* ── HERO PORTRAIT STYLE ── */
+.rep-avatar{
+  width:44px;height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1.5px solid rgba(255,255,255,.2);
+  filter:grayscale(30%) contrast(1.1);
+  flex-shrink:0;
+  transition:border-color .2s;
+}
+.rep-avatar.selected{
+  border-color:#ADD8E6;
+  box-shadow:0 0 0 2px rgba(173,216,230,.25);
+  filter:grayscale(0%) contrast(1.1);
+}
+.rep-avatar-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.rep-avatar-name{
+  font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);text-align:center;
+}
+
+/* ── FIX OFF-BRAND COLORS ── */
+/* Remove any remaining green/teal/purple accent usage */
+.sow-check-icon.done{color:rgba(255,255,255,.8)!important;background:transparent!important}
+.sow-check-icon.warn{color:#C97850!important;background:transparent!important}
+.sow-distance-badge{border-radius:2px!important;font-size:9px!important;letter-spacing:.08em!important}
+.sow-co-result{border-radius:2px!important}
+
+/* Pipeline group colors — BF2015 neutral hierarchy */
+/* No colored progress bars — just white at different opacities */
+
+/* KB costs — light blue accent */
+.kb-adder-cost{color:#ADD8E6!important}
+
+/* Action flags use our tan/orange palette */
+.action-flag.red{background:#C97850!important}
+.action-flag.amber{background:#C9A96E!important}
+.action-flag.blue{background:rgba(173,216,230,.6)!important}
+
+/* Tickets/WO badges */
+[style*="color:var(--amber-dark)"]{color:#C9A96E!important}
+[style*="color:var(--red-dark)"]{color:#C97850!important}
+[style*="background:var(--amber-light)"]{background:rgba(201,169,110,.08)!important}
+[style*="background:var(--red-light)"]{background:rgba(201,120,80,.08)!important}
+[style*="background:var(--green-light)"]{background:rgba(255,255,255,.05)!important}
+[style*="color:var(--green-dark)"]{color:rgba(255,255,255,.8)!important}
+
+
 </style>
 </head>
 <body>
@@ -759,7 +842,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v78</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v79</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1029,7 +1112,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v78';
+const VERSION='v79';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1683,7 +1766,20 @@ function cardHTML(item,composeType=null){
   const uid='card_'+item.id;
   return`<div class="card" data-itemid="${item.id}">
     <div class="card-id">${x(item.num)}</div>
-    <div class="card-top"><div class="card-name">${x(item.name)}</div><span class="badge ${msClass(item.milestone)}">${x(item.milestone)||x(item.status)||'—'}</span></div>
+    <div class="card-top" style="display:flex;align-items:flex-start;gap:10px">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:8px;letter-spacing:.2em;color:rgba(255,255,255,.28);margin-bottom:3px">${x(item.num)}</div>
+      <div class="card-name">${x(item.name)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+      <span class="badge ${msClass(item.milestone)}">${x(item.milestone)||x(item.status)||'—'}</span>
+      ${(()=>{
+        const rName=(item.repInfo.match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'';
+        const init=rName.trim().split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        return init?`<div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.04em" title="${x(rName.trim())}">${init}</div>`:'';
+      })()}
+    </div>
+  </div>
     ${item.address?`<div class="card-addr">${x(item.address)}</div>`:''}
     <div class="card-meta">
       ${repName?`<span class="meta"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${x(repName)}</span>`:''}
@@ -1767,7 +1863,7 @@ function buildProjectStatusBar(item){
   const segHTML = segments.map(s=>{
     const done = s.step < currentStep;
     const cur  = s.step === currentStep;
-    const col  = done?'#3B6D11':cur?'var(--blue)':'var(--bg3)';
+    const col  = done?'rgba(255,255,255,.35)':cur?'#ADD8E6':'rgba(255,255,255,.07)';
     const border = cur?'border:1.5px solid var(--blue)':'';
     return `<div title="${s.label}" style="flex:1;height:6px;background:${col};${border};border-radius:2px;transition:background .3s"></div>`;
   }).join('');
@@ -2834,6 +2930,17 @@ function renderActionWidget(){
     </div>`;
 }
 
+
+// ── REP HERO AVATARS ──────────────────────────────────────
+function getRepAvatar(repInfo, size=44){
+  const name = (repInfo.match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const initials = name.trim().split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="rep-avatar-wrap">
+    <div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:${size*.32}px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.04em;flex-shrink:0;font-family:'PPTelegraf',sans-serif">${initials||'?'}</div>
+    <div class="rep-avatar-name">${x(name.trim().split(' ')[0]||'Rep')}</div>
+  </div>`;
+}
+
 // ── SOW TAB ──────────────────────────────────────────────
 const SOW_APP_ID = 29839685;
 let SOW_ITEMS = [];
@@ -3739,7 +3846,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=78').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=79').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
