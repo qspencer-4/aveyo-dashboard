@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v69</title>
+<title>Aveyo Solar v70</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;--green-light:#EAF3DE;--green-dark:#27500A;--amber-light:#FAEEDA;--amber-dark:#633806;--red-light:#FCEBEB;--red-dark:#791F1F;--purple-light:#EEEDFE;--purple-dark:#3C3489;--teal-light:#E1F5EE;--teal-dark:#085041;--pink-light:#FBEAF0;--pink-dark:#72243E;--gray-light:#F1EFE8;--gray-dark:#444441;--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px}
@@ -522,7 +522,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="app">
   <div class="hdr">
     <div class="hdr-logo"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v69</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="hdr-title">Aveyo Solar</div><span style="background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px">v70</span></div><div class="hdr-sub" id="hdr-sub">Dashboard</div></div>
     <div class="hdr-right">
       <span class="hdr-cache" id="cache-label"></span>
       <button class="hdr-btn" id="btn-refresh" style="display:none">Refresh</button>
@@ -781,7 +781,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v69';
+const VERSION='v70';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1100,14 +1100,161 @@ async function loadProjects(){
   }
   document.getElementById('cards-loading').style.display='none';
 }
-function renderProjStats(){
-  const overdue=ALL_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>7).length;
-  const active=ALL_ITEMS.filter(i=>(i.status||'').toLowerCase().includes('active')).length;
-  document.getElementById('proj-stats').innerHTML=`
-    <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--text)">${ALL_ITEMS.length}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Total</div></div>
-    <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)"><div style="font-size:24px;font-weight:700;color:var(--blue)">${active}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Active</div></div>
-    <div id="stat-overdue" style="background:var(--amber-light);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--amber-dark);cursor:pointer;position:relative" onclick="openOverdueReview()"><div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div><div style="font-size:11px;color:var(--amber-dark);margin-top:2px;font-weight:600">Review &gt;7d ›</div></div>`;
+// ── PROJECT PIPELINE STAGES ───────────────────────────────
+const PIPELINE_STAGES = [
+  {key:'Packet Approval', label:'Packet Approval', group:'Pre-Approvals', step:1},
+  {key:'Site Survey',     label:'Site Survey',     group:'Pre-Approvals', step:2},
+  {key:'Design',          label:'Design',          group:'Approvals',     step:3},
+  {key:'Scope of Work',   label:'Scope of Work',   group:'Approvals',     step:4},
+  {key:'NTP',             label:'NTP',             group:'Construction',  step:5},
+  {key:'Permit',          label:'Permit',          group:'Construction',  step:6, parallel:'Utility'},
+  {key:'Utility',         label:'Utility',         group:'Construction',  step:6, parallel:'Permit'},
+  {key:'Install Ready',   label:'Install Ready',   group:'Construction',  step:7},
+  {key:'Install',         label:'Install',         group:'Construction',  step:8},
+  {key:'Inspection',      label:'Inspection',      group:'Construction',  step:9},
+  {key:'PTO',             label:'PTO',             group:'Final Stage',   step:10},
+  {key:'Complete',        label:'Complete',        group:'Final Stage',   step:11},
+  {key:'On Hold',         label:'On Hold',         group:'',              step:null},
+];
+
+function getStageFromMilestone(ms){
+  if(!ms) return null;
+  const ml = ms.toLowerCase();
+  for(const s of PIPELINE_STAGES){
+    if(ml.includes(s.key.toLowerCase())) return s;
+  }
+  return null;
 }
+
+function getStageProgress(ms){
+  // Returns 0-100 based on pipeline position
+  const stage = getStageFromMilestone(ms);
+  if(!stage || stage.step===null) return null;
+  return Math.round((stage.step / 11) * 100);
+}
+
+function renderProjStats(){
+  const overdue = ALL_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>7).length;
+  const active  = ALL_ITEMS.filter(i=>(i.status||'').toLowerCase().includes('active')).length;
+  const total   = ALL_ITEMS.length;
+
+  // Count by milestone
+  const counts = {};
+  ALL_ITEMS.forEach(i=>{
+    const ms = i.milestone||'Unknown';
+    counts[ms] = (counts[ms]||0)+1;
+  });
+
+  // Build pipeline overview
+  const stageData = PIPELINE_STAGES.filter(s=>s.step!==null).map(s=>{
+    const count = Object.entries(counts)
+      .filter(([ms])=>ms.toLowerCase().includes(s.key.toLowerCase()))
+      .reduce((sum,[,c])=>sum+c, 0);
+    return {...s, count};
+  }).filter((s,i,arr)=>!s.parallel||arr.findIndex(x=>x.key===s.parallel)>i); // dedupe parallel
+
+  // Group by pipeline group
+  const groups = {
+    'Pre-Approvals': stageData.filter(s=>s.group==='Pre-Approvals'),
+    'Approvals':     stageData.filter(s=>s.group==='Approvals'),
+    'Construction':  stageData.filter(s=>s.group==='Construction'),
+    'Final Stage':   stageData.filter(s=>s.group==='Final Stage'),
+  };
+  const onHold = (counts['On Hold']||0);
+  const groupColors = {
+    'Pre-Approvals':'var(--purple-dark)',
+    'Approvals':    'var(--blue)',
+    'Construction': 'var(--amber-dark)',
+    'Final Stage':  '#3B6D11',
+  };
+  const groupBgs = {
+    'Pre-Approvals':'var(--purple-light)',
+    'Approvals':    'var(--blue-light)',
+    'Construction': 'var(--amber-light)',
+    'Final Stage':  'var(--green-light)',
+  };
+
+  let dashHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 .75rem .75rem">
+      <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)">
+        <div style="font-size:24px;font-weight:700;color:var(--text)">${total}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">Total</div>
+      </div>
+      <div style="background:var(--bg);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--border)">
+        <div style="font-size:24px;font-weight:700;color:var(--blue)">${active}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">Active</div>
+      </div>
+      <div id="stat-overdue" style="background:var(--amber-light);border-radius:var(--radius);padding:.75rem;text-align:center;border:.5px solid var(--amber-dark);cursor:pointer" onclick="openOverdueReview()">
+        <div style="font-size:24px;font-weight:700;color:var(--amber-dark)">${overdue}</div>
+        <div style="font-size:11px;color:var(--amber-dark);margin-top:2px;font-weight:600">Review >7d ›</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:var(--radius-lg);margin:0 .75rem .75rem;border:.5px solid var(--border);overflow:hidden">
+      <div style="padding:.75rem 1rem;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:700;color:var(--text)">Pipeline Overview</span>
+        <span style="font-size:11px;color:var(--text3)">${total} projects</span>
+      </div>`;
+
+  // Each group
+  Object.entries(groups).forEach(([groupName, stages])=>{
+    const groupTotal = stages.reduce((s,x)=>s+x.count,0);
+    const pct = total ? Math.round(groupTotal/total*100) : 0;
+    const col = groupColors[groupName];
+    const bg  = groupBgs[groupName];
+    dashHTML += `
+      <div style="padding:.625rem 1rem;border-bottom:.5px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:11px;font-weight:700;color:${col};text-transform:uppercase;letter-spacing:.04em">${groupName}</span>
+          <span style="font-size:11px;font-weight:700;color:${col}">${groupTotal} <span style="font-weight:400;color:var(--text3)">(${pct}%)</span></span>
+        </div>
+        <div style="background:var(--bg3);border-radius:99px;height:6px;margin-bottom:6px;overflow:hidden">
+          <div style="background:${col};height:100%;width:${pct}%;border-radius:99px;transition:width .4s"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    // Handle Permit+Utility as parallel
+    const processed = new Set();
+    stages.forEach(s=>{
+      if(processed.has(s.key)) return;
+      if(s.parallel){
+        const partner = stages.find(x=>x.key===s.parallel);
+        const pCount = partner?partner.count:0;
+        const combined = s.count + pCount;
+        const cpct = total ? Math.round(combined/total*100) : 0;
+        dashHTML += `<span style="font-size:11px;background:${bg};color:${col};padding:2px 8px;border-radius:99px;cursor:pointer" onclick="filterByMilestone('${s.key}')">
+          ${s.label}+${s.parallel}: ${combined} <span style="opacity:.7">${cpct}%</span>
+        </span>`;
+        if(partner) processed.add(partner.key);
+      } else {
+        const cpct = total ? Math.round(s.count/total*100) : 0;
+        dashHTML += `<span style="font-size:11px;background:${bg};color:${col};padding:2px 8px;border-radius:99px;cursor:pointer" onclick="filterByMilestone('${s.key}')">
+          ${s.label}: ${s.count} <span style="opacity:.7">${cpct}%</span>
+        </span>`;
+      }
+      processed.add(s.key);
+    });
+    dashHTML += `</div></div>`;
+  });
+
+  if(onHold>0){
+    dashHTML += `<div style="padding:.625rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;font-weight:700;color:var(--red-dark)">On Hold</span>
+      <span style="font-size:11px;font-weight:700;color:var(--red-dark)">${onHold} (${Math.round(onHold/total*100)}%)</span>
+    </div>`;
+  }
+  dashHTML += '</div>';
+
+  document.getElementById('proj-stats').innerHTML = dashHTML;
+}
+
+function filterByMilestone(ms){
+  FILTER = ms;
+  renderChips();
+  renderCards();
+  // Scroll to cards
+  document.getElementById('cards-list').scrollIntoView({behavior:'smooth'});
+}
+
+
 
 function openOverdueReview(){
   const items = ALL_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>7)
@@ -1296,6 +1443,69 @@ function openDetail(itemId){
   if(IS_DESKTOP()) setTimeout(()=>initSplitView(item), 50);
 }
 function parseBlocks(raw,sep){if(!raw)return[];return raw.split(sep).map(b=>b.trim()).filter(Boolean);}
+// ── PROJECT STATUS BAR & OVERVIEW HEADER ─────────────────
+function buildProjectStatusBar(item){
+  const ms = item.milestone||'';
+  const progress = getStageProgress(ms);
+  const stage = getStageFromMilestone(ms);
+
+  // Parse rep info
+  const repRaw = item.repInfo||'';
+  const repName  = (repRaw.match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const repPhone = (repRaw.match(/Phone:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const repEmail = (repRaw.match(/Email:[*\s]+([^\n*]+)/i)||[])[1]||'';
+
+  // Open WOs
+  const wos = item.workOrders||'';
+  const openWOs = (wos.match(/WO-\d+/g)||[]).length;
+  const scheduledWOs = (wos.match(/Status:\s*Scheduled/gi)||[]).length;
+
+  // Open tickets
+  const tickets = item.repTickets||'';
+  const ticketBlocks = tickets.split(/(?=\d{2}\/\d{2}\/\d{4})/g).filter(b=>b.trim().length>5);
+  const openTickets = ticketBlocks.filter(b=>{
+    const s=(b.match(/Status:[*\s]*([^\n[*]+)/i)||[])[1]||'';
+    return !s.toLowerCase().includes('complet')&&!s.toLowerCase().includes('cancel');
+  }).length;
+
+  // Lender + finance
+  const lender  = item.lender||'';
+  const finance = item.finance||'';
+  const funding = item.funding||'';
+
+  // Progress bar segments
+  const segments = PIPELINE_STAGES.filter(s=>s.step!==null&&!s.parallel);
+  const currentStep = stage?.step||0;
+
+  const segHTML = segments.map(s=>{
+    const done = s.step < currentStep;
+    const cur  = s.step === currentStep;
+    const col  = done?'#3B6D11':cur?'var(--blue)':'var(--bg3)';
+    const border = cur?'border:1.5px solid var(--blue)':'';
+    return `<div title="${s.label}" style="flex:1;height:6px;background:${col};${border};border-radius:2px;transition:background .3s"></div>`;
+  }).join('');
+
+  const progressPct = progress||0;
+  const stageLabel  = ms||'Unknown';
+
+  return `
+    <div style="background:var(--bg);border-bottom:.5px solid var(--border2);padding:.75rem 1rem;position:sticky;top:57px;z-index:5">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Project Progress</span>
+        <span style="font-size:11px;font-weight:700;color:var(--blue)">${stageLabel} · ${progressPct}%</span>
+      </div>
+      <div style="display:flex;gap:2px;margin-bottom:8px">${segHTML}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${repName?`<span style="font-size:11px;color:var(--text2)">👤 ${x(repName.trim())}</span>`:''}
+        ${lender?`<span style="font-size:11px;color:var(--text2)">🏦 ${x(lender)}</span>`:''}
+        ${finance?`<span style="font-size:11px;color:var(--text2)">${x(finance)}</span>`:''}
+        ${openWOs>0?`<span style="font-size:11px;font-weight:600;color:var(--amber-dark);background:var(--amber-light);padding:1px 7px;border-radius:99px;cursor:pointer" onclick="document.querySelector('.coll-hdr .coll-title').closest('.collapsible')?.classList.add('open')">📋 ${openWOs} WO${openWOs!==1?'s':''}</span>`:''}
+        ${openTickets>0?`<span style="font-size:11px;font-weight:600;color:var(--red-dark);background:var(--red-light);padding:1px 7px;border-radius:99px">🎫 ${openTickets} ticket${openTickets!==1?'s':''}</span>`:''}
+        ${funding?`<span style="font-size:11px;color:var(--text3)">${x(funding)}</span>`:''}
+      </div>
+    </div>`;
+}
+
 function buildDetail(item){
   // Build milestone HTML before template string to avoid IIFE issues
   const msRows = parseMilestones(item.milestones);
@@ -1355,7 +1565,8 @@ function buildDetail(item){
   }).join(''):'<div class="te"><div class="te-body" style="color:var(--text3)">No tickets.</div></div>';
 
   updateSwipeNav();
-  document.getElementById('detail-body').innerHTML=`
+  const statusBarHTML = buildProjectStatusBar(item);
+  document.getElementById('detail-body').innerHTML=statusBarHTML+`
     <div class="detail-hdr">
       <div class="detail-id">${x(item.num)}</div>
       <div class="detail-name">${x(item.name)}</div>
@@ -2979,6 +3190,22 @@ function initSplitView(item){
   const badge = document.getElementById('split-badge');
   badge.className = 'badge ' + msClass(item.milestone);
   badge.textContent = item.milestone||'';
+  // Add progress bar to split-top
+  let splitProgress = document.getElementById('split-progress-bar');
+  if(!splitProgress){
+    splitProgress = document.createElement('div');
+    splitProgress.id = 'split-progress-bar';
+    document.getElementById('split-top').appendChild(splitProgress);
+  }
+  const prog = getStageProgress(item.milestone||'');
+  const stg  = getStageFromMilestone(item.milestone||'');
+  const segs = PIPELINE_STAGES.filter(s=>s.step!==null&&!s.parallel);
+  const curStep = stg?.step||0;
+  const segH = segs.map(s=>{
+    const done=s.step<curStep, cur=s.step===curStep;
+    return '<div style="flex:1;height:5px;background:'+(done?'#3B6D11':cur?'var(--blue)':'var(--bg3)')+(cur?';border:1.5px solid var(--blue)':'')+';border-radius:2px"></div>';
+  }).join('');
+  splitProgress.innerHTML = '<div style="display:flex;gap:2px;margin-top:6px">'+segH+'</div><div style="font-size:10px;color:var(--text3);margin-top:3px;text-align:right">'+(item.milestone||'')+' · '+(prog||0)+'%</div>';
 
   // Proj nav links
   const navHTML = buildProjNav(item.raw);
@@ -3215,7 +3442,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=69').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=70').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
