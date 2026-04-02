@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v75</title>
+<title>Aveyo Solar v76</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -532,11 +532,318 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sow-funding-val{color:var(--text);font-weight:600}
 
 
-@media(min-width:768px){
-  #view-auth video{position:fixed}
-  #view-auth > div:nth-child(2){position:fixed}
-  #view-auth > div:nth-child(3){min-height:100vh}
+/* ── BATTLEFRONT THEME ── */
+/* ═══════════════════════════════════════════════════════
+   BATTLEFRONT THEME — Aveyo Solar Dashboard
+   Dark holographic UI with #ADD8E6 accent
+═══════════════════════════════════════════════════════ */
+
+/* Force dark mode always */
+:root {
+  --blue:       #ADD8E6;
+  --blue-light: #0d2535;
+  --blue-dark:  #ADD8E6;
+  --bg:         #080c10;
+  --bg2:        #0d1520;
+  --bg3:        #111d2a;
+  --text:       #e8f4f8;
+  --text2:      #8ab4c4;
+  --text3:      #4a7080;
+  --border:     rgba(173,216,230,0.12);
+  --border2:    rgba(173,216,230,0.22);
+  --green-light:#0a1f0a;
+  --green-dark: #a8d870;
+  --amber-light:#1f1505;
+  --amber-dark: #f5c060;
+  --red-light:  #1f0505;
+  --red-dark:   #f08080;
+  --purple-light:#0f0d2a;
+  --purple-dark: #AFA9EC;
+  --teal-light:  #041a14;
+  --teal-dark:   #5DCAA5;
+  --pink-light:  #1f0510;
+  --pink-dark:   #ED93B1;
+  --gray-light:  #0d1520;
+  --gray-dark:   #8ab4c4;
+  --radius:      6px;
+  --radius-lg:   10px;
 }
+
+/* Override light/dark media query — always dark */
+@media(prefers-color-scheme:light){
+  :root {
+    --bg:#080c10;--bg2:#0d1520;--bg3:#111d2a;
+    --text:#e8f4f8;--text2:#8ab4c4;--text3:#4a7080;
+    --border:rgba(173,216,230,0.12);--border2:rgba(173,216,230,0.22);
+  }
+}
+
+/* Global scan-line overlay */
+body::before {
+  content:'';
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.hdr {
+  background: linear-gradient(90deg, #000 0%, #080c10 60%, #0d1a24 100%) !important;
+  border-bottom: 1px solid rgba(173,216,230,0.2) !important;
+  box-shadow: 0 1px 20px rgba(173,216,230,0.08);
+}
+.hdr-title {
+  font-family: 'PPTelegraf', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  font-size: 13px !important;
+  color: #ADD8E6 !important;
+}
+.hdr-sub { color: rgba(173,216,230,0.45) !important; letter-spacing:.06em; text-transform:uppercase; font-size:10px !important; }
+
+/* ── BOTTOM NAV ─────────────────────────────── */
+.bnav {
+  background: rgba(8,12,16,0.96) !important;
+  border-top: 1px solid rgba(173,216,230,0.15) !important;
+  backdrop-filter: blur(20px);
+}
+.bnav-btn span { letter-spacing:.05em; text-transform:uppercase; font-size:9px !important; color:var(--text3); }
+.bnav-btn.active svg { stroke:#ADD8E6 !important; filter: drop-shadow(0 0 4px rgba(173,216,230,0.6)); }
+.bnav-btn.active span { color:#ADD8E6 !important; }
+
+/* ── CARDS ──────────────────────────────────── */
+.card {
+  background: rgba(13,21,32,0.9) !important;
+  border: .5px solid rgba(173,216,230,0.15) !important;
+  border-radius: var(--radius) !important;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.card::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(173,216,230,0.3),transparent);
+}
+.card:active {
+  border-color: rgba(173,216,230,0.4) !important;
+  box-shadow: 0 0 12px rgba(173,216,230,0.1);
+}
+.card-name { color: #e8f4f8 !important; font-weight: 600; letter-spacing:.01em; }
+.card-id   { color: rgba(173,216,230,0.5) !important; font-size:10px; letter-spacing:.08em; }
+.card-addr { color: var(--text2) !important; }
+
+/* ── WIDGETS ────────────────────────────────── */
+.widget {
+  background: rgba(13,21,32,0.9) !important;
+  border: .5px solid rgba(173,216,230,0.15) !important;
+  border-radius: var(--radius) !important;
+  position: relative;
+  overflow:hidden;
+}
+.widget::after {
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(173,216,230,0.2),transparent);
+}
+.widget-num { color: #ADD8E6 !important; font-size: 28px !important; font-weight:700; text-shadow: 0 0 12px rgba(173,216,230,0.4); }
+.widget-lbl { color: rgba(173,216,230,0.5) !important; text-transform:uppercase; letter-spacing:.06em; font-size:9px !important; }
+
+/* ── BUTTONS ────────────────────────────────── */
+.btn {
+  background: transparent !important;
+  border: 1px solid rgba(173,216,230,0.3) !important;
+  color: #ADD8E6 !important;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  font-size:11px !important;
+  font-family:'PPTelegraf',sans-serif !important;
+  transition: all .15s;
+  position:relative;
+  overflow:hidden;
+}
+.btn:hover, .btn:active {
+  background: rgba(173,216,230,0.08) !important;
+  border-color: rgba(173,216,230,0.6) !important;
+  box-shadow: 0 0 12px rgba(173,216,230,0.15);
+}
+.btn-primary, .btn-full {
+  background: rgba(173,216,230,0.12) !important;
+  border-color: rgba(173,216,230,0.5) !important;
+  color: #ADD8E6 !important;
+}
+
+/* ── SECTION LABELS ─────────────────────────── */
+.sec-label {
+  color: rgba(173,216,230,0.4) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .1em !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+}
+
+/* ── CHIPS / FILTER ─────────────────────────── */
+.chip {
+  background: rgba(13,21,32,0.8) !important;
+  border: .5px solid rgba(173,216,230,0.2) !important;
+  color: var(--text2) !important;
+  font-size: 11px !important;
+  letter-spacing:.04em;
+}
+.chip.active {
+  background: rgba(173,216,230,0.12) !important;
+  border-color: #ADD8E6 !important;
+  color: #ADD8E6 !important;
+  box-shadow: 0 0 8px rgba(173,216,230,0.15);
+}
+
+/* ── COLLAPSIBLES ───────────────────────────── */
+.collapsible {
+  background: rgba(13,21,32,0.8) !important;
+  border: .5px solid rgba(173,216,230,0.12) !important;
+}
+.coll-hdr { border-bottom: .5px solid rgba(173,216,230,0.1) !important; }
+.coll-title { color: #ADD8E6 !important; font-size:12px; letter-spacing:.04em; text-transform:uppercase; }
+.coll-arrow { stroke: rgba(173,216,230,0.4) !important; }
+
+/* ── DETAIL VIEW ────────────────────────────── */
+.detail-name  { color: #e8f4f8 !important; font-size:18px !important; }
+.detail-id    { color: rgba(173,216,230,0.4) !important; letter-spacing:.1em; }
+.detail-addr  { color: var(--text2) !important; }
+.drow         { border-bottom: .5px solid rgba(173,216,230,0.06) !important; }
+.dk           { color: var(--text3) !important; font-size:11px; letter-spacing:.04em; text-transform:uppercase; }
+.dv           { color: var(--text) !important; }
+
+/* ── BACK BAR ───────────────────────────────── */
+.back-bar { color: #ADD8E6 !important; letter-spacing:.05em; font-size:12px; text-transform:uppercase; }
+.back-bar svg { stroke: #ADD8E6 !important; }
+
+/* ── SWIPE NAV ──────────────────────────────── */
+.swipe-btn {
+  background: rgba(173,216,230,0.06) !important;
+  border: .5px solid rgba(173,216,230,0.2) !important;
+  color: #ADD8E6 !important;
+  font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+}
+
+/* ── SEARCH ─────────────────────────────────── */
+.search-input {
+  background: rgba(173,216,230,0.05) !important;
+  border: .5px solid rgba(173,216,230,0.15) !important;
+  color: #e8f4f8 !important;
+}
+.search-input:focus { border-color: rgba(173,216,230,0.4) !important; box-shadow:0 0 8px rgba(173,216,230,0.1); }
+.search-input::placeholder { color: rgba(173,216,230,0.25) !important; }
+
+/* ── STATUS PROGRESS BAR ────────────────────── */
+.proj-nav-link {
+  background: rgba(173,216,230,0.08) !important;
+  color: #ADD8E6 !important;
+  border: .5px solid rgba(173,216,230,0.2) !important;
+  font-size:10px;
+}
+
+/* ── INLINE COMPOSE ─────────────────────────── */
+.inline-compose { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+.inline-compose-title { letter-spacing:.04em; text-transform:uppercase; font-size:11px !important; }
+.inline-textarea {
+  background: rgba(173,216,230,0.04) !important;
+  border: .5px solid rgba(173,216,230,0.15) !important;
+  color: #e8f4f8 !important;
+}
+.inline-textarea:focus { border-color: rgba(173,216,230,0.4) !important; }
+
+/* ── NOTES ──────────────────────────────────── */
+.notes-body { color: var(--text2) !important; font-size:13px; line-height:1.7; }
+
+/* ── SOW SECTIONS ───────────────────────────── */
+.sow-section { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+.sow-section-hdr { background: rgba(0,0,0,0.4) !important; color: rgba(173,216,230,0.5) !important; letter-spacing:.08em; }
+.sow-field-row, .sow-info-row { border-bottom:.5px solid rgba(173,216,230,0.06) !important; }
+.sow-info-key { color: rgba(173,216,230,0.4) !important; text-transform:uppercase; font-size:10px; letter-spacing:.06em; }
+.sow-info-val { color: #e8f4f8 !important; }
+.sow-dropdown { background: rgba(173,216,230,0.05) !important; border:.5px solid rgba(173,216,230,0.2) !important; color:#e8f4f8 !important; }
+
+/* ── ACTION TAB ─────────────────────────────── */
+.action-card { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+.action-card-name { color: #e8f4f8 !important; }
+.action-card-proj { color: rgba(173,216,230,0.4) !important; letter-spacing:.06em; text-transform:uppercase; }
+.action-followup-input { background: rgba(173,216,230,0.04) !important; border:.5px solid rgba(173,216,230,0.15) !important; color:#e8f4f8 !important; }
+
+/* ── KNOWLEDGE BASE ─────────────────────────── */
+.kb-search { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.15) !important; }
+.kb-search input { color:#e8f4f8 !important; }
+.kb-card { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+.kb-card-title { color:#e8f4f8 !important; }
+.kb-adder-row { border-bottom:.5px solid rgba(173,216,230,0.06) !important; }
+.kb-adder-name { color:var(--text2) !important; }
+.kb-adder-cost { color:#ADD8E6 !important; }
+
+/* ── SPLIT VIEW ─────────────────────────────── */
+.split-top { background: rgba(8,12,16,0.98) !important; border-bottom:1px solid rgba(173,216,230,0.15) !important; }
+.split-section-tabs { background: rgba(0,0,0,0.6) !important; border-bottom:.5px solid rgba(173,216,230,0.12) !important; }
+.split-tab { background: rgba(173,216,230,0.04) !important; border:.5px solid rgba(173,216,230,0.15) !important; color:var(--text2) !important; letter-spacing:.04em; text-transform:uppercase; font-size:10px; }
+.split-tab.active-left { background: rgba(173,216,230,0.12) !important; border-color:#ADD8E6 !important; color:#ADD8E6 !important; }
+.split-tab.active-right { background: rgba(175,169,236,0.12) !important; border-color:#AFA9EC !important; color:#AFA9EC !important; }
+.split-panel { border-right:.5px solid rgba(173,216,230,0.08) !important; }
+.split-panel-label { color: rgba(173,216,230,0.3) !important; text-transform:uppercase; letter-spacing:.1em; font-size:9px; }
+
+/* ── LOADING / SPINNER ──────────────────────── */
+.loading { color: var(--text2) !important; }
+.spinner { border-color: rgba(173,216,230,0.15) !important; border-top-color: #ADD8E6 !important; }
+
+/* ── PROGRESS BAR ───────────────────────────── */
+#progress-bar-wrap { background: rgba(173,216,230,0.08) !important; }
+#progress-bar { background: #ADD8E6 !important; box-shadow: 0 0 8px rgba(173,216,230,0.4); }
+
+/* ── BADGES ─────────────────────────────────── */
+.badge { letter-spacing:.04em; text-transform:uppercase; font-size:9px !important; }
+
+/* ── FORM FIELDS ────────────────────────────── */
+input, select, textarea {
+  background: rgba(173,216,230,0.04) !important;
+  border-color: rgba(173,216,230,0.15) !important;
+  color: #e8f4f8 !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(173,216,230,0.4) !important;
+  box-shadow: 0 0 8px rgba(173,216,230,0.1) !important;
+  outline: none;
+}
+label { color: rgba(173,216,230,0.5) !important; text-transform:uppercase; letter-spacing:.06em; font-size:10px !important; }
+
+/* ── SCROLLBAR ──────────────────────────────── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background: rgba(173,216,230,0.03); }
+::-webkit-scrollbar-thumb { background: rgba(173,216,230,0.15); border-radius:2px; }
+
+/* ── SECTION CARDS ──────────────────────────── */
+.section-card { background: rgba(13,21,32,0.9) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+
+/* ── PIPELINE DASHBOARD ─────────────────────── */
+#proj-stats .action-stat,
+#proj-stats > div > div { background: rgba(13,21,32,0.8) !important; border:.5px solid rgba(173,216,230,0.12) !important; }
+
+/* ── GLOW on active elements ────────────────── */
+select.sow-dropdown:focus,
+.rchip.active,
+.nav-action .action-badge {
+  box-shadow: 0 0 8px rgba(173,216,230,0.2);
+}
+
+
 </style>
 </head>
 <body>
@@ -546,7 +853,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v75</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v76</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -816,7 +1123,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v75';
+const VERSION='v76';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -3526,7 +3833,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=75').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=76').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
