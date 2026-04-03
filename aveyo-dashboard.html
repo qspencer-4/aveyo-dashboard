@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v99</title>
+<title>Aveyo Solar v100</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1270,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v99</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v100</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v99';
+const VERSION='v100';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4891,7 +4891,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=99').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=100').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5140,7 +5140,7 @@ if('serviceWorker' in navigator){
 // ══════════════════════════════════════════════════════════
 // SITE PLAN EDITOR
 // ══════════════════════════════════════════════════════════
-var SPE={iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,activeTool:null,annotations:[],selectedIdx:-1,dragMode:null,dragStart:null};
+var SPE={iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,activeTool:null,annotations:[],selectedIdx:-1,dragMode:null,dragStart:null,rotStart:null};
 var SPE_WIRED=false;
 function getSPECanvas(){return document.getElementById('spe-canvas');}
 function getSPEImg(){return document.getElementById('spe-base-img');}
@@ -5195,7 +5195,7 @@ document.addEventListener('click',function(e){
     var c=getSPECanvas();
     if(c){
       var r=Math.min(c.offsetWidth,c.offsetHeight)*0.06;
-      SPE.annotations.push({type:'circle',x:c.offsetWidth/2,y:c.offsetHeight/2,r:Math.max(30,r),label:tool==='custom'?'':tool});
+      SPE.annotations.push({type:'circle',x:c.offsetWidth/2,y:c.offsetHeight/2,r:Math.max(30,r),label:tool==='custom'?'':tool,rotation:0,fontSize:11});
       SPE.selectedIdx=SPE.annotations.length-1;
       redrawSPE();
     }
@@ -5212,7 +5212,7 @@ function spDown(e){
   if(SPE.activeTool==='trench'){
     var label=window.prompt('Trenching label:','50ft of trenching through dirt');
     if(!label)return;
-    SPE.annotations.push({type:'trench',x:pos.x,y:pos.y,label:label});
+    SPE.annotations.push({type:'trench',x:pos.x,y:pos.y,label:label,rotation:0,fontSize:11});
     redrawSPE();return;
   }
   // Hit test — check delete X first, then resize handle, then body
@@ -5225,10 +5225,21 @@ function spDown(e){
       // Resize handle (bottom-right)
       var rxp=a.x+a.r*0.7-pos.x,ryp=a.y+a.r*0.7-pos.y;
       if(Math.sqrt(rxp*rxp+ryp*ryp)<14&&i===SPE.selectedIdx){SPE.dragMode='resize';SPE.dragStart={x:pos.x,y:pos.y,r:a.r};SPE.selectedIdx=i;redrawSPE();return;}
-      // Body
-      var bx=a.x-pos.x,by=a.y-pos.y,dist=Math.sqrt(bx*bx+by*by);
+      // Rotate handle (top-left) — account for rotation
+      var rot3=a.rotation||0;
+      var rotHx=a.x+(-a.r*0.7)*Math.cos(rot3)-(-a.r*0.7)*Math.sin(rot3);
+      var rotHy=a.y+(-a.r*0.7)*Math.sin(rot3)+(-a.r*0.7)*Math.cos(rot3);
+      var rthx=rotHx-pos.x,rthy=rotHy-pos.y;
+      if(Math.sqrt(rthx*rthx+rthy*rthy)<18&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
+      // Body — rotate pos into annotation local space for hit test
+      var rot2=a.rotation||0;
+      var lx2=(pos.x-a.x)*Math.cos(-rot2)-(pos.y-a.y)*Math.sin(-rot2);
+      var ly2=(pos.x-a.x)*Math.sin(-rot2)+(pos.y-a.y)*Math.cos(-rot2);
+      var dist=Math.sqrt(lx2*lx2+ly2*ly2);
       if(dist<=a.r+10){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
     } else if(a.type==='trench'){
+      // Rotate handle for trench
+      if(Math.abs(pos.x-(a.x-15))< 14&&Math.abs(pos.y-(a.y-18))<14&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
       if(Math.abs(pos.x-a.x)<100&&Math.abs(pos.y-a.y)<18){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
     }
   }
@@ -5241,6 +5252,10 @@ function spMove(e){
   var a=SPE.annotations[SPE.selectedIdx];
   if(SPE.dragMode==='move'){a.x=pos.x+SPE.dragStart.ox;a.y=pos.y+SPE.dragStart.oy;}
   else if(SPE.dragMode==='resize'){var dx=pos.x-a.x,dy=pos.y-a.y;a.r=Math.max(20,Math.sqrt(dx*dx+dy*dy));}
+  else if(SPE.dragMode==='rotate'){
+    var angle=Math.atan2(pos.y-a.y,pos.x-a.x);
+    a.rotation=SPE.rotStart.startRot+(angle-SPE.rotStart.angle);
+  }
   redrawSPE();
 }
 function spUp(){SPE.dragMode=null;SPE.dragStart=null;}
@@ -5287,43 +5302,74 @@ function redrawSPE(){
   var ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
   SPE.annotations.forEach(function(a,idx){
     var sel=(idx===SPE.selectedIdx);
+    var rot=a.rotation||0;
+    var fs=a.fontSize||11;
+    ctx.save();
+    ctx.translate(a.x,a.y);
+    ctx.rotate(rot);
     if(a.type==='circle'){
       if(sel){ctx.shadowColor='rgba(173,216,230,.5)';ctx.shadowBlur=14;}
       ctx.strokeStyle=sel?'#ADD8E6':'#DC3232';ctx.lineWidth=sel?5:4;
-      ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(0,0,a.r,0,Math.PI*2);ctx.stroke();
       ctx.shadowBlur=0;
       if(a.label){
         var lines=a.label.split('\n');
-        var fs=Math.max(12,c.width*0.012);ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
-        var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
-        var bx=a.x-mw/2-8,by=a.y+a.r+8,bh=lines.length*lh+8;
+        ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
+        var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
+        var bx=-mw/2-8,by=a.r+6,bh=lines.length*lh+8;
         ctx.fillStyle='rgba(220,50,50,.9)';ctx.fillRect(bx,by,mw+16,bh);
         ctx.fillStyle='#fff';
-        lines.forEach(function(line,li){var tw=ctx.measureText(line).width;ctx.fillText(line,a.x-tw/2,by+fs+li*lh+2);});
+        lines.forEach(function(line,li){var tw=ctx.measureText(line).width;ctx.fillText(line,-tw/2,by+fs+li*lh+2);});
       }
       if(sel){
         // Resize handle bottom-right
-        ctx.fillStyle='#ADD8E6';ctx.beginPath();ctx.arc(a.x+a.r*0.7,a.y+a.r*0.7,9,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('⟳',a.x+a.r*0.7-6,a.y+a.r*0.7+4);
+        ctx.fillStyle='#ADD8E6';ctx.beginPath();ctx.arc(a.r*0.7,a.r*0.7,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 10px Arial';ctx.fillText('⤢',a.r*0.7-5,a.r*0.7+4);
+        // Rotate handle top-left
+        ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-a.r*0.7,-a.r*0.7,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('↺',-a.r*0.7-5,-a.r*0.7+4);
         // Delete X top-right
-        ctx.fillStyle='#DC3232';ctx.beginPath();ctx.arc(a.x+a.r*0.7,a.y-a.r*0.7,9,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.fillText('×',a.x+a.r*0.7-4,a.y-a.r*0.7+5);
+        ctx.fillStyle='#DC3232';ctx.beginPath();ctx.arc(a.r*0.7,-a.r*0.7,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.fillText('×',a.r*0.7-4,-a.r*0.7+5);
       }
     } else if(a.type==='trench'){
-      var lines=a.label.split('\n');var fs=Math.max(11,c.width*0.011);
+      var lines=a.label.split('\n');
       ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
       var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
       ctx.fillStyle=sel?'rgba(20,140,70,.95)':'rgba(20,120,60,.9)';
-      ctx.fillRect(a.x-8,a.y-4,mw+16,lines.length*lh+8);
-      if(sel){ctx.strokeStyle='#ADD8E6';ctx.lineWidth=2;ctx.strokeRect(a.x-9,a.y-5,mw+18,lines.length*lh+10);}
+      ctx.fillRect(-8,-4,mw+16,lines.length*lh+8);
+      if(sel){
+        ctx.strokeStyle='#ADD8E6';ctx.lineWidth=2;
+        ctx.strokeRect(-9,-5,mw+18,lines.length*lh+10);
+        // Rotate handle top-left
+        ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-15,-18,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('↺',-20,-14);
+      }
       ctx.fillStyle='#fff';
-      lines.forEach(function(line,li){ctx.fillText(line,a.x,a.y+fs+li*lh);});
+      lines.forEach(function(line,li){ctx.fillText(line,0,fs+li*lh);});
     }
+    ctx.restore();
   });
 }
 
 function spUndo(){SPE.annotations.pop();SPE.selectedIdx=-1;redrawSPE();}
 function spClearAll(){SPE.annotations=[];SPE.selectedIdx=-1;redrawSPE();}
+function spFontSize(delta){
+  if(SPE.selectedIdx<0){
+    // Apply to all if none selected
+    SPE.annotations.forEach(function(a){a.fontSize=Math.max(6,Math.min(48,(a.fontSize||11)+delta));});
+  } else {
+    var a=SPE.annotations[SPE.selectedIdx];
+    a.fontSize=Math.max(6,Math.min(48,(a.fontSize||11)+delta));
+  }
+  redrawSPE();
+}
+function spRotate(deg){
+  if(SPE.selectedIdx<0) return;
+  var a=SPE.annotations[SPE.selectedIdx];
+  a.rotation=(a.rotation||0)+(deg*Math.PI/180);
+  redrawSPE();
+}
 
 // Page loading
 async function loadSPEPages(){
@@ -5368,15 +5414,34 @@ async function spSave(){
     var o=off.getContext('2d');o.drawImage(img,0,0);
     var sx=off.width/c.width,sy=off.height/c.height;
     SPE.annotations.forEach(function(a){
+      var cx=a.x*sx,cy=a.y*sy;
+      var rot=a.rotation||0;
+      var fs=Math.max(14, (a.fontSize||11) * Math.max(sx,sy) * 1.2);
+      o.save();
+      o.translate(cx,cy);
+      o.rotate(rot);
       if(a.type==='circle'){
-        var cx=a.x*sx,cy=a.y*sy,cr=a.r*Math.max(sx,sy);
+        var cr=a.r*Math.max(sx,sy);
         o.strokeStyle='#DC3232';o.lineWidth=Math.max(4,off.width*0.003);
-        o.beginPath();o.arc(cx,cy,cr,0,Math.PI*2);o.stroke();
-        if(a.label){var lines=a.label.split('\n');var fs=Math.max(18,off.width*0.013);o.font='bold '+fs+'px Arial';var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));var bx=cx-mw/2-10,by=cy+cr+10;o.fillStyle='rgba(220,50,50,.9)';o.fillRect(bx,by,mw+20,lines.length*lh+10);o.fillStyle='#fff';lines.forEach(function(line,li){var tw=o.measureText(line).width;o.fillText(line,cx-tw/2,by+fs+li*lh+2);});}
+        o.beginPath();o.arc(0,0,cr,0,Math.PI*2);o.stroke();
+        if(a.label){
+          var lines=a.label.split('\n');
+          o.font='bold '+fs+'px Arial';
+          var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
+          var bx=-mw/2-10,by=cr+10,bh=lines.length*lh+10;
+          o.fillStyle='rgba(220,50,50,.9)';o.fillRect(bx,by,mw+20,bh);
+          o.fillStyle='#fff';
+          lines.forEach(function(line,li){var tw=o.measureText(line).width;o.fillText(line,-tw/2,by+fs+li*lh+2);});
+        }
       } else if(a.type==='trench'){
-        var tx=a.x*sx,ty=a.y*sy;var lines=a.label.split('\n');var fs=Math.max(16,off.width*0.012);o.font='bold '+fs+'px Arial';var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
-        o.fillStyle='rgba(20,120,60,.9)';o.fillRect(tx-10,ty-5,mw+20,lines.length*lh+10);o.fillStyle='#fff';lines.forEach(function(line,li){o.fillText(line,tx,ty+fs+li*lh);});
+        var lines=a.label.split('\n');
+        o.font='bold '+fs+'px Arial';
+        var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
+        o.fillStyle='rgba(20,120,60,.9)';o.fillRect(-10,-5,mw+20,lines.length*lh+10);
+        o.fillStyle='#fff';
+        lines.forEach(function(line,li){o.fillText(line,0,fs+li*lh);});
       }
+      o.restore();
     });
     var bh=Math.round(off.height*0.035);o.fillStyle='rgba(0,0,0,.9)';o.fillRect(0,off.height-bh,off.width,bh);
     var tfs=Math.max(14,bh*0.5);o.font='bold '+tfs+'px Arial';o.fillStyle='#fff';o.fillText('SITE PLAN — '+(SPE.projectTitle||''),18,off.height-bh*0.22);o.fillStyle='#ADD8E6';o.fillText('Aveyo Solar',off.width-200,off.height-bh*0.22);
@@ -5423,6 +5488,15 @@ window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanv
     <button class="spe-tool-btn" data-tool="trench">Add Label</button>
     <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
     <button class="spe-tool-btn" data-tool="select">Select / Move</button>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Size:</span>
+    <button onclick="spFontSize(-2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">A-</button>
+    <button onclick="spFontSize(2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">A+</button>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Rotate:</span>
+    <button onclick="spRotate(-15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">-15°</button>
+    <button onclick="spRotate(15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">+15°</button>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
     <button onclick="spDeleteSelected()" style="background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);color:#DC8888;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:4px 12px;border-radius:2px">Delete</button>
     <span style="font-size:8px;color:rgba(255,255,255,.2);margin-left:8px" id="spe-tool-label">Choose a tool to begin</span>
   </div>
