@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v86</title>
+<title>Aveyo Solar v88</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1246,6 +1246,21 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   }
 }
 
+
+.spe-tool-btn{
+  background:transparent;border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.45);font-family:'PPTelegraf',sans-serif;
+  font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;padding:4px 10px;border-radius:2px;transition:all .15s;
+}
+.spe-tool-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+.spe-tool-btn.active{background:rgba(220,50,50,.15);border-color:rgba(220,50,50,.5);color:#DC8888}
+.spe-tool-btn[data-color="#1EB450"].active{background:rgba(30,180,80,.12);border-color:rgba(30,180,80,.4);color:#5DCAA5}
+.spe-thumb{width:100%;margin-bottom:6px;cursor:pointer;border:2px solid transparent;border-radius:2px;transition:border-color .15s;display:block}
+.spe-thumb:hover{border-color:rgba(255,255,255,.3)}
+.spe-thumb.selected{border-color:#ADD8E6}
+.spe-thumb-num{font-size:7px;letter-spacing:.14em;text-align:center;color:rgba(255,255,255,.3);margin-bottom:8px}
+
 </style>
 </head>
 <body>
@@ -1255,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v86</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v88</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1533,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v86';
+const VERSION='v88';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4129,6 +4144,18 @@ function buildSOWDetail(item){
       <div id="sow-extract-results-${iid}">${buildExtractHTML(cached)}</div>
     </div>
     ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
+    <div class="sow-section" id="sow-siteplan-section-${iid}">
+      <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Site Plan Editor</span>
+        <button class="btn" style="font-size:11px;padding:3px 10px" data-siteplan-open="${iid}">Open Editor</button>
+      </div>
+      <div id="sow-siteplan-results-${iid}">
+        <div style="padding:.875rem 1.25rem;font-size:11px;color:rgba(255,255,255,.3)">
+          Select the site plan page, annotate equipment and trenching, then save to Google Drive.
+        </div>
+      </div>
+    </div>
+
     <div class="sow-production-box">
       <div class="sow-production-hdr">Production Check</div>
       <div class="sow-production-body">
@@ -4264,6 +4291,57 @@ document.addEventListener('change', async function(e){
 });
 
 
+
+
+// ── SOW SITE PLAN GENERATOR ───────────────────────────────
+document.addEventListener('click', async function(e){
+  const btn = e.target.closest('[data-siteplan]');
+  if(!btn) return;
+  const iid = parseInt(btn.dataset.siteplan);
+  const resultsEl = document.getElementById('sow-siteplan-results-'+iid);
+  if(!resultsEl) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Working...';
+  resultsEl.innerHTML = '<div style="padding:.875rem 1.25rem;font-size:11px;color:rgba(255,255,255,.3)">Downloading planset and identifying equipment... this may take 30-60 seconds.</div>';
+
+  try{
+    const res = await fetch(VPS+'/sow-site-plan', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({sow_item_id: iid})
+    });
+    const d = await res.json();
+
+    if(d.status === 'ok'){
+      resultsEl.innerHTML = `
+        <div style="padding:.875rem 1.25rem">
+          <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.75rem">
+            Page ${d.page_found} — ${d.equipment_count} equipment items — ${d.trenching_count} trenching paths
+          </div>
+          <img src="data:image/jpeg;base64,${d.preview_b64}"
+               style="width:100%;border-radius:2px;display:block;border:1px solid rgba(255,255,255,.08)"
+               alt="Annotated site plan"/>
+          <div style="margin-top:.875rem;display:flex;gap:.75rem;align-items:center">
+            <a href="${x(d.drive_link)}" target="_blank">
+              <button class="btn" style="font-size:10px;padding:5px 14px">View in Drive</button>
+            </a>
+            <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28)">
+              Saved: ${x(d.file_name)}
+            </span>
+          </div>
+        </div>`;
+      btn.textContent = 'Regenerate';
+    } else {
+      resultsEl.innerHTML = `<div style="padding:.875rem 1.25rem;font-size:11px;color:#C97850">Error: ${x(d.message)}</div>`;
+      btn.textContent = 'Generate';
+    }
+  }catch(err){
+    resultsEl.innerHTML = `<div style="padding:.875rem 1.25rem;font-size:11px;color:#C97850">Failed: ${x(err.message)}</div>`;
+    btn.textContent = 'Generate';
+  }
+  btn.disabled = false;
+});
 
 // ── SOW PRODUCTION CHECK ─────────────────────────────────
 async function loadSoldProduction(sowItemId){
@@ -4785,7 +4863,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=86').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=88').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5021,7 +5099,441 @@ if('serviceWorker' in navigator){
   });
 })();
 
+
+
+// ── SITE PLAN EDITOR ──────────────────────────────────────
+let SPE = {
+  iid: null,
+  fileId: null,
+  fileName: null,
+  projectTitle: null,
+  currentPage: 1,
+  activeTool: null,
+  activeColor: '#DC3232',
+  annotations: [],  // {type, x, y, r, label, color} or {type:'trench-text', x, y, label}
+  isDrawing: false,
+  drawStart: null,
+  scale: 1,
+};
+
+function openSitePlanEditor(iid, projectTitle){
+  SPE.iid = iid;
+  SPE.projectTitle = projectTitle;
+  SPE.annotations = [];
+  SPE.activeTool = null;
+  SPE.fileId = null;
+  const overlay = document.getElementById('siteplan-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('spe-filename').textContent = 'Loading pages...';
+  document.getElementById('spe-thumb-list').innerHTML = '<div style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;padding:1rem">Loading...</div>';
+  document.getElementById('spe-save-result').style.display = 'none';
+  // Clear canvas
+  const canvas = document.getElementById('spe-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById('spe-base-img').src = '';
+  // Load pages
+  loadSPEPages();
+}
+
+function closeSitePlanEditor(){
+  document.getElementById('siteplan-overlay').style.display = 'none';
+}
+
+async function loadSPEPages(){
+  try{
+    const res = await fetch(VPS+'/sow-planset-pages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({sow_item_id: SPE.iid})
+    });
+    const d = await res.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    SPE.fileId   = d.file_id;
+    SPE.fileName = d.file_name;
+    document.getElementById('spe-filename').textContent = d.file_name;
+    // Build thumbnail list
+    const list = document.getElementById('spe-thumb-list');
+    list.innerHTML = d.pages.map(p=>`
+      <div>
+        <img class="spe-thumb ${p.page===1?'selected':''}"
+             src="data:image/jpeg;base64,${p.thumb_b64}"
+             data-page="${p.page}" alt="Page ${p.page}"/>
+        <div class="spe-thumb-num">Page ${p.page}</div>
+      </div>`).join('');
+    // Wire thumbnail clicks
+    list.querySelectorAll('.spe-thumb').forEach(img=>{
+      img.addEventListener('click',()=>selectSPEPage(parseInt(img.dataset.page)));
+    });
+    // Auto-select page 1
+    selectSPEPage(1);
+  }catch(e){
+    document.getElementById('spe-thumb-list').innerHTML = `<div style="font-size:9px;color:#C97850;padding:.5rem">${x(e.message)}</div>`;
+  }
+}
+
+async function selectSPEPage(pageNum){
+  SPE.currentPage = pageNum;
+  SPE.annotations = [];
+  // Update selected thumb
+  document.querySelectorAll('.spe-thumb').forEach(t=>{
+    t.classList.toggle('selected', parseInt(t.dataset.page)===pageNum);
+  });
+  document.getElementById('spe-filename').textContent = `Loading page ${pageNum}...`;
+  // Clear canvas
+  const canvas = document.getElementById('spe-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  try{
+    const res = await fetch(VPS+'/sow-render-page', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({file_id: SPE.fileId, page_num: pageNum})
+    });
+    const d = await res.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    const img = document.getElementById('spe-base-img');
+    img.onload = ()=>{
+      canvas.width  = img.offsetWidth;
+      canvas.height = img.offsetHeight;
+      SPE.scale = img.offsetWidth / d.width;
+      redrawCanvas();
+    };
+    img.src = 'data:image/jpeg;base64,' + d.img_b64;
+    document.getElementById('spe-filename').textContent = SPE.fileName + ' — Page ' + pageNum;
+  }catch(e){
+    document.getElementById('spe-filename').textContent = 'Error: ' + e.message;
+  }
+}
+
+// Tool button wiring
+document.addEventListener('click', function(e){
+  const toolBtn = e.target.closest('.spe-tool-btn');
+  if(!toolBtn) return;
+  const tool  = toolBtn.dataset.tool;
+  const color = toolBtn.dataset.color;
+  document.querySelectorAll('.spe-tool-btn').forEach(b=>b.classList.remove('active'));
+  if(SPE.activeTool === tool){
+    // Toggle off
+    SPE.activeTool = null;
+    document.getElementById('spe-tool-label').textContent = 'Tap a tool to start';
+    return;
+  }
+  toolBtn.classList.add('active');
+  SPE.activeTool = tool;
+  SPE.activeColor = color;
+  if(tool === 'trench-text'){
+    document.getElementById('spe-tool-label').textContent = 'Tap canvas to place trenching label';
+  } else if(tool === 'circle'){
+    document.getElementById('spe-tool-label').textContent = 'Tap and drag to draw a circle';
+  } else if(tool === 'Custom'){
+    const label = prompt('Enter equipment label:');
+    if(label){
+      SPE.activeTool = label;
+      document.getElementById('spe-tool-label').textContent = `Tap canvas to place: ${label}`;
+    } else {
+      SPE.activeTool = null;
+      toolBtn.classList.remove('active');
+    }
+  } else {
+    document.getElementById('spe-tool-label').textContent = `Tap canvas to place: ${tool}`;
+  }
+});
+
+// Canvas interaction
+const spe_canvas = document.getElementById('spe-canvas');
+
+function getSPEPos(e){
+  const rect = spe_canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
+}
+
+spe_canvas.addEventListener('mousedown', spStartDraw);
+spe_canvas.addEventListener('touchstart', spStartDraw, {passive:false});
+spe_canvas.addEventListener('mousemove', spMoveDraw);
+spe_canvas.addEventListener('touchmove', spMoveDraw, {passive:false});
+spe_canvas.addEventListener('mouseup', spEndDraw);
+spe_canvas.addEventListener('touchend', spEndDraw);
+
+function spStartDraw(e){
+  if(!SPE.activeTool) return;
+  e.preventDefault();
+  const pos = getSPEPos(e);
+  if(SPE.activeTool === 'circle'){
+    SPE.isDrawing = true;
+    SPE.drawStart = pos;
+  } else if(SPE.activeTool === 'trench-text'){
+    const label = prompt('Trenching label (e.g. "50ft Trenching Through Dirt"):') || 'Trenching';
+    SPE.annotations.push({type:'trench-text', x:pos.x, y:pos.y, label, color:'#1EB450'});
+    redrawCanvas();
+  } else {
+    // Equipment label — place circle at tap point
+    const r = Math.min(spe_canvas.width, spe_canvas.height) * 0.04;
+    SPE.annotations.push({type:'circle', x:pos.x, y:pos.y, r, label:SPE.activeTool, color:SPE.activeColor});
+    redrawCanvas();
+  }
+}
+
+function spMoveDraw(e){
+  if(!SPE.isDrawing || SPE.activeTool !== 'circle') return;
+  e.preventDefault();
+  const pos = getSPEPos(e);
+  redrawCanvas();
+  // Draw preview circle
+  const ctx = spe_canvas.getContext('2d');
+  const dx = pos.x - SPE.drawStart.x;
+  const dy = pos.y - SPE.drawStart.y;
+  const r  = Math.sqrt(dx*dx + dy*dy);
+  ctx.strokeStyle = SPE.activeColor;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([6,3]);
+  ctx.beginPath();
+  ctx.arc(SPE.drawStart.x, SPE.drawStart.y, r, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function spEndDraw(e){
+  if(!SPE.isDrawing) return;
+  SPE.isDrawing = false;
+  const pos = getSPEPos(e.changedTouches ? {clientX:e.changedTouches[0].clientX, clientY:e.changedTouches[0].clientY} : e);
+  const dx = pos.x - SPE.drawStart.x;
+  const dy = pos.y - SPE.drawStart.y;
+  const r  = Math.max(10, Math.sqrt(dx*dx + dy*dy));
+  const label = prompt('Label for this circle (optional):') || '';
+  SPE.annotations.push({type:'circle', x:SPE.drawStart.x, y:SPE.drawStart.y, r, label, color:SPE.activeColor});
+  redrawCanvas();
+}
+
+function redrawCanvas(){
+  const canvas = spe_canvas;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  SPE.annotations.forEach(a=>{
+    if(a.type === 'circle'){
+      // Red circle
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = Math.max(2, canvas.width * 0.004);
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, a.r, 0, Math.PI*2);
+      ctx.stroke();
+      // Label
+      if(a.label){
+        const fs = Math.max(11, canvas.width * 0.014);
+        ctx.font = `bold ${fs}px PPTelegraf, sans-serif`;
+        const tw = ctx.measureText(a.label).width;
+        const tx = a.x - tw/2;
+        const ty = a.y + a.r + fs + 4;
+        ctx.fillStyle = 'rgba(220,50,50,0.85)';
+        ctx.fillRect(tx-4, ty-fs, tw+8, fs+4);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(a.label, tx, ty);
+      }
+    } else if(a.type === 'trench-text'){
+      const fs = Math.max(11, canvas.width * 0.013);
+      ctx.font = `bold ${fs}px PPTelegraf, sans-serif`;
+      const tw = ctx.measureText(a.label).width;
+      ctx.fillStyle = 'rgba(30,180,80,0.85)';
+      ctx.fillRect(a.x-4, a.y-fs, tw+8, fs+6);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(a.label, a.x, a.y);
+    }
+  });
+}
+
+function spUndo(){
+  SPE.annotations.pop();
+  redrawCanvas();
+}
+
+function spClearAll(){
+  SPE.annotations = [];
+  redrawCanvas();
+}
+
+async function spSave(){
+  const btn = document.getElementById('spe-save-btn');
+  const resultEl = document.getElementById('spe-save-result');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try{
+    // Composite: draw annotations onto base image, export as PNG
+    const baseImg = document.getElementById('spe-base-img');
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = baseImg.naturalWidth;
+    offscreen.height = baseImg.naturalHeight;
+    const octx = offscreen.getContext('2d');
+
+    // Draw base image
+    octx.drawImage(baseImg, 0, 0);
+
+    // Scale annotations to natural image size
+    const scaleX = baseImg.naturalWidth  / spe_canvas.width;
+    const scaleY = baseImg.naturalHeight / spe_canvas.height;
+
+    SPE.annotations.forEach(a=>{
+      if(a.type === 'circle'){
+        const cx = a.x * scaleX;
+        const cy = a.y * scaleY;
+        const cr = a.r * Math.max(scaleX, scaleY);
+        octx.strokeStyle = a.color;
+        octx.lineWidth   = Math.max(3, offscreen.width * 0.004);
+        octx.beginPath();
+        octx.arc(cx, cy, cr, 0, Math.PI*2);
+        octx.stroke();
+        if(a.label){
+          const fs = Math.max(16, offscreen.width * 0.014);
+          octx.font = `bold ${fs}px Arial`;
+          const tw = octx.measureText(a.label).width;
+          const tx = cx - tw/2;
+          const ty = cy + cr + fs + 6;
+          octx.fillStyle = 'rgba(220,50,50,0.9)';
+          octx.fillRect(tx-5, ty-fs, tw+10, fs+6);
+          octx.fillStyle = '#fff';
+          octx.fillText(a.label, tx, ty);
+        }
+      } else if(a.type === 'trench-text'){
+        const tx = a.x * scaleX;
+        const ty = a.y * scaleY;
+        const fs = Math.max(16, offscreen.width * 0.013);
+        octx.font = `bold ${fs}px Arial`;
+        const tw = octx.measureText(a.label).width;
+        octx.fillStyle = 'rgba(30,180,80,0.9)';
+        octx.fillRect(tx-5, ty-fs, tw+10, fs+6);
+        octx.fillStyle = '#fff';
+        octx.fillText(a.label, tx, ty);
+      }
+    });
+
+    // Add title bar
+    const barH = Math.round(offscreen.height * 0.04);
+    octx.fillStyle = 'rgba(0,0,0,0.85)';
+    octx.fillRect(0, offscreen.height - barH, offscreen.width, barH);
+    const tfs = Math.max(12, barH * 0.5);
+    octx.font = `bold ${tfs}px Arial`;
+    octx.fillStyle = '#fff';
+    octx.fillText('SITE PLAN — ' + (SPE.projectTitle||''), 16, offscreen.height - barH*0.25);
+    octx.fillStyle = '#ADD8E6';
+    octx.fillText('Aveyo Solar', offscreen.width - 160, offscreen.height - barH*0.25);
+
+    // Export to base64
+    const imgB64 = offscreen.toDataURL('image/png').split(',')[1];
+
+    // Send to VPS to save to Drive
+    const res = await fetch(VPS+'/sow-save-annotated', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        sow_item_id: SPE.iid,
+        img_b64: imgB64,
+        project_title: SPE.projectTitle||'Project'
+      })
+    });
+    const d = await res.json();
+    if(d.status === 'ok'){
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `Saved to Drive: <a href="${x(d.drive_link)}" target="_blank" style="color:#ADD8E6">${x(d.file_name)}</a>`;
+      btn.textContent = 'Saved';
+
+      // Update SOW detail results section
+      const resultsEl = document.getElementById('sow-siteplan-results-'+SPE.iid);
+      if(resultsEl){
+        resultsEl.innerHTML = `<div style="padding:.875rem 1.25rem">
+          <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.5rem">Last saved: ${x(d.file_name)}</div>
+          <a href="${x(d.drive_link)}" target="_blank"><button class="btn" style="font-size:9px;padding:4px 12px">View in Drive</button></a>
+        </div>`;
+      }
+    } else {
+      throw new Error(d.message);
+    }
+  }catch(e){
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `<span style="color:#C97850">Save failed: ${x(e.message)}</span>`;
+    btn.textContent = 'Save to Drive';
+  }
+  btn.disabled = false;
+}
+
+// Open editor button
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-siteplan-open]');
+  if(!btn) return;
+  const iid = parseInt(btn.dataset.sitePlanOpen);
+  // Find project title from current SOW item
+  const titleEl = document.querySelector('.detail-name') || document.querySelector('.proj-banner-name');
+  const title = titleEl ? titleEl.textContent : 'Project';
+  openSitePlanEditor(iid, title);
+});
+
+// Handle canvas resize
+window.addEventListener('resize', ()=>{
+  const img = document.getElementById('spe-base-img');
+  const canvas = document.getElementById('spe-canvas');
+  if(img.naturalWidth && canvas.style.display !== 'none'){
+    canvas.width  = img.offsetWidth;
+    canvas.height = img.offsetHeight;
+    redrawCanvas();
+  }
+});
+
 </script>
+
+
+<!-- SITE PLAN EDITOR OVERLAY -->
+<div id="siteplan-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.95);flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:1.5rem">
+      <button onclick="closeSitePlanEditor()" style="background:none;border:none;color:rgba(255,255,255,.4);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:0">Close</button>
+      <span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)" id="spe-filename"></span>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button onclick="spUndo()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Undo</button>
+      <button onclick="spClearAll()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Clear</button>
+      <button onclick="spSave()" id="spe-save-btn" style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.35);color:#ADD8E6;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 18px;border-radius:2px">Save to Drive</button>
+    </div>
+  </div>
+
+  <!-- Tool bar -->
+  <div style="display:flex;align-items:center;gap:6px;padding:.625rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.9);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-right:4px">Equipment:</span>
+    <button class="spe-tool-btn" data-tool="Inverter" data-color="#DC3232">Inverter</button>
+    <button class="spe-tool-btn" data-tool="Battery" data-color="#DC3232">Battery</button>
+    <button class="spe-tool-btn" data-tool="Main Panel" data-color="#DC3232">Main Panel</button>
+    <button class="spe-tool-btn" data-tool="Disconnect" data-color="#DC3232">AC Disconnect</button>
+    <button class="spe-tool-btn" data-tool="Meter" data-color="#DC3232">Meter</button>
+    <button class="spe-tool-btn" data-tool="Sub Panel" data-color="#DC3232">Sub Panel</button>
+    <button class="spe-tool-btn" data-tool="Custom" data-color="#DC3232">+ Custom</button>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-right:4px">Trenching:</span>
+    <button class="spe-tool-btn" data-tool="trench-text" data-color="#1EB450">Add Label</button>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <button class="spe-tool-btn" data-tool="circle" data-color="#DC3232" style="font-style:italic">Free Circle</button>
+    <span style="font-size:8px;color:rgba(255,255,255,.25);margin-left:8px" id="spe-tool-label">Tap a tool to start</span>
+  </div>
+
+  <div style="display:flex;flex:1;overflow:hidden">
+    <!-- Page thumbnails sidebar -->
+    <div id="spe-thumbs" style="width:110px;flex-shrink:0;overflow-y:auto;background:rgba(0,0,0,.8);border-right:1px solid rgba(255,255,255,.06);padding:.5rem">
+      <div style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:.5rem;text-align:center">Pages</div>
+      <div id="spe-thumb-list"></div>
+    </div>
+
+    <!-- Canvas area -->
+    <div style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:1rem;background:#0a0a0a" id="spe-canvas-wrap">
+      <div style="position:relative;display:inline-block" id="spe-canvas-container">
+        <img id="spe-base-img" style="display:block;max-width:100%" alt="Site plan"/>
+        <canvas id="spe-canvas" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save result -->
+  <div id="spe-save-result" style="display:none;padding:.75rem 1.5rem;background:rgba(0,0,0,.9);border-top:1px solid rgba(255,255,255,.06);font-size:10px;letter-spacing:.1em;color:#ADD8E6"></div>
+</div>
 
 </body>
 </html>
