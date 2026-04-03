@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v105</title>
+<title>Aveyo Solar v106</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1280,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v105</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v106</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1558,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v105';
+const VERSION='v106';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4901,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=105').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=106').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5153,7 +5153,7 @@ if('serviceWorker' in navigator){
 // ══════════════════════════════════════════════════════════
 var SPE={
   iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,
-  activeTool:null,annotations:[],selectedIdx:-1,
+  activeTool:'select',annotations:[],selectedIdx:-1,
   dragMode:null,dragStart:null,rotStart:null,pendingLabel:''
 };
 var SPE_WIRED=false;
@@ -5162,9 +5162,14 @@ function getSPEImg(){return document.getElementById('spe-base-img');}
 
 function openSitePlanEditor(iid,pt){
   SPE.iid=iid;SPE.projectTitle=pt;
-  SPE.annotations=[];SPE.selectedIdx=-1;SPE.activeTool=null;SPE.fileId=null;SPE.pendingLabel='';
+  SPE.annotations=[];SPE.selectedIdx=-1;SPE.activeTool='select';SPE.fileId=null;SPE.pendingLabel='';
   var o=document.getElementById('siteplan-overlay');if(!o)return;
   o.style.display='flex';
+  // Highlight select button as default
+  setTimeout(function(){
+    document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tool==='select');});
+    spLbl('Tap annotation to select. Drag to move.');
+  },50);
   document.getElementById('spe-filename').textContent='Loading pages...';
   document.getElementById('spe-thumb-list').innerHTML='<div style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;padding:1rem">Loading...</div>';
   document.getElementById('spe-save-result').style.display='none';
@@ -5297,7 +5302,7 @@ function spDown(e){
       var fs=a.fontSize||11;var lines=(a.label||'').split('\n');var lh=fs+4;
       var bh=lines.length*lh+8;var bw=Math.max.apply(null,lines.map(function(l){return l.length*fs*0.6+16;}))||100;
       if(lx>=-bw/2&&lx<=bw/2&&ly>=-4&&ly<=bh){
-        if(i===SPE.selectedIdx){spEditLabelAt(i);return;}
+        if(i===SPE.selectedIdx){/* no inline edit */}
         SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;
       }
     }
@@ -5321,38 +5326,7 @@ document.addEventListener('keydown',function(e){
   if((e.key==='Delete'||e.key==='Backspace')&&SPE.selectedIdx>=0){SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();}
 });
 
-function spEditLabelAt(idx){
-  var a=SPE.annotations[idx];if(!a)return;
-  var c=getSPECanvas();if(!c)return;
-  var rect=c.getBoundingClientRect();
-  var inp=document.getElementById('spe-float-input');if(!inp)return;
-  var rot=a.rotation||0;var fs=a.fontSize||11;
-  var sx=rect.width/c.width,sy=rect.height/c.height;
-  inp.style.left=(rect.left+a.x*sx-120)+'px';
-  inp.style.top=(rect.top+a.y*sy-16)+'px';
-  inp.style.width='260px';
-  inp.style.fontSize=Math.max(13,fs*1.4)+'px';
-  inp.style.transform='rotate('+rot+'rad)';
-  inp.value=a.label||'';inp.dataset.idx=idx;
-  inp.style.display='block';inp.focus();inp.select();
-}
-document.addEventListener('keydown',function(e){
-  var inp=document.getElementById('spe-float-input');
-  if(!inp||inp.style.display==='none'||e.target!==inp)return;
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();inp.blur();}
-  if(e.key==='Escape'){inp.style.display='none';}
-});
-document.addEventListener('blur',function(e){
-  if(e.target.id!=='spe-float-input')return;
-  var inp=e.target;var idx=parseInt(inp.dataset.idx);
-  if(!isNaN(idx)&&SPE.annotations[idx])SPE.annotations[idx].label=inp.value;
-  inp.style.display='none';redrawSPE();
-},true);
-document.addEventListener('dblclick',function(e){
-  var c=getSPECanvas();if(!c||e.target!==c)return;
-  var ov=document.getElementById('siteplan-overlay');if(!ov||ov.style.display==='none')return;
-  if(SPE.selectedIdx>=0)spEditLabelAt(SPE.selectedIdx);
-});
+// (inline label editing removed)
 
 function redrawSPE(){
   var c=getSPECanvas();if(!c)return;
@@ -5377,11 +5351,11 @@ function redrawSPE(){
       ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
       var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
       var bh=lines.length*lh+8;
-      ctx.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(220,50,50,.9)';
+      ctx.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(173,216,230,1)';
       if(ctx.roundRect)ctx.roundRect(-mw/2-8,-4,mw+16,bh,3);else ctx.rect(-mw/2-8,-4,mw+16,bh);
       ctx.fill();
       if(sel){ctx.strokeStyle='#ADD8E6';ctx.lineWidth=2;ctx.strokeRect(-mw/2-9,-5,mw+18,bh+2);}
-      ctx.fillStyle='#fff';
+      ctx.fillStyle='#000';
       lines.forEach(function(line,li){var tw=ctx.measureText(line).width;ctx.fillText(line,-tw/2,fs+li*lh);});
       if(sel){
         ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-mw/2-20,-12,9,0,Math.PI*2);ctx.fill();
@@ -5454,9 +5428,9 @@ async function spSave(){
         var pfs=Math.max(16,(fs/11)*off.width*0.016);
         o.font='bold '+pfs+'px Arial';
         var lh=pfs+6,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
-        o.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(220,50,50,.9)';
+        o.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(173,216,230,1)';
         o.fillRect(-mw/2-10,-5,mw+20,lines.length*lh+10);
-        o.fillStyle='#fff';
+        o.fillStyle='#000';
         lines.forEach(function(line,li){var tw=o.measureText(line).width;o.fillText(line,-tw/2,pfs+li*lh);});
       }
       o.restore();
@@ -5556,21 +5530,6 @@ window.addEventListener('resize',function(){
     </div>
   </div>
 
-  <!-- Floating text editor — Mac style -->
-  <textarea id="spe-float-input"
-    style="display:none;position:fixed;z-index:10001;
-      background:#ffffff;
-      border:1.5px solid #1a73e8;
-      border-radius:2px;
-      color:#1a1a1a;
-      font-family:'PPTelegraf',Arial,sans-serif;
-      font-size:14px;font-weight:600;
-      padding:6px 10px;
-      resize:none;min-width:200px;min-height:34px;
-      outline:none;
-      box-shadow:0 0 0 3px rgba(26,115,232,.2), 0 4px 16px rgba(0,0,0,.5);
-      line-height:1.5;caret-color:#1a73e8"
-    placeholder="Type label here"></textarea>
 
   <!-- Save result bar -->
   <div id="spe-save-result" style="display:none;padding:.625rem 2rem;background:#000;border-top:1px solid rgba(255,255,255,.05);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#ADD8E6;font-family:'PPTelegraf',sans-serif"></div>
