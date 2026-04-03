@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v103</title>
+<title>Aveyo Solar v105</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1280,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v103</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v105</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1558,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v103';
+const VERSION='v105';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4901,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=103').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=105').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5418,7 +5418,17 @@ async function selectSPEPage(n){
     var res=await fetch(VPS+'/sow-render-page',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_id:SPE.fileId,page_num:n})});
     var d=await res.json();if(d.status!=='ok')throw new Error(d.message);
     img.style.opacity='1';
-    img.onload=function(){requestAnimationFrame(function(){var cv=getSPECanvas();if(!cv)return;cv.width=img.offsetWidth||img.naturalWidth;cv.height=img.offsetHeight||img.naturalHeight;cv.style.width=cv.width+'px';cv.style.height=cv.height+'px';redrawSPE();wireSPE();});};
+    img.onload=function(){
+      // Double rAF to ensure layout is complete
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        var cv=getSPECanvas();if(!cv)return;
+        var w=img.offsetWidth||img.naturalWidth||img.width||800;
+        var h=img.offsetHeight||img.naturalHeight||img.height||600;
+        cv.width=w;cv.height=h;
+        cv.style.width=w+'px';cv.style.height=h+'px';
+        redrawSPE();wireSPE();
+      });});
+    };
     img.src='data:image/jpeg;base64,'+d.img_b64;
     document.getElementById('spe-filename').textContent=SPE.fileName+' — Page '+n;
   }catch(e){document.getElementById('spe-filename').textContent='Error: '+e.message;}
@@ -5456,7 +5466,7 @@ async function spSave(){
     o.fillStyle='#fff';o.fillText('SITE PLAN — '+(SPE.projectTitle||''),18,off.height-bh2*0.22);
     o.fillStyle='#ADD8E6';o.fillText('Aveyo Solar',off.width-200,off.height-bh2*0.22);
     var b64=off.toDataURL('image/png').split(',')[1];
-    var res=await fetch(VPS+'/sow-save-annotated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:SPE.iid,img_b64:b64,project_title:SPE.projectTitle||'Project'})});
+    var res=await fetch(VPS+'/sow-save-annotated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:SPE.iid,img_b64:b64,project_title:SPE.projectTitle||'Project',upload_to_podio:true})});
     var d=await res.json();
     if(d.status==='ok'){
       re.style.display='block';re.innerHTML='Saved: <a href="'+x(d.drive_link)+'" target="_blank" style="color:#ADD8E6">'+x(d.file_name)+'</a>';btn.textContent='Saved';
@@ -5474,43 +5484,46 @@ window.addEventListener('resize',function(){
 
 </script>
 
+
+
 <!-- SITE PLAN EDITOR OVERLAY -->
-<div id="siteplan-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column">
+<div id="siteplan-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column;height:100vh;width:100vw;overflow:hidden">
 
-  <!-- Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.97);flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:1.5rem">
-      <button onclick="closeSitePlanEditor()" style="background:none;border:none;color:rgba(255,255,255,.35);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:0">Close</button>
-      <span style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3)" id="spe-filename"></span>
+  <!-- Header bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;border-bottom:1px solid rgba(255,255,255,.06);background:#000;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:2rem">
+      <button onclick="closeSitePlanEditor()" style="background:none;border:none;color:rgba(255,255,255,.28);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;padding:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.28)'">Close</button>
+      <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.22);font-family:'PPTelegraf',sans-serif" id="spe-filename"></span>
     </div>
-    <div style="display:flex;gap:.75rem">
-      <button onclick="spUndo()" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Undo</button>
-      <button onclick="spClearAll()" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Clear All</button>
-      <button onclick="spSave()" id="spe-save-btn" style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.35);color:#ADD8E6;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 18px;border-radius:2px">Save to Drive</button>
+    <div style="display:flex;gap:.75rem;align-items:center">
+      <button onclick="spUndo()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:0;transition:all .15s" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.3)'" onmouseout="this.style.color='rgba(255,255,255,.35)';this.style.borderColor='rgba(255,255,255,.1)'">Undo</button>
+      <button onclick="spClearAll()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:0;transition:all .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Clear All</button>
+      <button onclick="spSave()" id="spe-save-btn" style="background:rgba(173,216,230,.08);border:1px solid rgba(173,216,230,.3);color:#ADD8E6;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;padding:5px 20px;border-radius:0;transition:all .15s">Save &amp; Upload</button>
     </div>
   </div>
 
-  <!-- Tool bar row 1: shape tools + select -->
-  <div style="display:flex;align-items:center;gap:6px;padding:.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.92);flex-shrink:0;flex-wrap:wrap">
-    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Draw:</span>
+  <!-- Draw tools row -->
+  <div style="display:flex;align-items:center;gap:4px;padding:.5rem 2rem;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(5,5,5,.95);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-right:6px;font-family:'PPTelegraf',sans-serif">Draw</span>
     <button class="spe-tool-btn" data-tool="circle">Circle</button>
-    <button class="spe-tool-btn" data-tool="trench">Trenching Label</button>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
-    <button class="spe-tool-btn" data-tool="select">Select / Move</button>
-    <button onclick="spDeleteSelected()" style="background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);color:#DC8888;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 10px;border-radius:2px">Delete</button>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
-    <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Size:</span>
-    <button onclick="spFontSize(-2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">A-</button>
-    <button onclick="spFontSize(2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">A+</button>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
-    <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Rotate:</span>
-    <button onclick="spRotate(-15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">-15°</button>
-    <button onclick="spRotate(15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">+15°</button>
-    <span style="font-size:8px;color:rgba(255,255,255,.2);margin-left:8px" id="spe-tool-label">Select a tool or build a label below</span>
+    <button class="spe-tool-btn" data-tool="trench">Trenching</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.06);margin:0 6px"></div>
+    <button class="spe-tool-btn" data-tool="select">Select</button>
+    <button onclick="spDeleteSelected()" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;padding:5px 12px;border-radius:0;transition:all .15s" onmouseover="this.style.color='#C97850';this.style.borderColor='rgba(201,120,80,.4)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.borderColor='rgba(255,255,255,.08)'">Delete</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.06);margin:0 6px"></div>
+    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-right:4px;font-family:'PPTelegraf',sans-serif">Size</span>
+    <button onclick="spFontSize(-2)" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-family:'PPTelegraf',sans-serif;font-size:9px;cursor:pointer;padding:4px 10px;border-radius:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">A−</button>
+    <button onclick="spFontSize(2)" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-family:'PPTelegraf',sans-serif;font-size:9px;cursor:pointer;padding:4px 10px;border-radius:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">A+</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.06);margin:0 6px"></div>
+    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-right:4px;font-family:'PPTelegraf',sans-serif">Rotate</span>
+    <button onclick="spRotate(-15)" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.08em;cursor:pointer;padding:4px 10px;border-radius:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">−15°</button>
+    <button onclick="spRotate(15)" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.08em;cursor:pointer;padding:4px 10px;border-radius:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">+15°</button>
+    <span style="font-size:8px;color:rgba(255,255,255,.18);margin-left:12px;font-family:'PPTelegraf',sans-serif;letter-spacing:.08em" id="spe-tool-label">Select a tool or build a label below</span>
   </div>
+
   <!-- Label builder row -->
-  <div style="display:flex;align-items:center;gap:6px;padding:.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.88);flex-shrink:0;flex-wrap:wrap">
-    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Label:</span>
+  <div style="display:flex;align-items:center;gap:4px;padding:.5rem 2rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(3,3,3,.98);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-right:6px;font-family:'PPTelegraf',sans-serif">Label</span>
     <button class="spe-lbl-btn" data-lbl="Inverter">Inverter</button>
     <button class="spe-lbl-btn" data-lbl="Battery">Battery</button>
     <button class="spe-lbl-btn" data-lbl="Main Panel">Main Panel</button>
@@ -5518,36 +5531,49 @@ window.addEventListener('resize',function(){
     <button class="spe-lbl-btn" data-lbl="AC Disconnect">AC Disconnect</button>
     <button class="spe-lbl-btn" data-lbl="Sub Panel">Sub Panel</button>
     <button class="spe-lbl-btn" data-lbl="Backup Interface">Backup Interface</button>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.06);margin:0 6px"></div>
     <input id="spe-lbl-field" type="text"
-      style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:3px;color:#fff;font-family:'PPTelegraf',Arial,sans-serif;font-size:12px;padding:4px 10px;width:260px;outline:none"
+      style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:0;color:#fff;font-family:'PPTelegraf',Arial,sans-serif;font-size:11px;letter-spacing:.06em;padding:5px 12px;width:240px;outline:none;transition:border-color .15s"
+      onfocus="this.style.borderColor='rgba(173,216,230,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'"
       placeholder="Label builds here — tap canvas to place"/>
-    <button onclick="spClearLabel()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 8px;border-radius:2px;font-family:inherit">Clear</button>
-    <button onclick="spPlaceLabelCenter()" style="background:rgba(173,216,230,.08);border:1px solid rgba(173,216,230,.25);color:#ADD8E6;font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 10px;border-radius:2px;font-family:inherit">Place at Center</button>
-  </div>  </div>
+    <button onclick="spClearLabel()" style="background:none;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 10px;border-radius:0;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Clear</button>
+    <button onclick="spPlaceLabelCenter()" style="background:rgba(173,216,230,.06);border:1px solid rgba(173,216,230,.2);color:rgba(173,216,230,.7);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 12px;border-radius:0;transition:all .15s" onmouseover="this.style.color='#ADD8E6'" onmouseout="this.style.color='rgba(173,216,230,.7)'">Place Center</button>
+  </div>
 
-  <div style="display:flex;flex:1;overflow:hidden">
-    <!-- Page thumbnails -->
-    <div style="width:100px;flex-shrink:0;overflow-y:auto;background:rgba(0,0,0,.8);border-right:1px solid rgba(255,255,255,.05);padding:.5rem">
-      <div style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:.5rem;text-align:center">Pages</div>
+  <!-- Main area -->
+  <div style="display:flex;flex:1;overflow:hidden;min-height:0">
+    <!-- Thumbnails -->
+    <div style="width:90px;flex-shrink:0;overflow-y:auto;background:#000;border-right:1px solid rgba(255,255,255,.04);padding:.625rem .5rem">
+      <div style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.15);margin-bottom:.625rem;text-align:center;font-family:'PPTelegraf',sans-serif">Pages</div>
       <div id="spe-thumb-list"></div>
     </div>
-
     <!-- Canvas -->
-    <div style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:1rem;background:#080808">
-      <div style="position:relative;display:inline-block;width:100%" id="spe-canvas-container">
-        <img id="spe-base-img" style="display:block;width:100%;height:auto;min-height:200px;user-select:none;-webkit-user-drag:none" alt=""/>
+    <div style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:1.25rem;background:#080808;min-height:0">
+      <div style="position:relative;display:inline-block;width:100%;max-width:1400px" id="spe-canvas-container">
+        <img id="spe-base-img" style="display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;min-height:100px;background:rgba(255,255,255,.02)" alt=""/>
         <canvas id="spe-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:crosshair;touch-action:none"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- Floating label editor -->
-  <textarea id="spe-float-input" style="display:none;position:fixed;z-index:10001;background:#fff;border:2px solid #1a6fdb;border-radius:3px;color:#111;font-family:'PPTelegraf',Arial,sans-serif;font-size:14px;font-weight:600;padding:6px 10px;resize:none;min-width:200px;min-height:36px;outline:2px solid rgba(26,111,219,0.4);outline-offset:2px;line-height:1.5;box-shadow:0 2px 12px rgba(0,0,0,.4)" placeholder="Type label here"></textarea>
+  <!-- Floating text editor — Mac style -->
+  <textarea id="spe-float-input"
+    style="display:none;position:fixed;z-index:10001;
+      background:#ffffff;
+      border:1.5px solid #1a73e8;
+      border-radius:2px;
+      color:#1a1a1a;
+      font-family:'PPTelegraf',Arial,sans-serif;
+      font-size:14px;font-weight:600;
+      padding:6px 10px;
+      resize:none;min-width:200px;min-height:34px;
+      outline:none;
+      box-shadow:0 0 0 3px rgba(26,115,232,.2), 0 4px 16px rgba(0,0,0,.5);
+      line-height:1.5;caret-color:#1a73e8"
+    placeholder="Type label here"></textarea>
 
-  <!-- Save result -->
-  <div id="spe-save-result" style="display:none;padding:.625rem 1.5rem;background:rgba(0,0,0,.95);border-top:1px solid rgba(255,255,255,.06);font-size:10px;letter-spacing:.1em;color:#ADD8E6"></div>
+  <!-- Save result bar -->
+  <div id="spe-save-result" style="display:none;padding:.625rem 2rem;background:#000;border-top:1px solid rgba(255,255,255,.05);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#ADD8E6;font-family:'PPTelegraf',sans-serif"></div>
 </div>
-
 </body>
 </html>
