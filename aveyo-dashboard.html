@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v90</title>
+<title>Aveyo Solar v91</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1270,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v90</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v91</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v90';
+const VERSION='v91';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4147,7 +4147,7 @@ function buildSOWDetail(item){
     <div class="sow-section" id="sow-siteplan-section-${iid}">
       <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
         <span>Site Plan Editor</span>
-        <button class="btn" style="font-size:11px;padding:3px 10px" data-siteplan-open="${iid}" onclick="(function(b){const i=parseInt(b.dataset.sitePlanOpen);const t=(document.querySelector('.proj-banner-name')||document.querySelector('.detail-name')||{textContent:''}).textContent;openSitePlanEditor(i,t);})(this)">Open Editor</button>
+        <button class="btn" style="font-size:11px;padding:3px 10px" onclick="openSitePlanEditor(${iid},(document.querySelector('.proj-banner-name')||document.querySelector('.detail-name')||{textContent:''}).textContent)">Open Editor</button>
       </div>
       <div id="sow-siteplan-results-${iid}">
         <div style="padding:.875rem 1.25rem;font-size:11px;color:rgba(255,255,255,.3)">
@@ -4864,7 +4864,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=90').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=91').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5145,6 +5145,10 @@ function closeSitePlanEditor(){
 
 async function loadSPEPages(){
   try{
+    if(!SPE.iid || isNaN(SPE.iid)){
+      document.getElementById('spe-thumb-list').innerHTML = '<div style="font-size:9px;color:#C97850;padding:.5rem">Error: no project ID</div>';
+      return;
+    }
     const res = await fetch(VPS+'/sow-planset-pages', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({sow_item_id: SPE.iid})
@@ -5194,14 +5198,16 @@ async function selectSPEPage(pageNum){
     const d = await res.json();
     if(d.status !== 'ok') throw new Error(d.message);
     const img = document.getElementById('spe-base-img');
+    img.style.opacity = '1';
     img.onload = ()=>{
-      // Wait for layout
       requestAnimationFrame(()=>{
-        canvas.width  = img.offsetWidth  || img.naturalWidth;
-        canvas.height = img.offsetHeight || img.naturalHeight;
-        canvas.style.width  = canvas.width + 'px';
-        canvas.style.height = canvas.height + 'px';
-        SPE.scale = canvas.width / d.width;
+        const c = getSPECanvas();
+        if(!c) return;
+        c.width  = img.offsetWidth  || img.naturalWidth;
+        c.height = img.offsetHeight || img.naturalHeight;
+        c.style.width  = c.width + 'px';
+        c.style.height = c.height + 'px';
+        SPE.scale = c.width / d.width;
         redrawCanvas();
       });
     };
@@ -5542,7 +5548,7 @@ window.addEventListener('resize', ()=>{
     <!-- Canvas area -->
     <div style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:1rem;background:#0a0a0a" id="spe-canvas-wrap">
       <div style="position:relative;display:inline-block" id="spe-canvas-container">
-        <img id="spe-base-img" style="display:block;max-width:100%" alt="Site plan"/>
+        <img id="spe-base-img" style="display:block;max-width:100%;min-height:200px;background:rgba(255,255,255,.02)" alt=""/>
         <canvas id="spe-canvas" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
       </div>
     </div>
