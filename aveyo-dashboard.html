@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v107</title>
+<title>Aveyo Solar v108</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1280,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v107</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v108</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1558,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v107';
+const VERSION='v108';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4901,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=107').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=108').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5375,54 +5375,85 @@ function redrawSPE(){
     var sel=(idx===SPE.selectedIdx);var rot=a.rotation||0;var fs=a.fontSize||11;
     ctx.save();ctx.translate(a.x,a.y);ctx.rotate(rot);
     if(a.type==='circle'){
-      // Draw circle — stroke only, no fill, always Aveyo blue
-      ctx.beginPath();ctx.arc(0,0,a.r,0,Math.PI*2);
+      // Always beginPath before arc to prevent path bleed
+      ctx.beginPath();
+      ctx.arc(0,0,a.r,0,Math.PI*2);
+      ctx.closePath();
       if(sel){ctx.shadowColor='rgba(173,216,230,.6)';ctx.shadowBlur=16;}
-      ctx.strokeStyle='#ADD8E6';ctx.lineWidth=sel?5:3;
-      ctx.stroke();ctx.shadowBlur=0;
-      // Handles only when selected
+      ctx.strokeStyle='#ADD8E6';
+      ctx.lineWidth=sel?5:3;
+      ctx.stroke();
+      ctx.shadowBlur=0;
+      // Only draw handles when selected — each in its own beginPath
       if(sel){
-        // Resize handle — bottom-right — blue dot
-        ctx.beginPath();ctx.arc(a.r*0.7,a.r*0.7,8,0,Math.PI*2);
-        ctx.fillStyle='#ADD8E6';ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 9px Arial';ctx.fillText('⤢',a.r*0.7-4,a.r*0.7+4);
-        // Rotate handle — top-left — tan dot
-        ctx.beginPath();ctx.arc(-a.r*0.7,-a.r*0.7,8,0,Math.PI*2);
-        ctx.fillStyle='#C9A96E';ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 10px Arial';ctx.fillText('↺',-a.r*0.7-5,-a.r*0.7+4);
-        // Delete handle — top-right — small red dot
-        ctx.beginPath();ctx.arc(a.r*0.7,-a.r*0.7,8,0,Math.PI*2);
-        ctx.fillStyle='rgba(201,120,80,.9)';ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.fillText('×',a.r*0.7-4,-a.r*0.7+4);
+        ctx.beginPath();
+        ctx.arc(a.r*0.7,a.r*0.7,8,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle='#ADD8E6';
+        ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 9px Arial';
+        ctx.fillText('⤢',a.r*0.7-4,a.r*0.7+4);
+
+        ctx.beginPath();
+        ctx.arc(-a.r*0.7,-a.r*0.7,8,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle='#C9A96E';
+        ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 10px Arial';
+        ctx.fillText('↺',-a.r*0.7-5,-a.r*0.7+4);
+
+        ctx.beginPath();
+        ctx.arc(a.r*0.7,-a.r*0.7,8,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle='rgba(201,120,80,.9)';
+        ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
+        ctx.fillText('×',a.r*0.7-4,-a.r*0.7+4);
       }
     } else if(a.type==='arrow'){
-      // Arrow: line from (0,0) to (a.len,0), arrowhead at end
+      // Arrow: stroke only, clean paths
       var len=a.len||80;
-      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(len,0);
-      ctx.strokeStyle=sel?'rgba(173,216,230,.9)':'#ADD8E6';
-      ctx.lineWidth=sel?4:3;ctx.stroke();
-      // Arrowhead
-      ctx.beginPath();ctx.moveTo(len,0);ctx.lineTo(len-14,7);ctx.lineTo(len-14,-7);ctx.closePath();
-      ctx.fillStyle=sel?'rgba(173,216,230,.9)':'#ADD8E6';ctx.fill();
+      // Shaft
+      ctx.beginPath();
+      ctx.moveTo(0,0);ctx.lineTo(len,0);
+      ctx.strokeStyle='#ADD8E6';
+      ctx.lineWidth=sel?4:3;
+      ctx.stroke();
+      // Arrowhead — separate path, no fill bleed
+      ctx.beginPath();
+      ctx.moveTo(len,0);ctx.lineTo(len-14,7);ctx.lineTo(len-14,-7);
+      ctx.closePath();
+      ctx.fillStyle='#ADD8E6';
+      ctx.fill();
+      // Handles ONLY when selected
       if(sel){
-        // Resize (length) handle at tip
-        ctx.beginPath();ctx.arc(len,0,8,0,Math.PI*2);
+        ctx.beginPath();
+        ctx.arc(len,0,8,0,Math.PI*2);
+        ctx.closePath();
         ctx.fillStyle='#ADD8E6';ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 9px Arial';ctx.fillText('⤢',len-4,4);
-        // Rotate handle at tail
-        ctx.beginPath();ctx.arc(-12,0,8,0,Math.PI*2);
+        ctx.fillStyle='#000';ctx.font='bold 9px Arial';
+        ctx.fillText('⤢',len-4,4);
+
+        ctx.beginPath();
+        ctx.arc(-12,0,8,0,Math.PI*2);
+        ctx.closePath();
         ctx.fillStyle='#C9A96E';ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 10px Arial';ctx.fillText('↺',-17,4);
-        // Delete handle above midpoint
-        ctx.beginPath();ctx.arc(len/2,-16,8,0,Math.PI*2);
+        ctx.fillStyle='#000';ctx.font='bold 10px Arial';
+        ctx.fillText('↺',-17,4);
+
+        ctx.beginPath();
+        ctx.arc(len/2,-16,8,0,Math.PI*2);
+        ctx.closePath();
         ctx.fillStyle='rgba(201,120,80,.9)';ctx.fill();
-        ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.fillText('×',len/2-4,-12);
+        ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
+        ctx.fillText('×',len/2-4,-12);
       }
     } else {
       var lines=(a.label||'').split('\n');
       ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
       var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
       var bh=lines.length*lh+8;
+      ctx.beginPath();
       ctx.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(173,216,230,1)';
       if(ctx.roundRect)ctx.roundRect(-mw/2-8,-4,mw+16,bh,3);else ctx.rect(-mw/2-8,-4,mw+16,bh);
       ctx.fill();
