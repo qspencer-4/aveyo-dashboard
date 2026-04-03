@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v85</title>
+<title>Aveyo Solar v86</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1255,7 +1255,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v85</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v86</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1533,7 +1533,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v85';
+const VERSION='v86';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -1792,8 +1792,8 @@ function buildHomeDashboard(){
   </div>`;
 
   // Review needed
-  html += `<div class="hd-hero" onclick="openOverdueReview()" style="cursor:pointer">
-    <div class="hd-hero-num" style="color:${overdue>0?'#C9A96E':'rgba(255,255,255,.9)'}">${overdue}</div>
+  html += `<div class="hd-hero" onclick="openWidgetList(2)" style="cursor:pointer">
+    <div class="hd-hero-num" style="color:${(cached[2]||0)>0?'#C9A96E':'rgba(255,255,255,.9)'}">${wNum(2)}</div>
     <div class="hd-hero-lbl">Review Needed (+7d)</div>
   </div>`;
 
@@ -1852,8 +1852,8 @@ function buildHomeDashboard(){
     <div class="hd-widget-grid" style="grid-template-columns:1fr">`;
 
   // Project Review Needed (wide, prominent)
-  html += `<div class="hd-widget hd-widget-accent" onclick="openOverdueReview()">
-    <div class="hd-widget-num" style="color:${overdue>0?'#C9A96E':'rgba(255,255,255,.9)'}" id="wnum_2">${overdue>0?overdue:wNum(2)}</div>
+  html += `<div class="hd-widget hd-widget-accent" onclick="openWidgetList(2)">
+    <div class="hd-widget-num" style="color:${(cached[2]||0)>0?'#C9A96E':'rgba(255,255,255,.9)'}" id="wnum_2">${wNum(2)}</div>
     <div class="hd-widget-lbl">Project Review Needed</div>
   </div>`;
 
@@ -1914,7 +1914,7 @@ function buildHomeDashboard(){
   html += `<div class="hd-col">
     <div class="hd-widget-sec-label" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.875rem">
       <span>Review Needed</span>
-      ${overdue>6?`<span style="color:#ADD8E6;cursor:pointer;font-size:8px;letter-spacing:.14em" onclick="openOverdueReview()">See all ${overdue}</span>`:''}
+      ${(cached[2]||0)>6?`<span style="color:#ADD8E6;cursor:pointer;font-size:8px;letter-spacing:.14em" onclick="openWidgetList(2)">See all ${wNum(2)}</span>`:''}
     </div>`;
 
   if(reviewNeeded.length){
@@ -4785,7 +4785,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=85').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=86').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
