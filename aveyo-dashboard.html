@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v98</title>
+<title>Aveyo Solar v99</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1270,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v98</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v99</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v98';
+const VERSION='v99';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4891,7 +4891,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=98').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=99').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5393,3 +5393,62 @@ async function spSave(){
 
 window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanvas();if(img&&c&&img.naturalWidth){c.width=img.offsetWidth||img.naturalWidth;c.height=img.offsetHeight||img.naturalHeight;redrawSPE();}});
 </script>
+
+<!-- SITE PLAN EDITOR OVERLAY -->
+<div id="siteplan-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.97);flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:1.5rem">
+      <button onclick="closeSitePlanEditor()" style="background:none;border:none;color:rgba(255,255,255,.35);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:0">Close</button>
+      <span style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3)" id="spe-filename"></span>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button onclick="spUndo()" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Undo</button>
+      <button onclick="spClearAll()" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 14px;border-radius:2px">Clear All</button>
+      <button onclick="spSave()" id="spe-save-btn" style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.35);color:#ADD8E6;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:5px 18px;border-radius:2px">Save to Drive</button>
+    </div>
+  </div>
+
+  <!-- Tool bar -->
+  <div style="display:flex;align-items:center;gap:6px;padding:.5rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.92);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Place:</span>
+    <button class="spe-tool-btn" data-tool="Inverter / Battery">Inverter / Battery</button>
+    <button class="spe-tool-btn" data-tool="Main Panel / Meter">Main Panel / Meter</button>
+    <button class="spe-tool-btn" data-tool="AC Disconnect">AC Disconnect</button>
+    <button class="spe-tool-btn" data-tool="Sub Panel">Sub Panel</button>
+    <button class="spe-tool-btn" data-tool="custom">+ Custom</button>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Trenching:</span>
+    <button class="spe-tool-btn" data-tool="trench">Add Label</button>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <button class="spe-tool-btn" data-tool="select">Select / Move</button>
+    <button onclick="spDeleteSelected()" style="background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);color:#DC8888;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:4px 12px;border-radius:2px">Delete</button>
+    <span style="font-size:8px;color:rgba(255,255,255,.2);margin-left:8px" id="spe-tool-label">Choose a tool to begin</span>
+  </div>
+
+  <div style="display:flex;flex:1;overflow:hidden">
+    <!-- Page thumbnails -->
+    <div style="width:100px;flex-shrink:0;overflow-y:auto;background:rgba(0,0,0,.8);border-right:1px solid rgba(255,255,255,.05);padding:.5rem">
+      <div style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:.5rem;text-align:center">Pages</div>
+      <div id="spe-thumb-list"></div>
+    </div>
+
+    <!-- Canvas -->
+    <div style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:1rem;background:#080808">
+      <div style="position:relative;display:inline-block;width:100%" id="spe-canvas-container">
+        <img id="spe-base-img" style="display:block;width:100%;height:auto;min-height:200px;user-select:none;-webkit-user-drag:none" alt=""/>
+        <canvas id="spe-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:crosshair;touch-action:none"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating label editor -->
+  <textarea id="spe-float-input" style="display:none;position:fixed;z-index:10001;background:rgba(20,20,20,.97);border:2px solid #ADD8E6;border-radius:3px;color:#fff;font-family:'PPTelegraf',Arial,sans-serif;font-size:13px;padding:6px 10px;resize:none;min-width:160px;min-height:40px;outline:none;line-height:1.5" placeholder="Label text&#10;Shift+Enter = new line"></textarea>
+
+  <!-- Save result -->
+  <div id="spe-save-result" style="display:none;padding:.625rem 1.5rem;background:rgba(0,0,0,.95);border-top:1px solid rgba(255,255,255,.06);font-size:10px;letter-spacing:.1em;color:#ADD8E6"></div>
+</div>
+
+</body>
+</html>
