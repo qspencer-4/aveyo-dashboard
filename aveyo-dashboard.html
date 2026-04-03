@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v88</title>
+<title>Aveyo Solar v90</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1270,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v88</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v90</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v88';
+const VERSION='v90';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4147,7 +4147,7 @@ function buildSOWDetail(item){
     <div class="sow-section" id="sow-siteplan-section-${iid}">
       <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
         <span>Site Plan Editor</span>
-        <button class="btn" style="font-size:11px;padding:3px 10px" data-siteplan-open="${iid}">Open Editor</button>
+        <button class="btn" style="font-size:11px;padding:3px 10px" data-siteplan-open="${iid}" onclick="(function(b){const i=parseInt(b.dataset.sitePlanOpen);const t=(document.querySelector('.proj-banner-name')||document.querySelector('.detail-name')||{textContent:''}).textContent;openSitePlanEditor(i,t);})(this)">Open Editor</button>
       </div>
       <div id="sow-siteplan-results-${iid}">
         <div style="padding:.875rem 1.25rem;font-size:11px;color:rgba(255,255,255,.3)">
@@ -4297,6 +4297,7 @@ document.addEventListener('change', async function(e){
 document.addEventListener('click', async function(e){
   const btn = e.target.closest('[data-siteplan]');
   if(!btn) return;
+  if(btn.hasAttribute('data-siteplan-open')) return; // handled by editor
   const iid = parseInt(btn.dataset.siteplan);
   const resultsEl = document.getElementById('sow-siteplan-results-'+iid);
   if(!resultsEl) return;
@@ -4863,7 +4864,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=88').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=90').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5124,6 +5125,8 @@ function openSitePlanEditor(iid, projectTitle){
   SPE.fileId = null;
   const overlay = document.getElementById('siteplan-overlay');
   overlay.style.display = 'flex';
+  // Wire canvas listeners now that overlay is visible
+  setTimeout(wireSPECanvasListeners, 50);
   document.getElementById('spe-filename').textContent = 'Loading pages...';
   document.getElementById('spe-thumb-list').innerHTML = '<div style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;padding:1rem">Loading...</div>';
   document.getElementById('spe-save-result').style.display = 'none';
@@ -5192,10 +5195,15 @@ async function selectSPEPage(pageNum){
     if(d.status !== 'ok') throw new Error(d.message);
     const img = document.getElementById('spe-base-img');
     img.onload = ()=>{
-      canvas.width  = img.offsetWidth;
-      canvas.height = img.offsetHeight;
-      SPE.scale = img.offsetWidth / d.width;
-      redrawCanvas();
+      // Wait for layout
+      requestAnimationFrame(()=>{
+        canvas.width  = img.offsetWidth  || img.naturalWidth;
+        canvas.height = img.offsetHeight || img.naturalHeight;
+        canvas.style.width  = canvas.width + 'px';
+        canvas.style.height = canvas.height + 'px';
+        SPE.scale = canvas.width / d.width;
+        redrawCanvas();
+      });
     };
     img.src = 'data:image/jpeg;base64,' + d.img_b64;
     document.getElementById('spe-filename').textContent = SPE.fileName + ' — Page ' + pageNum;
@@ -5238,25 +5246,31 @@ document.addEventListener('click', function(e){
   }
 });
 
-// Canvas interaction
-const spe_canvas = document.getElementById('spe-canvas');
+// Canvas interaction — use lazy getter so we don't touch DOM at parse time
+function getSPECanvas(){ return document.getElementById('spe-canvas'); }
 
 function getSPEPos(e){
-  const rect = spe_canvas.getBoundingClientRect();
+  const canvas = getSPECanvas();
+  const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
+  return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
-spe_canvas.addEventListener('mousedown', spStartDraw);
-spe_canvas.addEventListener('touchstart', spStartDraw, {passive:false});
-spe_canvas.addEventListener('mousemove', spMoveDraw);
-spe_canvas.addEventListener('touchmove', spMoveDraw, {passive:false});
-spe_canvas.addEventListener('mouseup', spEndDraw);
-spe_canvas.addEventListener('touchend', spEndDraw);
+// Wire canvas listeners only after editor is first opened
+let SPE_LISTENERS_WIRED = false;
+function wireSPECanvasListeners(){
+  if(SPE_LISTENERS_WIRED) return;
+  const canvas = getSPECanvas();
+  if(!canvas) return;
+  canvas.addEventListener('mousedown', spStartDraw);
+  canvas.addEventListener('touchstart', spStartDraw, {passive:false});
+  canvas.addEventListener('mousemove', spMoveDraw);
+  canvas.addEventListener('touchmove', spMoveDraw, {passive:false});
+  canvas.addEventListener('mouseup', spEndDraw);
+  canvas.addEventListener('touchend', spEndDraw);
+  SPE_LISTENERS_WIRED = true;
+}
 
 function spStartDraw(e){
   if(!SPE.activeTool) return;
@@ -5283,7 +5297,7 @@ function spMoveDraw(e){
   const pos = getSPEPos(e);
   redrawCanvas();
   // Draw preview circle
-  const ctx = spe_canvas.getContext('2d');
+  const ctx = getSPECanvas().getContext('2d');
   const dx = pos.x - SPE.drawStart.x;
   const dy = pos.y - SPE.drawStart.y;
   const r  = Math.sqrt(dx*dx + dy*dy);
@@ -5299,7 +5313,8 @@ function spMoveDraw(e){
 function spEndDraw(e){
   if(!SPE.isDrawing) return;
   SPE.isDrawing = false;
-  const pos = getSPEPos(e.changedTouches ? {clientX:e.changedTouches[0].clientX, clientY:e.changedTouches[0].clientY} : e);
+  const touch = e.changedTouches ? e.changedTouches[0] : e;
+  const pos = getSPEPos({clientX:touch.clientX, clientY:touch.clientY, touches:null});
   const dx = pos.x - SPE.drawStart.x;
   const dy = pos.y - SPE.drawStart.y;
   const r  = Math.max(10, Math.sqrt(dx*dx + dy*dy));
@@ -5309,7 +5324,8 @@ function spEndDraw(e){
 }
 
 function redrawCanvas(){
-  const canvas = spe_canvas;
+  const canvas = getSPECanvas();
+  if(!canvas) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
   SPE.annotations.forEach(a=>{
@@ -5372,8 +5388,9 @@ async function spSave(){
     octx.drawImage(baseImg, 0, 0);
 
     // Scale annotations to natural image size
-    const scaleX = baseImg.naturalWidth  / spe_canvas.width;
-    const scaleY = baseImg.naturalHeight / spe_canvas.height;
+    const spc = getSPECanvas();
+    const scaleX = baseImg.naturalWidth  / (spc ? spc.width : 1);
+    const scaleY = baseImg.naturalHeight / (spc ? spc.height : 1);
 
     SPE.annotations.forEach(a=>{
       if(a.type === 'circle'){
@@ -5471,7 +5488,7 @@ document.addEventListener('click', function(e){
 // Handle canvas resize
 window.addEventListener('resize', ()=>{
   const img = document.getElementById('spe-base-img');
-  const canvas = document.getElementById('spe-canvas');
+  const canvas = getSPECanvas();
   if(img.naturalWidth && canvas.style.display !== 'none'){
     canvas.width  = img.offsetWidth;
     canvas.height = img.offsetHeight;
