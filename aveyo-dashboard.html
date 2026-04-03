@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v101</title>
+<title>Aveyo Solar v103</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1261,6 +1261,16 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 .spe-thumb.selected{border-color:#ADD8E6}
 .spe-thumb-num{font-size:7px;letter-spacing:.14em;text-align:center;color:rgba(255,255,255,.3);margin-bottom:8px}
 
+
+.spe-lbl-btn{
+  background:transparent;border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);font-family:'PPTelegraf',sans-serif;
+  font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;padding:3px 9px;border-radius:2px;transition:all .15s;
+}
+.spe-lbl-btn:hover{background:rgba(220,50,50,.1);border-color:rgba(220,50,50,.3);color:#DC8888}
+.spe-lbl-btn.active{background:rgba(220,50,50,.18);border-color:rgba(220,50,50,.5);color:#DC8888}
+
 </style>
 </head>
 <body>
@@ -1270,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v101</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v103</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v101';
+const VERSION='v103';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4891,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=101').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=103').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5137,21 +5147,28 @@ if('serviceWorker' in navigator){
 
 
 // ══════════════════════════════════════════════════════════
+
 // ══════════════════════════════════════════════════════════
-// SITE PLAN EDITOR
+// SITE PLAN EDITOR v3 — circles & labels independent
 // ══════════════════════════════════════════════════════════
-var SPE={iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,activeTool:null,annotations:[],selectedIdx:-1,dragMode:null,dragStart:null,rotStart:null};
+var SPE={
+  iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,
+  activeTool:null,annotations:[],selectedIdx:-1,
+  dragMode:null,dragStart:null,rotStart:null,pendingLabel:''
+};
 var SPE_WIRED=false;
 function getSPECanvas(){return document.getElementById('spe-canvas');}
 function getSPEImg(){return document.getElementById('spe-base-img');}
 
 function openSitePlanEditor(iid,pt){
-  SPE.iid=iid;SPE.projectTitle=pt;SPE.annotations=[];SPE.selectedIdx=-1;SPE.activeTool=null;SPE.fileId=null;
+  SPE.iid=iid;SPE.projectTitle=pt;
+  SPE.annotations=[];SPE.selectedIdx=-1;SPE.activeTool=null;SPE.fileId=null;SPE.pendingLabel='';
   var o=document.getElementById('siteplan-overlay');if(!o)return;
   o.style.display='flex';
   document.getElementById('spe-filename').textContent='Loading pages...';
   document.getElementById('spe-thumb-list').innerHTML='<div style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;padding:1rem">Loading...</div>';
   document.getElementById('spe-save-result').style.display='none';
+  var lf=document.getElementById('spe-lbl-field');if(lf)lf.value='';
   var c=getSPECanvas();if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
   getSPEImg().src='';
   wireSPE();loadSPEPages();
@@ -5161,242 +5178,227 @@ function closeSitePlanEditor(){var o=document.getElementById('siteplan-overlay')
 function wireSPE(){
   if(SPE_WIRED)return;
   var c=getSPECanvas();if(!c)return;
-  c.addEventListener('mousedown',spDown);
-  c.addEventListener('touchstart',spDown,{passive:false});
-  c.addEventListener('mousemove',spMove);
-  c.addEventListener('touchmove',spMove,{passive:false});
-  c.addEventListener('mouseup',spUp);
-  c.addEventListener('touchend',spUp);
+  c.addEventListener('mousedown',spDown);c.addEventListener('touchstart',spDown,{passive:false});
+  c.addEventListener('mousemove',spMove);c.addEventListener('touchmove',spMove,{passive:false});
+  c.addEventListener('mouseup',spUp);c.addEventListener('touchend',spUp);
   SPE_WIRED=true;
 }
-
 function spPos(e){
   var c=getSPECanvas();if(!c)return{x:0,y:0};
   var r=c.getBoundingClientRect();
   var s=e.touches?e.touches[0]:e.changedTouches?e.changedTouches[0]:e;
   return{x:s.clientX-r.left,y:s.clientY-r.top};
 }
-
-// Tool buttons
-document.addEventListener('click',function(e){
-  var btn=e.target.closest('.spe-tool-btn');
-  if(!btn)return;
-  var ov=document.getElementById('siteplan-overlay');
-  if(!ov||ov.style.display==='none')return;
-  var tool=btn.dataset.tool;
-  document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.remove('active');});
-  if(SPE.activeTool===tool){SPE.activeTool=null;spLbl('Choose a tool');return;}
-  btn.classList.add('active');
-  SPE.activeTool=tool;
-  if(tool==='select'){spLbl('Tap to select. Drag to move. Drag handle to resize.');}
-  else if(tool==='trench'){spLbl('Tap canvas to place trenching label.');}
-  else{
-    // Place immediately at center
-    var c=getSPECanvas();
-    if(c){
-      var r=Math.min(c.offsetWidth,c.offsetHeight)*0.06;
-      SPE.annotations.push({type:'circle',x:c.offsetWidth/2,y:c.offsetHeight/2,r:Math.max(30,r),label:tool==='custom'?'':tool,rotation:0,fontSize:11});
-      SPE.selectedIdx=SPE.annotations.length-1;
-      redrawSPE();
-    }
-    spLbl('Placed! Drag to reposition. Double-click label to edit.');
-  }
-});
 function spLbl(t){var el=document.getElementById('spe-tool-label');if(el)el.textContent=t;}
 function spDeleteSelected(){if(SPE.selectedIdx<0)return;SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();}
+function spClearLabel(){
+  var f=document.getElementById('spe-lbl-field');if(f)f.value='';
+  SPE.pendingLabel='';
+  document.querySelectorAll('.spe-lbl-btn').forEach(function(b){b.classList.remove('active');});
+}
+function spPlaceLabelCenter(){
+  var c=getSPECanvas();if(!c||!SPE.pendingLabel)return;
+  SPE.annotations.push({type:'label',x:c.offsetWidth/2,y:c.offsetHeight/2,label:SPE.pendingLabel,rotation:0,fontSize:11});
+  SPE.selectedIdx=SPE.annotations.length-1;
+  spClearLabel();redrawSPE();
+}
+function spUndo(){SPE.annotations.pop();SPE.selectedIdx=-1;redrawSPE();}
+function spClearAll(){SPE.annotations=[];SPE.selectedIdx=-1;redrawSPE();}
+function spFontSize(d){
+  if(SPE.selectedIdx>=0){var a=SPE.annotations[SPE.selectedIdx];a.fontSize=Math.max(6,Math.min(60,(a.fontSize||11)+d));}
+  else{SPE.annotations.forEach(function(a){a.fontSize=Math.max(6,Math.min(60,(a.fontSize||11)+d));});}
+  redrawSPE();
+}
+function spRotate(deg){
+  if(SPE.selectedIdx<0)return;
+  SPE.annotations[SPE.selectedIdx].rotation=(SPE.annotations[SPE.selectedIdx].rotation||0)+(deg*Math.PI/180);
+  redrawSPE();
+}
 
-// Canvas interactions
+document.addEventListener('click',function(e){
+  var ov=document.getElementById('siteplan-overlay');if(!ov||ov.style.display==='none')return;
+  var tbtn=e.target.closest('.spe-tool-btn');
+  if(tbtn){
+    var tool=tbtn.dataset.tool;
+    document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.remove('active');});
+    if(SPE.activeTool===tool){SPE.activeTool=null;spLbl('Select a tool or build a label below');return;}
+    tbtn.classList.add('active');SPE.activeTool=tool;
+    var msgs={circle:'Tap canvas to place circle.',trench:'Tap canvas to place trenching label.',select:'Tap annotation to select. Drag to move.'};
+    spLbl(msgs[tool]||'');return;
+  }
+  var lbtn=e.target.closest('.spe-lbl-btn');
+  if(lbtn){
+    var lbl=lbtn.dataset.lbl;
+    var field=document.getElementById('spe-lbl-field');if(!field)return;
+    var cur=field.value.trim();
+    field.value=cur?cur+' / '+lbl:lbl;
+    SPE.pendingLabel=field.value;
+    document.querySelectorAll('.spe-lbl-btn').forEach(function(b){b.classList.toggle('active',field.value.indexOf(b.dataset.lbl)>=0);});
+    SPE.activeTool='label';
+    document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.remove('active');});
+    spLbl('Label: "'+field.value+'" — tap canvas to place');return;
+  }
+  // Delete X hit test on selected circle
+  var c=getSPECanvas();
+  if(c&&e.target===c&&SPE.selectedIdx>=0){
+    var a=SPE.annotations[SPE.selectedIdx];
+    if(a&&a.type==='circle'){
+      var rect=c.getBoundingClientRect();var px=e.clientX-rect.left,py=e.clientY-rect.top;
+      var rot=a.rotation||0;
+      var lx=(px-a.x)*Math.cos(-rot)-(py-a.y)*Math.sin(-rot);
+      var ly=(px-a.x)*Math.sin(-rot)+(py-a.y)*Math.cos(-rot);
+      if(Math.sqrt((lx-a.r*0.7)*(lx-a.r*0.7)+(ly+a.r*0.7)*(ly+a.r*0.7))<14){
+        SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();
+      }
+    }
+  }
+});
+
+document.addEventListener('input',function(e){
+  if(e.target.id!=='spe-lbl-field')return;
+  SPE.pendingLabel=e.target.value;
+  document.querySelectorAll('.spe-lbl-btn').forEach(function(b){b.classList.toggle('active',e.target.value.indexOf(b.dataset.lbl)>=0);});
+  if(SPE.pendingLabel){SPE.activeTool='label';spLbl('Label: "'+SPE.pendingLabel+'" — tap canvas to place');}
+});
+
 function spDown(e){
   e.preventDefault();
-  var pos=spPos(e);
+  var pos=spPos(e);var c=getSPECanvas();if(!c)return;
+  if(SPE.activeTool==='circle'){
+    var r=Math.min(c.offsetWidth,c.offsetHeight)*0.06;
+    SPE.annotations.push({type:'circle',x:pos.x,y:pos.y,r:Math.max(24,r),rotation:0,fontSize:11});
+    SPE.selectedIdx=SPE.annotations.length-1;redrawSPE();return;
+  }
+  if(SPE.activeTool==='label'&&SPE.pendingLabel){
+    SPE.annotations.push({type:'label',x:pos.x,y:pos.y,label:SPE.pendingLabel,rotation:0,fontSize:11});
+    SPE.selectedIdx=SPE.annotations.length-1;
+    spClearLabel();SPE.activeTool=null;
+    document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.remove('active');});
+    spLbl('Label placed.');redrawSPE();return;
+  }
   if(SPE.activeTool==='trench'){
     var label=window.prompt('Trenching label:','50ft of trenching through dirt');
     if(!label)return;
     SPE.annotations.push({type:'trench',x:pos.x,y:pos.y,label:label,rotation:0,fontSize:11});
-    redrawSPE();return;
+    SPE.selectedIdx=SPE.annotations.length-1;redrawSPE();return;
   }
-  // Hit test — check delete X first, then resize handle, then body
+  // Hit test
   for(var i=SPE.annotations.length-1;i>=0;i--){
     var a=SPE.annotations[i];
+    var rot=a.rotation||0;
+    var lx=(pos.x-a.x)*Math.cos(-rot)-(pos.y-a.y)*Math.sin(-rot);
+    var ly=(pos.x-a.x)*Math.sin(-rot)+(pos.y-a.y)*Math.cos(-rot);
     if(a.type==='circle'){
-      // Delete X (top-right)
-      var dxp=a.x+a.r*0.7-pos.x,dyp=a.y-a.r*0.7-pos.y;
-      if(Math.sqrt(dxp*dxp+dyp*dyp)<14){SPE.annotations.splice(i,1);SPE.selectedIdx=-1;redrawSPE();return;}
-      // Resize handle (bottom-right)
-      var rxp=a.x+a.r*0.7-pos.x,ryp=a.y+a.r*0.7-pos.y;
-      if(Math.sqrt(rxp*rxp+ryp*ryp)<14&&i===SPE.selectedIdx){SPE.dragMode='resize';SPE.dragStart={x:pos.x,y:pos.y,r:a.r};SPE.selectedIdx=i;redrawSPE();return;}
-      // Rotate handle (top-left) — account for rotation
-      var rot3=a.rotation||0;
-      var rotHx=a.x+(-a.r*0.7)*Math.cos(rot3)-(-a.r*0.7)*Math.sin(rot3);
-      var rotHy=a.y+(-a.r*0.7)*Math.sin(rot3)+(-a.r*0.7)*Math.cos(rot3);
-      var rthx=rotHx-pos.x,rthy=rotHy-pos.y;
-      if(Math.sqrt(rthx*rthx+rthy*rthy)<18&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
-      // Rotate pos into local annotation space
-      var rot2=a.rotation||0;
-      var lx2=(pos.x-a.x)*Math.cos(-rot2)-(pos.y-a.y)*Math.sin(-rot2);
-      var ly2=(pos.x-a.x)*Math.sin(-rot2)+(pos.y-a.y)*Math.cos(-rot2);
-      var dist=Math.sqrt(lx2*lx2+ly2*ly2);
-      // Check if tap is on the label box (below circle)
-      if(a.label && dist > a.r){
-        var c2=getSPECanvas();
-        var fs2=a.fontSize||11;
-        // Estimate label box bounds in local space
-        var lblY=a.r+6;
-        var lblH=(a.label.split('\n').length*(fs2+4))+8;
-        if(lx2>=-a.r && lx2<=a.r && ly2>=lblY && ly2<=lblY+lblH){
-          // Tapped on label — select and open editor
-          SPE.selectedIdx=i;
-          redrawSPE();
-          spEditLabelAt(i);
-          return;
-        }
-      }
-      if(dist<=a.r+10){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
-    } else if(a.type==='trench'){
-      // Rotate handle for trench
-      if(Math.abs(pos.x-(a.x-15))< 14&&Math.abs(pos.y-(a.y-18))<14&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
-      if(Math.abs(pos.x-a.x)<120&&Math.abs(pos.y-a.y)<24){
-        // If already selected, tap again opens editor
-        if(SPE.selectedIdx===i){spEditLabelAt(i);return;}
+      var dist=Math.sqrt(lx*lx+ly*ly);
+      if(i===SPE.selectedIdx&&Math.sqrt((lx-a.r*0.7)*(lx-a.r*0.7)+(ly-a.r*0.7)*(ly-a.r*0.7))<16){SPE.dragMode='resize';SPE.dragStart={x:pos.x,y:pos.y,r:a.r};SPE.selectedIdx=i;redrawSPE();return;}
+      if(i===SPE.selectedIdx&&Math.sqrt((lx+a.r*0.7)*(lx+a.r*0.7)+(ly+a.r*0.7)*(ly+a.r*0.7))<16){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:rot};SPE.selectedIdx=i;redrawSPE();return;}
+      if(dist<=a.r+8){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
+    } else {
+      var fs=a.fontSize||11;var lines=(a.label||'').split('\n');var lh=fs+4;
+      var bh=lines.length*lh+8;var bw=Math.max.apply(null,lines.map(function(l){return l.length*fs*0.6+16;}))||100;
+      if(lx>=-bw/2&&lx<=bw/2&&ly>=-4&&ly<=bh){
+        if(i===SPE.selectedIdx){spEditLabelAt(i);return;}
         SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;
       }
     }
   }
   SPE.selectedIdx=-1;SPE.dragMode=null;redrawSPE();
 }
+
 function spMove(e){
-  if(SPE.selectedIdx<0||!SPE.dragMode)return;
-  e.preventDefault();
-  var pos=spPos(e);
-  var a=SPE.annotations[SPE.selectedIdx];
+  if(SPE.selectedIdx<0||!SPE.dragMode)return;e.preventDefault();
+  var pos=spPos(e);var a=SPE.annotations[SPE.selectedIdx];
   if(SPE.dragMode==='move'){a.x=pos.x+SPE.dragStart.ox;a.y=pos.y+SPE.dragStart.oy;}
-  else if(SPE.dragMode==='resize'){var dx=pos.x-a.x,dy=pos.y-a.y;a.r=Math.max(20,Math.sqrt(dx*dx+dy*dy));}
-  else if(SPE.dragMode==='rotate'){
-    var angle=Math.atan2(pos.y-a.y,pos.x-a.x);
-    a.rotation=SPE.rotStart.startRot+(angle-SPE.rotStart.angle);
-  }
+  else if(SPE.dragMode==='resize'){var dx=pos.x-a.x,dy=pos.y-a.y;a.r=Math.max(16,Math.sqrt(dx*dx+dy*dy));}
+  else if(SPE.dragMode==='rotate'){var ang=Math.atan2(pos.y-a.y,pos.x-a.x);a.rotation=SPE.rotStart.startRot+(ang-SPE.rotStart.angle);}
   redrawSPE();
 }
 function spUp(){SPE.dragMode=null;SPE.dragStart=null;}
 
-// Double-click to edit label inline
-document.addEventListener('dblclick',function(e){
-  var c=getSPECanvas();if(!c||e.target!==c)return;
+document.addEventListener('keydown',function(e){
   var ov=document.getElementById('siteplan-overlay');if(!ov||ov.style.display==='none')return;
-  if(SPE.selectedIdx<0)return;
-  var a=SPE.annotations[SPE.selectedIdx];
-  var inp=document.getElementById('spe-float-input');if(!inp)return;
-  var rect=c.getBoundingClientRect();
-  var scx=(a.type==='circle')?a.x-a.r:a.x;
-  var scy=(a.type==='circle')?a.y+a.r+8:a.y;
-  var sx=rect.width/c.width,sy=rect.height/c.height;
-  inp.style.left=(rect.left+scx*sx)+'px';
-  inp.style.top=(rect.top+scy*sy)+'px';
-  inp.style.width=Math.max(160,a.type==='circle'?a.r*2*sx:200)+'px';
-  inp.value=a.label||'';inp.dataset.idx=SPE.selectedIdx;
-  inp.style.display='block';inp.focus();inp.select();
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if((e.key==='Delete'||e.key==='Backspace')&&SPE.selectedIdx>=0){SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();}
 });
+
+function spEditLabelAt(idx){
+  var a=SPE.annotations[idx];if(!a)return;
+  var c=getSPECanvas();if(!c)return;
+  var rect=c.getBoundingClientRect();
+  var inp=document.getElementById('spe-float-input');if(!inp)return;
+  var rot=a.rotation||0;var fs=a.fontSize||11;
+  var sx=rect.width/c.width,sy=rect.height/c.height;
+  inp.style.left=(rect.left+a.x*sx-120)+'px';
+  inp.style.top=(rect.top+a.y*sy-16)+'px';
+  inp.style.width='260px';
+  inp.style.fontSize=Math.max(13,fs*1.4)+'px';
+  inp.style.transform='rotate('+rot+'rad)';
+  inp.value=a.label||'';inp.dataset.idx=idx;
+  inp.style.display='block';inp.focus();inp.select();
+}
 document.addEventListener('keydown',function(e){
   var inp=document.getElementById('spe-float-input');
-  if(inp&&inp.style.display!=='none'&&e.target===inp){
-    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();inp.blur();}
-    return;
-  }
-  var ov=document.getElementById('siteplan-overlay');if(!ov||ov.style.display==='none')return;
-  if((e.key==='Delete'||e.key==='Backspace')&&SPE.selectedIdx>=0&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){
-    SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();
-  }
+  if(!inp||inp.style.display==='none'||e.target!==inp)return;
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();inp.blur();}
+  if(e.key==='Escape'){inp.style.display='none';}
 });
 document.addEventListener('blur',function(e){
   if(e.target.id!=='spe-float-input')return;
-  var inp=e.target;
-  var idx=parseInt(inp.dataset.idx);
+  var inp=e.target;var idx=parseInt(inp.dataset.idx);
   if(!isNaN(idx)&&SPE.annotations[idx])SPE.annotations[idx].label=inp.value;
   inp.style.display='none';redrawSPE();
 },true);
+document.addEventListener('dblclick',function(e){
+  var c=getSPECanvas();if(!c||e.target!==c)return;
+  var ov=document.getElementById('siteplan-overlay');if(!ov||ov.style.display==='none')return;
+  if(SPE.selectedIdx>=0)spEditLabelAt(SPE.selectedIdx);
+});
 
-// Draw
 function redrawSPE(){
   var c=getSPECanvas();if(!c)return;
   var ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
   SPE.annotations.forEach(function(a,idx){
-    var sel=(idx===SPE.selectedIdx);
-    var rot=a.rotation||0;
-    var fs=a.fontSize||11;
-    ctx.save();
-    ctx.translate(a.x,a.y);
-    ctx.rotate(rot);
+    var sel=(idx===SPE.selectedIdx);var rot=a.rotation||0;var fs=a.fontSize||11;
+    ctx.save();ctx.translate(a.x,a.y);ctx.rotate(rot);
     if(a.type==='circle'){
       if(sel){ctx.shadowColor='rgba(173,216,230,.5)';ctx.shadowBlur=14;}
       ctx.strokeStyle=sel?'#ADD8E6':'#DC3232';ctx.lineWidth=sel?5:4;
-      ctx.beginPath();ctx.arc(0,0,a.r,0,Math.PI*2);ctx.stroke();
-      ctx.shadowBlur=0;
-      if(a.label){
-        var lines=a.label.split('\n');
-        ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
-        var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
-        var bx=-mw/2-8,by=a.r+6,bh=lines.length*lh+8;
-        ctx.fillStyle='rgba(220,50,50,.9)';ctx.fillRect(bx,by,mw+16,bh);
-        ctx.fillStyle='#fff';
-        lines.forEach(function(line,li){var tw=ctx.measureText(line).width;ctx.fillText(line,-tw/2,by+fs+li*lh+2);});
-      }
+      ctx.beginPath();ctx.arc(0,0,a.r,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
       if(sel){
-        // Resize handle bottom-right
         ctx.fillStyle='#ADD8E6';ctx.beginPath();ctx.arc(a.r*0.7,a.r*0.7,9,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='#000';ctx.font='bold 10px Arial';ctx.fillText('⤢',a.r*0.7-5,a.r*0.7+4);
-        // Rotate handle top-left
         ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-a.r*0.7,-a.r*0.7,9,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('↺',-a.r*0.7-5,-a.r*0.7+4);
-        // Delete X top-right
+        ctx.fillStyle='#000';ctx.fillText('↺',-a.r*0.7-5,-a.r*0.7+4);
         ctx.fillStyle='#DC3232';ctx.beginPath();ctx.arc(a.r*0.7,-a.r*0.7,9,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.fillText('×',a.r*0.7-4,-a.r*0.7+5);
       }
-    } else if(a.type==='trench'){
-      var lines=a.label.split('\n');
+    } else {
+      var lines=(a.label||'').split('\n');
       ctx.font='bold '+fs+'px PPTelegraf,Arial,sans-serif';
       var lh=fs+4,mw=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
-      ctx.fillStyle=sel?'rgba(20,140,70,.95)':'rgba(20,120,60,.9)';
-      ctx.fillRect(-8,-4,mw+16,lines.length*lh+8);
-      if(sel){
-        ctx.strokeStyle='#ADD8E6';ctx.lineWidth=2;
-        ctx.strokeRect(-9,-5,mw+18,lines.length*lh+10);
-        // Rotate handle top-left
-        ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-15,-18,9,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('↺',-20,-14);
-      }
+      var bh=lines.length*lh+8;
+      ctx.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(220,50,50,.9)';
+      if(ctx.roundRect)ctx.roundRect(-mw/2-8,-4,mw+16,bh,3);else ctx.rect(-mw/2-8,-4,mw+16,bh);
+      ctx.fill();
+      if(sel){ctx.strokeStyle='#ADD8E6';ctx.lineWidth=2;ctx.strokeRect(-mw/2-9,-5,mw+18,bh+2);}
       ctx.fillStyle='#fff';
-      lines.forEach(function(line,li){ctx.fillText(line,0,fs+li*lh);});
+      lines.forEach(function(line,li){var tw=ctx.measureText(line).width;ctx.fillText(line,-tw/2,fs+li*lh);});
+      if(sel){
+        ctx.fillStyle='#C9A96E';ctx.beginPath();ctx.arc(-mw/2-20,-12,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#000';ctx.font='bold 11px Arial';ctx.fillText('↺',-mw/2-25,-8);
+        ctx.fillStyle='#DC3232';ctx.beginPath();ctx.arc(mw/2+20,-12,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.fillText('×',mw/2+16,-7);
+      }
     }
     ctx.restore();
   });
 }
 
-function spUndo(){SPE.annotations.pop();SPE.selectedIdx=-1;redrawSPE();}
-function spClearAll(){SPE.annotations=[];SPE.selectedIdx=-1;redrawSPE();}
-function spFontSize(delta){
-  if(SPE.selectedIdx<0){
-    // Apply to all if none selected
-    SPE.annotations.forEach(function(a){a.fontSize=Math.max(6,Math.min(48,(a.fontSize||11)+delta));});
-  } else {
-    var a=SPE.annotations[SPE.selectedIdx];
-    a.fontSize=Math.max(6,Math.min(48,(a.fontSize||11)+delta));
-  }
-  redrawSPE();
-}
-function spRotate(deg){
-  if(SPE.selectedIdx<0) return;
-  var a=SPE.annotations[SPE.selectedIdx];
-  a.rotation=(a.rotation||0)+(deg*Math.PI/180);
-  redrawSPE();
-}
-
-// Page loading
 async function loadSPEPages(){
   try{
     if(!SPE.iid||isNaN(SPE.iid)){document.getElementById('spe-thumb-list').innerHTML='<div style="font-size:9px;color:#C97850;padding:.5rem">No project ID</div>';return;}
     var res=await fetch(VPS+'/sow-planset-pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:SPE.iid})});
-    var d=await res.json();
-    if(d.status!=='ok')throw new Error(d.message);
+    var d=await res.json();if(d.status!=='ok')throw new Error(d.message);
     SPE.fileId=d.file_id;SPE.fileName=d.file_name;
     document.getElementById('spe-filename').textContent=d.file_name;
     var list=document.getElementById('spe-thumb-list');
@@ -5416,16 +5418,14 @@ async function selectSPEPage(n){
     var res=await fetch(VPS+'/sow-render-page',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_id:SPE.fileId,page_num:n})});
     var d=await res.json();if(d.status!=='ok')throw new Error(d.message);
     img.style.opacity='1';
-    img.onload=function(){requestAnimationFrame(function(){var cv=getSPECanvas();if(!cv)return;cv.width=img.offsetWidth||img.naturalWidth;cv.height=img.offsetHeight||img.naturalHeight;cv.style.width=cv.width+'px';cv.style.height=cv.height+'px';redrawSPE();});};
+    img.onload=function(){requestAnimationFrame(function(){var cv=getSPECanvas();if(!cv)return;cv.width=img.offsetWidth||img.naturalWidth;cv.height=img.offsetHeight||img.naturalHeight;cv.style.width=cv.width+'px';cv.style.height=cv.height+'px';redrawSPE();wireSPE();});};
     img.src='data:image/jpeg;base64,'+d.img_b64;
     document.getElementById('spe-filename').textContent=SPE.fileName+' — Page '+n;
-    wireSPE();
   }catch(e){document.getElementById('spe-filename').textContent='Error: '+e.message;}
 }
 
 async function spSave(){
-  var btn=document.getElementById('spe-save-btn');
-  var re=document.getElementById('spe-save-result');
+  var btn=document.getElementById('spe-save-btn');var re=document.getElementById('spe-save-result');
   btn.textContent='Saving...';btn.disabled=true;
   try{
     var img=getSPEImg();var c=getSPECanvas();
@@ -5433,41 +5433,33 @@ async function spSave(){
     var o=off.getContext('2d');o.drawImage(img,0,0);
     var sx=off.width/c.width,sy=off.height/c.height;
     SPE.annotations.forEach(function(a){
-      var cx=a.x*sx,cy=a.y*sy;
-      var rot=a.rotation||0;
-      var fs=Math.max(14, (a.fontSize||11) * Math.max(sx,sy) * 1.2);
-      o.save();
-      o.translate(cx,cy);
-      o.rotate(rot);
+      var rot=a.rotation||0;var fs=a.fontSize||11;var cx=a.x*sx,cy=a.y*sy;
+      o.save();o.translate(cx,cy);o.rotate(rot);
       if(a.type==='circle'){
         var cr=a.r*Math.max(sx,sy);
         o.strokeStyle='#DC3232';o.lineWidth=Math.max(4,off.width*0.003);
         o.beginPath();o.arc(0,0,cr,0,Math.PI*2);o.stroke();
-        if(a.label){
-          var lines=a.label.split('\n');
-          o.font='bold '+fs+'px Arial';
-          var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
-          var bx=-mw/2-10,by=cr+10,bh=lines.length*lh+10;
-          o.fillStyle='rgba(220,50,50,.9)';o.fillRect(bx,by,mw+20,bh);
-          o.fillStyle='#fff';
-          lines.forEach(function(line,li){var tw=o.measureText(line).width;o.fillText(line,-tw/2,by+fs+li*lh+2);});
-        }
-      } else if(a.type==='trench'){
-        var lines=a.label.split('\n');
-        o.font='bold '+fs+'px Arial';
-        var lh=fs+5,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
-        o.fillStyle='rgba(20,120,60,.9)';o.fillRect(-10,-5,mw+20,lines.length*lh+10);
+      } else {
+        var lines=(a.label||'').split('\n');
+        var pfs=Math.max(16,(fs/11)*off.width*0.016);
+        o.font='bold '+pfs+'px Arial';
+        var lh=pfs+6,mw=Math.max.apply(null,lines.map(function(l){return o.measureText(l).width;}));
+        o.fillStyle=a.type==='trench'?'rgba(20,120,60,.9)':'rgba(220,50,50,.9)';
+        o.fillRect(-mw/2-10,-5,mw+20,lines.length*lh+10);
         o.fillStyle='#fff';
-        lines.forEach(function(line,li){o.fillText(line,0,fs+li*lh);});
+        lines.forEach(function(line,li){var tw=o.measureText(line).width;o.fillText(line,-tw/2,pfs+li*lh);});
       }
       o.restore();
     });
-    var bh=Math.round(off.height*0.035);o.fillStyle='rgba(0,0,0,.9)';o.fillRect(0,off.height-bh,off.width,bh);
-    var tfs=Math.max(14,bh*0.5);o.font='bold '+tfs+'px Arial';o.fillStyle='#fff';o.fillText('SITE PLAN — '+(SPE.projectTitle||''),18,off.height-bh*0.22);o.fillStyle='#ADD8E6';o.fillText('Aveyo Solar',off.width-200,off.height-bh*0.22);
+    var bh2=Math.round(off.height*0.03);o.fillStyle='rgba(0,0,0,.9)';o.fillRect(0,off.height-bh2,off.width,bh2);
+    var tfs=Math.max(14,bh2*0.5);o.font='bold '+tfs+'px Arial';
+    o.fillStyle='#fff';o.fillText('SITE PLAN — '+(SPE.projectTitle||''),18,off.height-bh2*0.22);
+    o.fillStyle='#ADD8E6';o.fillText('Aveyo Solar',off.width-200,off.height-bh2*0.22);
     var b64=off.toDataURL('image/png').split(',')[1];
     var res=await fetch(VPS+'/sow-save-annotated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:SPE.iid,img_b64:b64,project_title:SPE.projectTitle||'Project'})});
     var d=await res.json();
-    if(d.status==='ok'){re.style.display='block';re.innerHTML='Saved: <a href="'+x(d.drive_link)+'" target="_blank" style="color:#ADD8E6">'+x(d.file_name)+'</a>';btn.textContent='Saved';
+    if(d.status==='ok'){
+      re.style.display='block';re.innerHTML='Saved: <a href="'+x(d.drive_link)+'" target="_blank" style="color:#ADD8E6">'+x(d.file_name)+'</a>';btn.textContent='Saved';
       var re2=document.getElementById('sow-siteplan-results-'+SPE.iid);
       if(re2)re2.innerHTML='<div style="padding:.875rem 1.25rem"><a href="'+x(d.drive_link)+'" target="_blank"><button class="btn" style="font-size:9px;padding:4px 12px">View in Drive</button></a></div>';
     } else throw new Error(d.message);
@@ -5475,7 +5467,11 @@ async function spSave(){
   btn.disabled=false;
 }
 
-window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanvas();if(img&&c&&img.naturalWidth){c.width=img.offsetWidth||img.naturalWidth;c.height=img.offsetHeight||img.naturalHeight;redrawSPE();}});
+window.addEventListener('resize',function(){
+  var img=getSPEImg();var c=getSPECanvas();
+  if(img&&c&&img.naturalWidth){c.width=img.offsetWidth||img.naturalWidth;c.height=img.offsetHeight||img.naturalHeight;redrawSPE();}
+});
+
 </script>
 
 <!-- SITE PLAN EDITOR OVERLAY -->
@@ -5494,32 +5490,41 @@ window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanv
     </div>
   </div>
 
-  <!-- Tool bar -->
-  <div style="display:flex;align-items:center;gap:6px;padding:.5rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.92);flex-shrink:0;flex-wrap:wrap">
-    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Place:</span>
-    <button class="spe-tool-btn" data-tool="Inverter">Inverter</button>
-    <button class="spe-tool-btn" data-tool="Battery">Battery</button>
-    <button class="spe-tool-btn" data-tool="Main Panel / Meter">Main Panel / Meter</button>
-    <button class="spe-tool-btn" data-tool="AC Disconnect">AC Disconnect</button>
-    <button class="spe-tool-btn" data-tool="Sub Panel">Sub Panel</button>
-    <button class="spe-tool-btn" data-tool="custom">+ Custom</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
-    <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Trenching:</span>
-    <button class="spe-tool-btn" data-tool="trench">Add Label</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+  <!-- Tool bar row 1: shape tools + select -->
+  <div style="display:flex;align-items:center;gap:6px;padding:.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.92);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Draw:</span>
+    <button class="spe-tool-btn" data-tool="circle">Circle</button>
+    <button class="spe-tool-btn" data-tool="trench">Trenching Label</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
     <button class="spe-tool-btn" data-tool="select">Select / Move</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <button onclick="spDeleteSelected()" style="background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);color:#DC8888;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 10px;border-radius:2px">Delete</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
     <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Size:</span>
-    <button onclick="spFontSize(-2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">A-</button>
-    <button onclick="spFontSize(2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">A+</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <button onclick="spFontSize(-2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">A-</button>
+    <button onclick="spFontSize(2)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">A+</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
     <span style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Rotate:</span>
-    <button onclick="spRotate(-15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">-15°</button>
-    <button onclick="spRotate(15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:'PPTelegraf',sans-serif;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:2px">+15°</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px"></div>
-    <button onclick="spDeleteSelected()" style="background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);color:#DC8888;font-family:'PPTelegraf',sans-serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:4px 12px;border-radius:2px">Delete</button>
-    <span style="font-size:8px;color:rgba(255,255,255,.2);margin-left:8px" id="spe-tool-label">Choose a tool to begin</span>
+    <button onclick="spRotate(-15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">-15°</button>
+    <button onclick="spRotate(15)" style="background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;padding:3px 8px;border-radius:2px;font-family:inherit">+15°</button>
+    <span style="font-size:8px;color:rgba(255,255,255,.2);margin-left:8px" id="spe-tool-label">Select a tool or build a label below</span>
   </div>
+  <!-- Label builder row -->
+  <div style="display:flex;align-items:center;gap:6px;padding:.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.88);flex-shrink:0;flex-wrap:wrap">
+    <span style="font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Label:</span>
+    <button class="spe-lbl-btn" data-lbl="Inverter">Inverter</button>
+    <button class="spe-lbl-btn" data-lbl="Battery">Battery</button>
+    <button class="spe-lbl-btn" data-lbl="Main Panel">Main Panel</button>
+    <button class="spe-lbl-btn" data-lbl="Meter">Meter</button>
+    <button class="spe-lbl-btn" data-lbl="AC Disconnect">AC Disconnect</button>
+    <button class="spe-lbl-btn" data-lbl="Sub Panel">Sub Panel</button>
+    <button class="spe-lbl-btn" data-lbl="Backup Interface">Backup Interface</button>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.08);margin:0 4px"></div>
+    <input id="spe-lbl-field" type="text"
+      style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:3px;color:#fff;font-family:'PPTelegraf',Arial,sans-serif;font-size:12px;padding:4px 10px;width:260px;outline:none"
+      placeholder="Label builds here — tap canvas to place"/>
+    <button onclick="spClearLabel()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 8px;border-radius:2px;font-family:inherit">Clear</button>
+    <button onclick="spPlaceLabelCenter()" style="background:rgba(173,216,230,.08);border:1px solid rgba(173,216,230,.25);color:#ADD8E6;font-size:8px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:4px 10px;border-radius:2px;font-family:inherit">Place at Center</button>
+  </div>  </div>
 
   <div style="display:flex;flex:1;overflow:hidden">
     <!-- Page thumbnails -->
@@ -5538,7 +5543,7 @@ window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanv
   </div>
 
   <!-- Floating label editor -->
-  <textarea id="spe-float-input" style="display:none;position:fixed;z-index:10001;background:rgba(20,20,20,.97);border:2px solid #ADD8E6;border-radius:3px;color:#fff;font-family:'PPTelegraf',Arial,sans-serif;font-size:13px;padding:6px 10px;resize:none;min-width:160px;min-height:40px;outline:none;line-height:1.5" placeholder="Label text&#10;Shift+Enter = new line"></textarea>
+  <textarea id="spe-float-input" style="display:none;position:fixed;z-index:10001;background:#fff;border:2px solid #1a6fdb;border-radius:3px;color:#111;font-family:'PPTelegraf',Arial,sans-serif;font-size:14px;font-weight:600;padding:6px 10px;resize:none;min-width:200px;min-height:36px;outline:2px solid rgba(26,111,219,0.4);outline-offset:2px;line-height:1.5;box-shadow:0 2px 12px rgba(0,0,0,.4)" placeholder="Type label here"></textarea>
 
   <!-- Save result -->
   <div id="spe-save-result" style="display:none;padding:.625rem 1.5rem;background:rgba(0,0,0,.95);border-top:1px solid rgba(255,255,255,.06);font-size:10px;letter-spacing:.1em;color:#ADD8E6"></div>
