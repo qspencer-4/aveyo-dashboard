@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v110</title>
+<title>Aveyo Solar v111</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1280,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v110</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v111</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1558,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v110';
+const VERSION='v111';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4901,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=110').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=111').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5230,7 +5230,7 @@ document.addEventListener('click',function(e){
     document.querySelectorAll('.spe-tool-btn').forEach(function(b){b.classList.remove('active');});
     if(SPE.activeTool===tool){SPE.activeTool=null;spLbl('Select a tool or build a label below');return;}
     tbtn.classList.add('active');SPE.activeTool=tool;
-    var msgs={circle:'Tap canvas to place circle.',arrow:'Tap canvas to place arrow.',trench:'Tap canvas to place trenching label.',select:'Tap annotation to select. Drag to move.'};
+    var msgs={circle:'Tap canvas to place circle.',arrow:'Tap canvas to place arrow. Use -15°/+15° to rotate after placing.',trench:'Tap canvas to place trenching label.',select:'Tap to select. Drag to move. Use -15°/+15° to rotate.'};
     spLbl(msgs[tool]||'');
     var cv=getSPECanvas();
     if(cv)cv.style.cursor=(tool==='select')?'default':'crosshair';
@@ -5323,13 +5323,17 @@ function spDown(e){
     } else if(a.type==='arrow'){
       var alen=a.len||80;
       // Tip resize handle
-      if(i===SPE.selectedIdx&&Math.sqrt((lx-alen)*(lx-alen)+ly*ly)<16){SPE.dragMode='resize';SPE.dragStart={x:pos.x,y:pos.y,len:alen};SPE.selectedIdx=i;redrawSPE();return;}
-      // Tail rotate handle
-      if(i===SPE.selectedIdx&&Math.sqrt((lx+12)*(lx+12)+ly*ly)<16){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:rot};SPE.selectedIdx=i;redrawSPE();return;}
+      if(i===SPE.selectedIdx&&Math.sqrt((lx-alen)*(lx-alen)+ly*ly)<16){
+        SPE.dragMode='resize';SPE.dragStart={x:pos.x,y:pos.y,len:alen};SPE.selectedIdx=i;redrawSPE();return;
+      }
       // Delete handle (above midpoint)
-      if(i===SPE.selectedIdx&&Math.sqrt((lx-alen/2)*(lx-alen/2)+(ly+16)*(ly+16))<16){SPE.annotations.splice(i,1);SPE.selectedIdx=-1;redrawSPE();return;}
-      // Body hit (along the line)
-      if(Math.abs(ly)<18&&lx>=-12&&lx<=alen+12){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
+      if(i===SPE.selectedIdx&&Math.sqrt((lx-alen/2)*(lx-alen/2)+(ly+18)*(ly+18))<14){
+        SPE.annotations.splice(i,1);SPE.selectedIdx=-1;redrawSPE();return;
+      }
+      // Body hit — generous hit area
+      if(Math.abs(ly)<20&&lx>=-20&&lx<=alen+20){
+        SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;
+      }
     } else {
       var fs=a.fontSize||11;var lines=(a.label||'').split('\n');var lh=fs+4;
       var bh=lines.length*lh+8;var bw=Math.max.apply(null,lines.map(function(l){return l.length*fs*0.6+16;}))||100;
@@ -5544,10 +5548,14 @@ async function spSave(){
         o.stroke();
       } else if(a.type==='arrow'){
         var alen=a.len||80;
+        // White outline
         o.beginPath();o.moveTo(0,0);o.lineTo(alen,0);
-        o.strokeStyle='#ADD8E6';o.lineWidth=3;o.stroke();
+        o.strokeStyle='rgba(255,255,255,.5)';o.lineWidth=6;o.stroke();
+        // Black line
+        o.beginPath();o.moveTo(0,0);o.lineTo(alen,0);
+        o.strokeStyle='#000';o.lineWidth=3;o.stroke();
         o.beginPath();o.moveTo(alen,0);o.lineTo(alen-18,9);o.lineTo(alen-18,-9);o.closePath();
-        o.fillStyle='#ADD8E6';o.fill();
+        o.fillStyle='#000';o.fill();
       } else {
         var lines=(a.label||'').split('\n');
         var pfs=Math.max(11, fs);
