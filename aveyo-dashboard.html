@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v108</title>
+<title>Aveyo Solar v109</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1280,7 +1280,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v108</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v109</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1558,7 +1558,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v108';
+const VERSION='v109';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4901,7 +4901,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=108').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=109').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5154,7 +5154,8 @@ if('serviceWorker' in navigator){
 var SPE={
   iid:null,fileId:null,fileName:null,projectTitle:null,currentPage:1,
   activeTool:'select',annotations:[],selectedIdx:-1,
-  dragMode:null,dragStart:null,rotStart:null,pendingLabel:''
+  dragMode:null,dragStart:null,rotStart:null,pendingLabel:'',
+  displayW:0,displayH:0,naturalW:0,naturalH:0
 };
 var SPE_WIRED=false;
 function getSPECanvas(){return document.getElementById('spe-canvas');}
@@ -5486,7 +5487,7 @@ async function loadSPEPages(){
 }
 
 async function selectSPEPage(n){
-  SPE.currentPage=n;SPE.annotations=[];SPE.selectedIdx=-1;
+  SPE.currentPage=n;SPE.annotations=[];SPE.selectedIdx=-1;SPE.displayW=0;SPE.displayH=0;
   document.querySelectorAll('.spe-thumb').forEach(function(t){t.classList.toggle('selected',parseInt(t.dataset.page)===n);});
   document.getElementById('spe-filename').textContent='Loading page '+n+'...';
   var img=getSPEImg();img.style.opacity='0.3';img.src='';
@@ -5496,13 +5497,17 @@ async function selectSPEPage(n){
     var d=await res.json();if(d.status!=='ok')throw new Error(d.message);
     img.style.opacity='1';
     img.onload=function(){
-      // Double rAF to ensure layout is complete
       requestAnimationFrame(function(){requestAnimationFrame(function(){
         var cv=getSPECanvas();if(!cv)return;
-        var w=img.offsetWidth||img.naturalWidth||img.width||800;
-        var h=img.offsetHeight||img.naturalHeight||img.height||600;
+        var w=img.offsetWidth||img.naturalWidth||800;
+        var h=img.offsetHeight||img.naturalHeight||600;
         cv.width=w;cv.height=h;
         cv.style.width=w+'px';cv.style.height=h+'px';
+        // Store display size for accurate save scaling
+        SPE.displayW=w;
+        SPE.displayH=h;
+        SPE.naturalW=img.naturalWidth;
+        SPE.naturalH=img.naturalHeight;
         redrawSPE();wireSPE();
       });});
     };
@@ -5516,9 +5521,16 @@ async function spSave(){
   btn.textContent='Saving...';btn.disabled=true;
   try{
     var img=getSPEImg();var c=getSPECanvas();
-    var off=document.createElement('canvas');off.width=img.naturalWidth;off.height=img.naturalHeight;
+    var natW = SPE.naturalW || img.naturalWidth;
+    var natH = SPE.naturalH || img.naturalHeight;
+    var dispW = SPE.displayW || c.width || img.offsetWidth || natW;
+    var dispH = SPE.displayH || c.height || img.offsetHeight || natH;
+    var off=document.createElement('canvas');off.width=natW;off.height=natH;
     var o=off.getContext('2d');o.drawImage(img,0,0);
-    var sx=off.width/c.width,sy=off.height/c.height;
+    // Annotations stored in display coords — scale up to natural image size
+    var sx = natW / dispW;
+    var sy = natH / dispH;
+    console.log('Save scale: display='+dispW+'x'+dispH+' natural='+natW+'x'+natH+' sx='+sx.toFixed(3));
     SPE.annotations.forEach(function(a){
       var rot=a.rotation||0;var fs=a.fontSize||11;var cx=a.x*sx,cy=a.y*sy;
       o.save();o.translate(cx,cy);o.rotate(rot);
@@ -5553,7 +5565,10 @@ async function spSave(){
     var res=await fetch(VPS+'/sow-save-annotated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sow_item_id:SPE.iid,img_b64:b64,project_title:SPE.projectTitle||'Project',upload_to_podio:true})});
     var d=await res.json();
     if(d.status==='ok'){
-      re.style.display='block';re.innerHTML='Saved: <a href="'+x(d.drive_link)+'" target="_blank" style="color:#ADD8E6">'+x(d.file_name)+'</a>';btn.textContent='Saved';
+      re.style.display='block';
+      var podioMsg = d.podio_uploaded ? ' + Podio' : '';
+      re.innerHTML = 'Saved to Drive'+podioMsg+': <a href="'+x(d.drive_link)+'" target="_blank" style="color:#ADD8E6">'+x(d.file_name)+'</a>';
+      btn.textContent='Saved';
       var re2=document.getElementById('sow-siteplan-results-'+SPE.iid);
       if(re2)re2.innerHTML='<div style="padding:.875rem 1.25rem"><a href="'+x(d.drive_link)+'" target="_blank"><button class="btn" style="font-size:9px;padding:4px 12px">View in Drive</button></a></div>';
     } else throw new Error(d.message);
