@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v100</title>
+<title>Aveyo Solar v101</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -1270,7 +1270,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v100</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v101</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1548,7 +1548,7 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v100';
+const VERSION='v101';
 const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
 function showView(v){
   // Always close split view when navigating away from detail
@@ -4891,7 +4891,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=100').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=101').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -5231,16 +5231,35 @@ function spDown(e){
       var rotHy=a.y+(-a.r*0.7)*Math.sin(rot3)+(-a.r*0.7)*Math.cos(rot3);
       var rthx=rotHx-pos.x,rthy=rotHy-pos.y;
       if(Math.sqrt(rthx*rthx+rthy*rthy)<18&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
-      // Body — rotate pos into annotation local space for hit test
+      // Rotate pos into local annotation space
       var rot2=a.rotation||0;
       var lx2=(pos.x-a.x)*Math.cos(-rot2)-(pos.y-a.y)*Math.sin(-rot2);
       var ly2=(pos.x-a.x)*Math.sin(-rot2)+(pos.y-a.y)*Math.cos(-rot2);
       var dist=Math.sqrt(lx2*lx2+ly2*ly2);
+      // Check if tap is on the label box (below circle)
+      if(a.label && dist > a.r){
+        var c2=getSPECanvas();
+        var fs2=a.fontSize||11;
+        // Estimate label box bounds in local space
+        var lblY=a.r+6;
+        var lblH=(a.label.split('\n').length*(fs2+4))+8;
+        if(lx2>=-a.r && lx2<=a.r && ly2>=lblY && ly2<=lblY+lblH){
+          // Tapped on label — select and open editor
+          SPE.selectedIdx=i;
+          redrawSPE();
+          spEditLabelAt(i);
+          return;
+        }
+      }
       if(dist<=a.r+10){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
     } else if(a.type==='trench'){
       // Rotate handle for trench
       if(Math.abs(pos.x-(a.x-15))< 14&&Math.abs(pos.y-(a.y-18))<14&&i===SPE.selectedIdx){SPE.dragMode='rotate';SPE.rotStart={angle:Math.atan2(pos.y-a.y,pos.x-a.x),startRot:a.rotation||0};SPE.selectedIdx=i;redrawSPE();return;}
-      if(Math.abs(pos.x-a.x)<100&&Math.abs(pos.y-a.y)<18){SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;}
+      if(Math.abs(pos.x-a.x)<120&&Math.abs(pos.y-a.y)<24){
+        // If already selected, tap again opens editor
+        if(SPE.selectedIdx===i){spEditLabelAt(i);return;}
+        SPE.selectedIdx=i;SPE.dragMode='move';SPE.dragStart={ox:a.x-pos.x,oy:a.y-pos.y};redrawSPE();return;
+      }
     }
   }
   SPE.selectedIdx=-1;SPE.dragMode=null;redrawSPE();
@@ -5478,7 +5497,8 @@ window.addEventListener('resize',function(){var img=getSPEImg();var c=getSPECanv
   <!-- Tool bar -->
   <div style="display:flex;align-items:center;gap:6px;padding:.5rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.92);flex-shrink:0;flex-wrap:wrap">
     <span style="font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-right:2px">Place:</span>
-    <button class="spe-tool-btn" data-tool="Inverter / Battery">Inverter / Battery</button>
+    <button class="spe-tool-btn" data-tool="Inverter">Inverter</button>
+    <button class="spe-tool-btn" data-tool="Battery">Battery</button>
     <button class="spe-tool-btn" data-tool="Main Panel / Meter">Main Panel / Meter</button>
     <button class="spe-tool-btn" data-tool="AC Disconnect">AC Disconnect</button>
     <button class="spe-tool-btn" data-tool="Sub Panel">Sub Panel</button>
