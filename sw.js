@@ -1,21 +1,26 @@
-const VERSION = 'v96';
+const VERSION = 'v112';
 
 // On install - skip waiting to activate immediately
 self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// On activate - take control of all pages immediately  
+// On activate - take control of all pages immediately
 self.addEventListener('activate', event => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
-// On fetch - always get fresh HTML from network, cache everything else normally
+// Fetch - network first, fallback to cache
 self.addEventListener('fetch', event => {
-  if (event.request.url.includes('aveyo-dashboard.html')) {
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .catch(() => caches.match(event.request))
-    );
-  }
+  event.respondWith(
+    fetch(event.request).then(response => {
+      const clone = response.clone();
+      caches.open(VERSION).then(cache => cache.put(event.request, clone));
+      return response;
+    }).catch(() => caches.match(event.request))
+  );
 });
