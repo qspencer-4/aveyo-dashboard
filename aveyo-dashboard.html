@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Aveyo"/>
 <meta name="theme-color" content="#185FA5"/>
-<title>Aveyo Solar v112</title>
+<title>Aveyo Solar v113</title>
 <style>
 @font-face {
   font-family: 'PPTelegraf';
@@ -352,12 +352,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     color:var(--text2);white-space:nowrap;user-select:none;
   }
   .split-tab:hover{background:var(--bg3)}
-  .split-tab.active-left{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .split-tab.active-right{background:rgba(173,216,230,.05)!important;border-color:rgba(173,216,230,.25)!important;color:#ADD8E6!important}
+  .split-tab.active-tab{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.35);color:#fff}
   .split-panels{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:0;
+    display:block;
     flex:1;
     overflow:hidden;
     min-height:0;
@@ -675,8 +672,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 .split-top{background:rgba(10,10,10,.97)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;backdrop-filter:blur(24px)}
 .split-section-tabs{background:rgba(10,10,10,.9)!important;border-bottom:1px solid rgba(255,255,255,.06)!important;gap:4px!important;padding:8px 1rem!important}
 .split-tab{background:transparent!important;border:1px solid rgba(255,255,255,.09)!important;color:rgba(255,255,255,.3)!important;border-radius:2px!important;font-size:7px!important;letter-spacing:.18em!important;text-transform:uppercase!important;padding:5px 10px!important;transition:all .15s;font-family:'PPTelegraf',sans-serif!important}
-.split-tab.active-left{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.35)!important;color:#fff!important}
-.split-tab.active-right{background:rgba(173,216,230,0.05)!important;border-color:rgba(173,216,230,.25)!important;color:#ADD8E6!important}
+.split-tab.active-tab{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.35)!important;color:#fff!important}
 .split-panel{border-right:1px solid rgba(255,255,255,.05)!important;background:#0a0a0a!important}
 .split-panel-label{font-size:8px!important;letter-spacing:.28em!important;text-transform:uppercase!important;color:rgba(255,255,255,.18)!important;padding:.875rem 0 .5rem!important}
 
@@ -997,27 +993,16 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   min-width:60px!important;text-align:center!important;
 }
 
-/* Split section tabs — centered with group labels */
+/* Split section tabs — project-centric */
 .split-section-tabs{
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:0!important;
-  padding:0!important;
+  gap:4px!important;
+  padding:0 1rem!important;
   background:rgba(0,0,0,.9)!important;
   border-bottom:1px solid rgba(255,255,255,.05)!important;
   height:42px!important;
-}
-.split-tab-group{
-  display:flex;align-items:center;gap:2px;padding:0 1rem;
-}
-.split-tab-group-label{
-  font-size:7px!important;letter-spacing:.24em!important;text-transform:uppercase!important;
-  color:rgba(255,255,255,.15)!important;margin-right:8px!important;
-  font-family:'PPTelegraf',sans-serif!important;
-}
-.split-tab-div{
-  width:1px;height:20px;background:rgba(255,255,255,.08);margin:0 .5rem;
 }
 .split-tab{
   padding:5px 12px!important;font-size:8px!important;letter-spacing:.14em!important;
@@ -1028,38 +1013,19 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   font-family:'PPTelegraf',sans-serif!important;
 }
 .split-tab:hover{color:rgba(255,255,255,.6)!important}
-.split-tab.active-left{
+.split-tab.active-tab{
   color:#fff!important;
   border-bottom-color:#fff!important;
 }
-.split-tab.active-right{
-  color:#ADD8E6!important;
-  border-bottom-color:#ADD8E6!important;
-  text-shadow:0 0 12px rgba(173,216,230,.5)!important;
-}
 
-/* Split panels — full height, no top padding */
+/* Split panels — full height */
 .split-panels{
-  display:grid!important;
-  grid-template-columns:1fr 1fr!important;
+  display:block!important;
 }
 .split-panel{
   height:calc(100vh - 280px)!important;
   overflow-y:auto!important;
   background:#000!important;
-  border-right:1px solid rgba(255,255,255,.04)!important;
-}
-.split-panel-label{
-  display:none!important;
-}
-
-/* Active glow on selected elements */
-.split-tab.active-left,.split-tab.active-right{
-  position:relative;
-}
-.split-tab.active-right::before{
-  content:'';position:absolute;inset:0;
-  background:rgba(173,216,230,.04);border-radius:2px;pointer-events:none;
 }
 
 /* Active nav glow */
@@ -1233,16 +1199,10 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   }
 }
 
-/* Mobile: split panels stack vertically */
+/* Mobile: single panel */
 @media(max-width:767px){
-  .split-panels{
-    grid-template-columns:1fr!important;
-  }
   .split-panel{
-    max-height:50vh;
     overflow-y:auto;
-    border-right:none!important;
-    border-bottom:1px solid rgba(255,255,255,.05);
   }
 }
 
@@ -1280,7 +1240,7 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <div style="flex:1;min-width:0">
       <div style="display:flex;align-items:center;gap:8px">
         <div class="hdr-title">Aveyo</div>
-        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v112</span>
+        <span style="background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase">v113</span>
       </div>
       <div class="hdr-sub" id="hdr-sub" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:1px">Dashboard</div>
     </div>
@@ -1371,34 +1331,18 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
       </div>
       <div id="split-proj-nav" style="margin-top:6px"></div>
     </div>
-    <!-- SPLIT SECTION TABS (desktop only) -->
+    <!-- PROJECT TABS -->
     <div class="split-section-tabs" id="split-section-tabs" style="display:none">
-      <div class="split-tab-group">
-        <span class="split-tab-group-label">View</span>
-        <span class="split-tab active-left" data-section="milestones" data-side="left">Milestones</span>
-        <span class="split-tab" data-section="details" data-side="left">Details</span>
-        <span class="split-tab" data-section="comments" data-side="left">Comments</span>
-        <span class="split-tab" data-section="workorders" data-side="left">Work Orders</span>
-        <span class="split-tab" data-section="tickets" data-side="left">Tickets</span>
-        <span class="split-tab" data-section="notes" data-side="left">Notes</span>
-      </div>
-      <div class="split-tab-div"></div>
-      <div class="split-tab-group">
-        <span class="split-tab-group-label">Action</span>
-        <span class="split-tab active-right" data-section="rep" data-side="right">Rep Update</span>
-        <span class="split-tab" data-section="customer" data-side="right">Customer Text</span>
-        <span class="split-tab" data-section="review" data-side="right">Project Review</span>
-      </div>
+      <span class="split-tab active-tab" data-section="milestones">Milestones</span>
+      <span class="split-tab" data-section="sow">SOW</span>
+      <span class="split-tab" data-section="communicate">Communicate</span>
+      <span class="split-tab" data-section="files">Files</span>
+      <span class="split-tab" data-section="activity">Activity</span>
     </div>
-    <!-- SPLIT PANELS (desktop only) -->
+    <!-- PROJECT TAB CONTENT -->
     <div class="split-panels" id="split-panels" style="display:none">
-      <div class="split-panel" id="split-left">
-        <div class="split-panel-label" id="split-left-label">Milestones</div>
-        <div id="split-left-content"></div>
-      </div>
-      <div class="split-panel" id="split-right">
-        <div class="split-panel-label" id="split-right-label">Rep Update</div>
-        <div id="split-right-content"></div>
+      <div class="split-panel" id="split-main-panel" style="border:none">
+        <div id="split-main-content"></div>
       </div>
     </div>
     <div class="back-bar" id="detail-back">
@@ -1421,14 +1365,8 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <button class="bnav-btn" id="nav-projects">
       <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Projects</span>
     </button>
-    <button class="bnav-btn" id="nav-sow">
-      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>SOW</span>
-    </button>
     <button class="bnav-btn" id="nav-action">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Action</span>
-    </button>
-    <button class="bnav-btn" id="nav-comm">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Comms</span>
     </button>
     <button class="bnav-btn" id="nav-kb">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge</span>
@@ -1558,8 +1496,8 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v112';
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
+const VERSION='v113';
+const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed'};
 function showView(v){
   // Always close split view when navigating away from detail
   if(v !== 'detail'){
@@ -1577,7 +1515,7 @@ function showView(v){
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
-  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='action'||v==='comm')?'block':'none';
+  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='action')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
   if(isAuth){ stopPolling(); } else { startPolling(); }
   document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
@@ -1585,9 +1523,7 @@ function showView(v){
 function setActiveNav(tab){
   document.getElementById('nav-home').classList.toggle('active',tab==='home');
   document.getElementById('nav-projects').classList.toggle('active',tab==='projects');
-  document.getElementById('nav-sow').classList.toggle('active',tab==='sow');
   document.getElementById('nav-action').classList.toggle('active',tab==='action');
-  document.getElementById('nav-comm').classList.toggle('active',tab==='comm');
   document.getElementById('nav-kb').classList.toggle('active',tab==='kb');
 }
 
@@ -1597,9 +1533,7 @@ document.getElementById('btn-demo').addEventListener('click',enterDemoMode);
 document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
-document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sow');loadSOW();});
 document.getElementById('nav-action').addEventListener('click',()=>{setActiveNav('action');showView('action');loadAction();});
-document.getElementById('nav-comm').addEventListener('click',()=>{setActiveNav('comm');showView('comm');loadComm();});
 document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
 document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
@@ -1683,9 +1617,7 @@ function doRefresh(){
   if(!active)return;
   if(active.id==='view-home'){clearCache();loadHome();}
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
-  else if(active.id==='view-sow'){SOW_ITEMS=[];loadSOW();}
   else if(active.id==='view-action'){loadAction();}
-  else if(active.id==='view-comm'){loadComm();}
 }
 
 
@@ -2524,9 +2456,9 @@ function openDetail(itemId){
   const splitBackEl = document.getElementById('split-back-label');
   if(splitBackEl) splitBackEl.textContent = backLabel;
 
-  // Always reset to default tabs: Milestones left, Rep Update right
-  SPLIT_LEFT = 'milestones';
-  SPLIT_RIGHT = 'rep';
+  // Always reset to default tab
+  SPLIT_ACTIVE_TAB = 'milestones';
+  SPLIT_SOW_ITEM = null;
 
   buildDetail(item);
   showView('detail');
@@ -4573,9 +4505,9 @@ document.getElementById('kb-search-input').addEventListener('input',function(){
 
 // ── DESKTOP SPLIT VIEW ────────────────────────────────────
 
-let SPLIT_LEFT = 'milestones';
-let SPLIT_RIGHT = 'rep';
+let SPLIT_ACTIVE_TAB = 'milestones';
 let SPLIT_ITEM = null;
+let SPLIT_SOW_ITEM = null; // cached SOW item for current project
 
 function initSplitView(item){
   SPLIT_ITEM = item;
@@ -4583,7 +4515,7 @@ function initSplitView(item){
   // Show split elements
   document.getElementById('split-top').style.display = 'block';
   document.getElementById('split-section-tabs').style.display = 'flex';
-  document.getElementById('split-panels').style.display = 'grid';
+  document.getElementById('split-panels').style.display = 'block';
   document.getElementById('view-detail').classList.add('split-view');
 
   // ── Build full-width project banner ──
@@ -4682,9 +4614,8 @@ function initSplitView(item){
   if(nextBtn) nextBtn.disabled = idx >= total-1;
   if(posEl && total) posEl.textContent = (idx+1) + ' of ' + total;
 
-  // Render default panels
-  renderSplitPanel('left', SPLIT_LEFT, item);
-  renderSplitPanel('right', SPLIT_RIGHT, item);
+  // Render active tab
+  renderSplitPanel(SPLIT_ACTIVE_TAB, item);
   updateSplitTabs();
 }
 
@@ -4724,84 +4655,328 @@ function initSplitView(item){
 
 function updateSplitTabs(){
   document.querySelectorAll('.split-tab').forEach(tab=>{
-    const s = tab.dataset.section;
-    const side = tab.dataset.side;
-    tab.classList.remove('active-left','active-right');
-    if(side === 'left' && s === SPLIT_LEFT) tab.classList.add('active-left');
-    if(side === 'right' && s === SPLIT_RIGHT) tab.classList.add('active-right');
+    tab.classList.remove('active-tab');
+    if(tab.dataset.section === SPLIT_ACTIVE_TAB) tab.classList.add('active-tab');
   });
 }
 
-function renderSplitPanel(side, section, item){
-  const el = document.getElementById('split-'+side+'-content');
-  const label = document.getElementById('split-'+side+'-label');
+function renderSplitPanel(section, item){
+  const el = document.getElementById('split-main-content');
   if(!el || !item) return;
-  const titles = {
-    milestones:'Milestones', details:'Project Details', comments:'Comments',
-    workorders:'Work Orders', tickets:'Support Tickets', notes:'Notes',
-    rep:'Rep Update', customer:'Customer Text', review:'Project Review'
-  };
-  if(label) label.textContent = titles[section]||section;
   el.innerHTML = buildSplitSection(section, item);
 }
 
 function buildSplitSection(section, item){
-  // Reuse the already-built detail HTML sections
   const detailBody = document.getElementById('detail-body');
   if(!detailBody) return '<div style="color:var(--text3);font-size:13px;padding:.5rem">Loading...</div>';
 
-  const sectionMap = {
-    milestones: '.collapsible:has(.coll-title)',
-    details: '.collapsible:first-child',
-    comments: null,
-    workorders: null,
-    tickets: null,
-    notes: null,
-    rep: null,
-    customer: null,
-    review: null
-  };
-
-  // Find section in built detail body
-  const collapsibles = detailBody.querySelectorAll('.collapsible');
-  const inlineCompose = detailBody.querySelectorAll('.inline-compose');
-
-  const sectionLabels = {
-    details: ['Project details'],
-    milestones: ['Milestones', 'Funding'],
-    comments: ['Comments'],
-    workorders: ['Work orders'],
-    tickets: ['Support tickets'],
-    notes: ['Project notes'],
-  };
-
-  const composeSections = {
-    rep: 0,
-    customer: 1,
-    review: 2
-  };
-
-  if(section in composeSections){
-    const compose = inlineCompose[composeSections[section]];
-    return compose ? compose.outerHTML : '<div style="color:var(--text3);font-size:13px">Not found</div>';
+  if(section === 'milestones'){
+    return buildMilestonesTab(item, detailBody);
   }
+  if(section === 'sow'){
+    return buildSOWTab(item);
+  }
+  if(section === 'communicate'){
+    return buildCommunicateTab(item, detailBody);
+  }
+  if(section === 'files'){
+    return buildFilesTab(item);
+  }
+  if(section === 'activity'){
+    return buildActivityTab(item, detailBody);
+  }
+  return '<div style="color:var(--text3);font-size:13px;padding:.5rem">No data available</div>';
+}
 
-  if(section in sectionLabels){
-    const keywords = sectionLabels[section];
-    for(const coll of collapsibles){
-      const title = coll.querySelector('.coll-title');
-      if(title && keywords.some(k => title.textContent.toLowerCase().includes(k.toLowerCase()))){
-        // Clone and open it
-        const clone = coll.cloneNode(true);
-        clone.classList.add('open');
-        const arrow = clone.querySelector('.coll-arrow');
-        if(arrow) arrow.style.transform = 'rotate(180deg)';
-        return clone.outerHTML;
-      }
+function findCollapsible(detailBody, keywords){
+  const collapsibles = detailBody.querySelectorAll('.collapsible');
+  for(const coll of collapsibles){
+    const title = coll.querySelector('.coll-title');
+    if(title && keywords.some(k => title.textContent.toLowerCase().includes(k.toLowerCase()))){
+      const clone = coll.cloneNode(true);
+      clone.classList.add('open');
+      const arrow = clone.querySelector('.coll-arrow');
+      if(arrow) arrow.style.transform = 'rotate(180deg)';
+      return clone.outerHTML;
     }
   }
+  return '';
+}
 
-  return '<div style="color:var(--text3);font-size:13px;padding:.5rem">No data available</div>';
+function buildMilestonesTab(item, detailBody){
+  let html = '';
+  // Project details section
+  html += findCollapsible(detailBody, ['Project details']);
+  // Milestones section
+  html += findCollapsible(detailBody, ['Milestones', 'Funding']);
+  // Work orders
+  html += findCollapsible(detailBody, ['Work orders']);
+  // Tickets
+  html += findCollapsible(detailBody, ['Support tickets']);
+  // Notes
+  html += findCollapsible(detailBody, ['Project notes']);
+  return html || '<div style="color:var(--text3);font-size:13px;padding:.5rem">No milestone data</div>';
+}
+
+function buildSOWTab(item){
+  // If we already have the SOW item cached, render it
+  if(SPLIT_SOW_ITEM){
+    return buildInlineSOWDetail(SPLIT_SOW_ITEM);
+  }
+  // Find linked SOW item — search SOW_ITEMS by project title match, or fetch via API
+  const projectId = item.id;
+  // Trigger async fetch, show loading
+  fetchSOWForProject(item);
+  return `<div style="padding:1.5rem;text-align:center">
+    <div class="spinner" style="margin:0 auto 1rem;width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);animation:spin 1s linear infinite"></div>
+    <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3)">Loading scope of work...</div>
+  </div>`;
+}
+
+async function fetchSOWForProject(item){
+  try{
+    // Try to find SOW item by matching project title or fetching from Podio
+    // SOW items have a relationship field (266487957) linking to the project
+    const raw = await fetchAllItems(SOW_APP_ID, 61743309); // "Total in SOW" view
+    // Match by project title — SOW titles are like "#123 Name - Address"
+    const projNum = (item.num||'').replace('#','').trim();
+    let match = null;
+    if(projNum){
+      match = raw.find(s => {
+        const sowNum = (s.title||'').match(/^#?(\d+)/);
+        return sowNum && sowNum[1] === projNum;
+      });
+    }
+    if(!match){
+      // Fallback: match by name
+      const projName = (item.name||'').toLowerCase().trim();
+      if(projName) match = raw.find(s => (s.title||'').toLowerCase().includes(projName));
+    }
+    if(match){
+      SPLIT_SOW_ITEM = match;
+      // Re-render if still on SOW tab
+      if(SPLIT_ACTIVE_TAB === 'sow' && SPLIT_ITEM){
+        const el = document.getElementById('split-main-content');
+        if(el){
+          el.innerHTML = buildInlineSOWDetail(match);
+          loadSoldProduction(match.item_id);
+        }
+      }
+    } else {
+      const el = document.getElementById('split-main-content');
+      if(el && SPLIT_ACTIVE_TAB === 'sow'){
+        el.innerHTML = '<div style="padding:1.5rem;text-align:center;font-size:11px;color:rgba(255,255,255,.3)">No SOW item found for this project.</div>';
+      }
+    }
+  }catch(e){
+    const el = document.getElementById('split-main-content');
+    if(el && SPLIT_ACTIVE_TAB === 'sow'){
+      el.innerHTML = '<div style="padding:1rem;font-size:11px;color:#C97850">Error loading SOW: '+x(e.message)+'</div>';
+    }
+  }
+}
+
+function buildInlineSOWDetail(sowItem){
+  const fields = sowItem.fields||[];
+  const title = sowItem.title||'';
+  const iid = sowItem.item_id;
+
+  const systemMatches  = sowFV(fields, SOW_FIELD.systemSizeMatches);
+  const priceMatches   = sowFV(fields, SOW_FIELD.contractPriceMatches);
+  const designMatches  = sowFV(fields, SOW_FIELD.designMatches);
+  const electricalWork = sowFV(fields, SOW_FIELD.electricalWork);
+  const structUpgrade  = sowFV(fields, SOW_FIELD.structuralUpgrade);
+  const roofReview     = sowFV(fields, SOW_FIELD.roofReview);
+  const repScopeApproval = sowFV(fields, SOW_FIELD.repScopeApproval);
+  const customerSOW    = sowFV(fields, SOW_FIELD.customerSOWStatus);
+  const permitDesign   = sowFV(fields, SOW_FIELD.permitDesign);
+  const repDesign      = sowFV(fields, SOW_FIELD.repDesignApproval);
+  const redline        = sowFV(fields, SOW_FIELD.redlineAnalysis);
+  const systemSize     = sowFV(fields, SOW_FIELD.systemSize);
+  const contractPrice  = sowFV(fields, SOW_FIELD.contractPrice);
+  const sowNotes       = sowFV(fields, SOW_FIELD.sowNotes);
+
+  const latF = fields.find(f=>f.field_id===270979699);
+  const lngF = fields.find(f=>f.field_id===270979698);
+  const lat = latF?.values?.[0]?.value;
+  const lng = lngF?.values?.[0]?.value;
+  const distInfo = getDistanceAdder(lat, lng);
+
+  const fundingField = fields.find(f=>f.field_id===268339026);
+  const fundingRaw = fundingField?.values?.[0]?.value || '';
+  const lrMatch = fundingRaw.match(/Contract Price[*\s:]+\$?([\d,\.]+)/);
+  const lrPrice = lrMatch ? lrMatch[1].replace(/,/g,'') : null;
+
+  function sowDD(key, fid, val){
+    const opts = {
+      systemSizeMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      contractPriceMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      designMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      roofReview:[{id:1,t:'Roof Work Needed'},{id:2,t:'Roof is Approved'}],
+      electricalWork:[{id:2,t:'Not Needed'},{id:1,t:'Yes'},{id:3,t:'200 AMP'},{id:4,t:'400 AMP'},{id:5,t:'Derate'},{id:6,t:'Relocation'},{id:7,t:'Line Side Tap'},{id:8,t:'Battery System'},{id:9,t:'DMS'},{id:10,t:'Other'}],
+      structuralUpgrade:[{id:1,t:'Yes'},{id:2,t:'No'}],
+      repScopeApproval:[{id:1,t:'Ready to Send'},{id:2,t:'Sent for Approval'},{id:3,t:'Approved'},{id:4,t:'Rejected'},{id:5,t:'Resolving Issues'}],
+      customerSOWStatus:[{id:1,t:'New'},{id:5,t:'Updated - Trigger Processing'},{id:6,t:'Not Sent'},{id:2,t:'Sent to Customer'},{id:7,t:'Approved'},{id:8,t:'Rejected'},{id:3,t:'Comment Received'},{id:4,t:'Comment Handled'}],
+    }[key]||[];
+    const o = opts.map(o=>`<option value="${o.id}" ${val===o.t?'selected':''}>${x(o.t)}</option>`).join('');
+    return `<select class="sow-dropdown" data-sow-field="${fid}" data-sow-item="${iid}" style="max-width:200px"><option value="">— Not set —</option>${o}</select>`;
+  }
+
+  function vc(val,good,warn){
+    if(!val) return '';
+    const v=val.toLowerCase();
+    if(good.some(g=>v.includes(g))) return 'good';
+    if(warn.some(w=>v.includes(w))) return 'warn';
+    return '';
+  }
+
+  const verifyRows = [
+    {label:'System Size Matches',key:'systemSizeMatches',fid:SOW_FIELD.systemSizeMatches,val:systemMatches,good:['yes'],warn:['no'],hint:systemSize?`Podio: ${systemSize} kW`:''},
+    {label:'Contract Price Matches',key:'contractPriceMatches',fid:SOW_FIELD.contractPriceMatches,val:priceMatches,good:['yes'],warn:['no'],hint:contractPrice?`Podio: $${parseFloat(contractPrice).toLocaleString()}${lrPrice?' · LR: $'+parseFloat(lrPrice).toLocaleString():''}` :''},
+    {label:'Design Matches',key:'designMatches',fid:SOW_FIELD.designMatches,val:designMatches,good:['yes'],warn:['no'],hint:'Customer docs vs approved planset'},
+    {label:'Roof Review',key:'roofReview',fid:SOW_FIELD.roofReview,val:roofReview,good:['approved'],warn:['needed'],hint:'Check site survey report'},
+    {label:'Electrical Work',key:'electricalWork',fid:SOW_FIELD.electricalWork,val:electricalWork,good:['not needed'],warn:['yes','200','400','derate','reloc','line','battery','dms','other'],hint:''},
+    {label:'Structural Upgrade',key:'structuralUpgrade',fid:SOW_FIELD.structuralUpgrade,val:structUpgrade,good:['no'],warn:['yes'],hint:'Check PE letter'},
+    {label:'Rep Scope Approval',key:'repScopeApproval',fid:SOW_FIELD.repScopeApproval,val:repScopeApproval,good:['approved'],warn:['rejected'],hint:''},
+    {label:'Customer SOW Status',key:'customerSOWStatus',fid:SOW_FIELD.customerSOWStatus,val:customerSOW,good:['approved'],warn:['rejected'],hint:''},
+  ];
+
+  const verifyHTML = verifyRows.map(r=>{
+    const cls=vc(r.val,r.good,r.warn);
+    const dot=cls==='good'?'—':cls==='warn'?'—':'—';
+    const dc=cls==='good'?'rgba(255,255,255,.9)':cls==='warn'?'#C97850':'rgba(255,255,255,.3)';
+    return `<div class="sow-field-row">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:700;color:${dc};width:16px">${dot}</span>
+          <span style="font-size:12px;font-weight:600;color:var(--text)">${x(r.label)}</span>
+        </div>
+        ${r.hint?`<div style="font-size:11px;color:var(--text3);margin:0 0 4px 22px">${x(r.hint)}</div>`:''}
+        <div style="margin-left:22px">${sowDD(r.key,r.fid,r.val)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const distHTML = distInfo ? `
+    <div class="sow-info-row"><span class="sow-info-key">Nearest branch</span><span class="sow-info-val">${distInfo.dist} mi · ${x(distInfo.branch)}</span></div>
+    <div class="sow-info-row"><span class="sow-info-key">Distance adder</span><span class="sow-info-val ${distInfo.tier?'amber':'good'}">${distInfo.tier?x(distInfo.tier)+' — '+x(distInfo.cost):'None required'}</span></div>` : '';
+
+  const statusHTML = [
+    {label:'Permit Design',val:permitDesign,good:['approved'],warn:['rejected']},
+    {label:'Rep Design Approval',val:repDesign,good:['approved'],warn:['rejected']},
+    {label:'Redline Analysis',val:redline,good:['above'],warn:['below','trigger']},
+  ].map(r=>`<div class="sow-info-row"><span class="sow-info-key">${x(r.label)}</span><span class="sow-info-val ${vc(r.val,r.good,r.warn)}">${x(r.val||'—')}</span></div>`).join('');
+
+  const cached = SOW_EXTRACT_CACHE[iid];
+
+  return `
+    <div class="sow-section">
+      <div class="sow-section-hdr">Project Info</div>
+      <div class="sow-info-row"><span class="sow-info-key">System Size</span><span class="sow-info-val">${x(systemSize?systemSize+' kW':'—')}</span></div>
+      <div class="sow-info-row"><span class="sow-info-key">Contract Price (Podio)</span><span class="sow-info-val">${x(contractPrice?'$'+parseFloat(contractPrice).toLocaleString():'—')}</span></div>
+      ${lrPrice?`<div class="sow-info-row"><span class="sow-info-key">Contract Price (LightReach)</span><span class="sow-info-val ${Math.abs(parseFloat(contractPrice||0)-parseFloat(lrPrice))<1?'good':'warn'}">$${parseFloat(lrPrice).toLocaleString()}</span></div>`:''}
+    </div>
+    <div class="sow-section">
+      <div class="sow-section-hdr">Verification Checklist <span style="font-weight:400;text-transform:none;font-size:10px;letter-spacing:0">(saves to Podio)</span></div>
+      ${verifyHTML}
+    </div>
+    <div class="sow-section">
+      <div class="sow-section-hdr">Status</div>
+      ${statusHTML}
+    </div>
+    <div class="sow-section">
+      <div class="sow-section-hdr">Distance</div>
+      ${distHTML}
+    </div>
+    <div class="sow-section">
+      <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
+        <span>PDF Analysis & Adders</span>
+        <button class="btn" style="font-size:11px;padding:3px 10px" data-sowrun="${iid}">Run Check</button>
+      </div>
+      <div id="sow-extract-results-${iid}">${buildExtractHTML(cached)}</div>
+    </div>
+    ${sowNotes?`<div class="collapsible open" style="margin:.75rem"><div class="coll-hdr"><span class="coll-title">SOW Notes</span><svg class="coll-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="coll-body"><div class="notes-body">${x(sowNotes)}</div></div></div>`:''}
+    <div class="sow-section" id="sow-siteplan-section-${iid}">
+      <div class="sow-section-hdr" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Site Plan</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:10px;padding:3px 12px" data-sp-auto="${iid}">Auto Generate</button>
+          <button class="btn" style="font-size:10px;padding:3px 12px;opacity:.6" onclick="openSitePlanEditor(${iid},(document.querySelector('.proj-banner-name')||document.querySelector('.detail-name')||{textContent:''}).textContent)">Manual Editor</button>
+        </div>
+      </div>
+      <div id="sow-siteplan-results-${iid}">
+        <div style="padding:.875rem 1.25rem;font-size:11px;color:rgba(255,255,255,.25)">
+          Auto Generate finds the site plan page and annotates equipment automatically. Use Manual Editor to annotate yourself.
+        </div>
+      </div>
+    </div>
+    <div class="sow-production-box">
+      <div class="sow-production-hdr">Production Check</div>
+      <div class="sow-production-body">
+        <div class="sow-production-row"><span class="sow-production-label">Sold production (Podio)</span><span class="sow-production-val" id="sow-sold-prod-${iid}">Loading...</span></div>
+        <div class="sow-production-row"><span class="sow-production-label">New production (planset)</span><span class="sow-production-val">Enter below</span></div>
+        <input type="number" class="sow-production-input" id="sow-new-prod-${iid}" placeholder="Enter new kWh e.g. 12500"/>
+        <button class="sow-co-btn" id="sow-co-btn-${iid}" data-sowitemid="${iid}">Check & Create Change Order if Needed</button>
+        <div class="sow-co-result" id="sow-co-result-${iid}" style="display:none"></div>
+      </div>
+    </div>
+    <div style="padding:0 .75rem .75rem">
+      <a href="https://podio.com/aveyo/projects/apps/scope-of-work/items/${iid}" target="_blank">
+        <button class="btn btn-outline" style="font-size:12px">Open in Podio</button>
+      </a>
+    </div>`;
+}
+
+function buildCommunicateTab(item, detailBody){
+  const inlineCompose = detailBody.querySelectorAll('.inline-compose');
+  let html = '';
+  // Rep Update
+  if(inlineCompose[0]) html += inlineCompose[0].outerHTML;
+  // Customer Text
+  if(inlineCompose[1]) html += inlineCompose[1].outerHTML;
+  // Project Review
+  if(inlineCompose[2]) html += inlineCompose[2].outerHTML;
+  return html || '<div style="color:var(--text3);font-size:13px;padding:.5rem">No compose sections available</div>';
+}
+
+function buildFilesTab(item){
+  const fields = item.raw?.fields || [];
+  const driveFolderDefs = [
+    {label:'Parent Folder',fid:266618729},
+    {label:'Site Survey',fid:266618728},
+    {label:'Design',fid:266618723},
+    {label:'Approved Planset',fid:268981903},
+    {label:'Customer Docs',fid:266618731},
+    {label:'Permit',fid:266618725},
+  ];
+  const links = driveFolderDefs.map(({label,fid})=>{
+    const f = fields.find(f=>f.field_id===fid);
+    const id = f?.values?.[0]?.value;
+    if(!id) return `<div class="sow-info-row"><span class="sow-info-key">${x(label)}</span><span class="sow-info-val" style="color:rgba(255,255,255,.2)">Not linked</span></div>`;
+    return `<div class="sow-info-row"><span class="sow-info-key">${x(label)}</span><span class="sow-info-val"><a href="https://drive.google.com/drive/folders/${id}" target="_blank" style="color:#ADD8E6;text-decoration:none;font-size:12px">Open folder</a></span></div>`;
+  }).join('');
+
+  // Also include the project nav links (Podio navigation field)
+  const navHTML = buildProjNav(item.raw);
+
+  return `
+    <div class="sow-section">
+      <div class="sow-section-hdr">Google Drive Folders</div>
+      ${links}
+    </div>
+    ${navHTML?`<div class="sow-section"><div class="sow-section-hdr">Project Links</div><div style="padding:.5rem .75rem">${navHTML}</div></div>`:''}
+    <div style="padding:.75rem">
+      <a href="https://podio.com/aveyo/projects/apps/project/items/${item.id}" target="_blank">
+        <button class="btn btn-outline" style="font-size:12px">Open in Podio</button>
+      </a>
+    </div>`;
+}
+
+function buildActivityTab(item, detailBody){
+  // Comments section
+  let html = findCollapsible(detailBody, ['Comments']);
+  if(!html) html = '<div style="color:var(--text3);font-size:13px;padding:.5rem">No comments</div>';
+  return html;
 }
 
 // Tab click handler
@@ -4809,17 +4984,13 @@ document.addEventListener('click', function(e){
   const tab = e.target.closest('.split-tab');
   if(!tab || !SPLIT_ITEM) return;
   const section = tab.dataset.section;
-  const side = tab.dataset.side;
-  // Left tabs always go to left panel
-  // Right tabs always go to right panel
-  if(side === 'left'){
-    SPLIT_LEFT = section;
-    renderSplitPanel('left', SPLIT_LEFT, SPLIT_ITEM);
-  } else if(side === 'right'){
-    SPLIT_RIGHT = section;
-    renderSplitPanel('right', SPLIT_RIGHT, SPLIT_ITEM);
-  }
+  SPLIT_ACTIVE_TAB = section;
+  renderSplitPanel(SPLIT_ACTIVE_TAB, SPLIT_ITEM);
   updateSplitTabs();
+  // Trigger SOW production load if switching to SOW tab with cached item
+  if(section === 'sow' && SPLIT_SOW_ITEM){
+    loadSoldProduction(SPLIT_SOW_ITEM.item_id);
+  }
 });
 
 function hideSplitView(){
@@ -4828,6 +4999,7 @@ function hideSplitView(){
   document.getElementById('split-panels').style.display = 'none';
   document.getElementById('view-detail').classList.remove('split-view');
   SPLIT_ITEM = null;
+  SPLIT_SOW_ITEM = null;
 }
 
 
