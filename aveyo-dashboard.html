@@ -1671,7 +1671,7 @@ document.getElementById('nav-review').addEventListener('click',()=>{setActiveNav
 document.getElementById('nav-change').addEventListener('click',()=>{setActiveNav('change');showView('change');loadChangeOrders();});
 document.getElementById('nav-roof').addEventListener('click',()=>{setActiveNav('roof');showView('roof');loadRoof();});
 document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
-document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav('home');});
+document.getElementById('wlist-back').addEventListener('click',()=>{showView(['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home');setActiveNav(['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home');});
 document.getElementById('detail-back').addEventListener('click',()=>{
   hideSplitView();
   showView(PREV_VIEW);
@@ -1772,7 +1772,7 @@ const DEMO_ITEMS = [
   {id:1004,num:'#06004',name:'Emily Wilson',address:'2233 Maple Dr, Rockford, IL 61101',title:'#06004 Emily Wilson - 2233 Maple Dr, Rockford, IL 61101',status:'Active',milestone:'Site Survey',lastReview:'2026-03-25',daysSince:4,lender:'LightReach',finance:'PPA',funding:'New Deal',comments:'2026-03-25 10:00:00 Design\nSite survey scheduled for 3/30.\n***',workOrders:'[WO-14400]\n**Type:** Site Survey\n**Status:** Scheduled\n**Appointment:** 03/30/2026\n**Description:** Initial site survey',repTickets:'',repInfo:'**Rep Name: **SAWYER KIEFFER\n**Phone: **4196721460\n**Email: **sawyer@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 03/15/2026 |\n|Packet Approval Status | In Progress |\n|SS Status | Scheduled |',fundingMilestones:'**M1 Status: **\n**M1 Earned Date: **\n**M2 Status: **\n**M2 Earned Date: **\n**M3 Status: **\n**M3 Earned Date: **',notes:'',raw:{}},
   {id:1005,num:'#06005',name:'James Thompson',address:'4455 Cedar Ln, Champaign, IL 61820',title:'#06005 James Thompson - 4455 Cedar Ln, Champaign, IL 61820',status:'Active',milestone:'Inspection',lastReview:'2026-03-18',daysSince:11,lender:'Mosaic',finance:'Loan',funding:'M1 Approved',comments:'2026-03-18 15:00:00 PM\nInspection scheduled for 3/31.\n***\n2026-03-12 09:00:00 Install\nInstall completed successfully.\n***',workOrders:'',repTickets:'',repInfo:'**Rep Name: **MIKE TORRES\n**Phone: **3125551234\n**Email: **mike@aveyo.com',milestones:'|STATUS/MILESTONE| |\n| --- | --- |\n|PROJECT STATUS | Active |\n|Contract Signed | 09/10/2025 |\n|Install Status | Complete |\n|Install Complete | 03/10/2026 |\n|AHJ Inspection Status | Ready for Inspection |',fundingMilestones:'**M1 Status: **Approved\n**M1 Earned Date: **10/15/2025\n**M2 Status: **\n**M2 Earned Date: **\n**M3 Status: **\n**M3 Earned Date: **',notes:'March 18 Review: Install done, inspection set for 3/31.',raw:{}},
 ];
-const DEMO_WIDGETS=[3,1,2,5,1,0,1,0,0,0,4,1,0,2,1,1,2,3,1];
+const DEMO_WIDGETS=[3,1,2,5,1,0,1,0,0,0,4,1,0,2,1,1,2,3,1,1];
 
 // ── CACHE ─────────────────────────────────────────────────
 const CACHE_KEY='aveyo_cache_v30';
@@ -2158,8 +2158,10 @@ function updateNavBadges(){
 
 // ── TIMER HELPERS ────────────────────────────────────────
 function timerClass(days,reviewMode){
-  if(reviewMode){return days<=3?'fresh':days<=7?'moderate':'overdue';}
-  return days<=1?'fresh':days<=3?'moderate':'overdue';
+  if(reviewMode) return days>=7?'overdue':'fresh';
+  if(days>=14) return 'overdue';
+  if(days>=3) return 'moderate';
+  return 'fresh';
 }
 function timerText(dateStr){
   if(!dateStr)return{text:'--',days:0};
@@ -2621,7 +2623,7 @@ function openDetail(itemId){
   CURRENT_ITEM_ID = itemId;
 
   // Build the navigation list for Prev/Next
-  if(PREV_VIEW==='projects'){
+  if(PREV_VIEW==='home'){
     const q=(document.getElementById('search-input')?.value||'').toLowerCase();
     let items=ALL_ITEMS;
     if(FILTER!=='All') items=items.filter(i=>i.milestone===FILTER);
@@ -2653,7 +2655,7 @@ function openDetail(itemId){
   window.scrollTo(0,0);
 
   // Active nav — highlight where user came from
-  const navSource = ['home','action','kb'].includes(PREV_VIEW)?PREV_VIEW:'projects';
+  const navSource = ['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home';
   setActiveNav(navSource);
 
   // Always init split view — both desktop and mobile
@@ -3655,7 +3657,7 @@ function renderCommContent(){
 function openComposeFromComm(itemId, type){
   const item = ALL_ITEMS.find(i=>i.id===itemId);
   if(!item) return;
-  PREV_VIEW='comm';
+  PREV_VIEW='comms';
   CURRENT_LIST=[...ALL_ITEMS];
   CURRENT_ITEM_ID=itemId;
   buildDetail(item);
@@ -3672,7 +3674,7 @@ function openComposeFromComm(itemId, type){
 function openDetailFromComm(itemId){
   const item = ALL_ITEMS.find(i=>i.id===itemId);
   if(!item) return;
-  PREV_VIEW='comm';
+  PREV_VIEW='comms';
   CURRENT_LIST=[...ALL_ITEMS];
   CURRENT_ITEM_ID=itemId;
   buildDetail(item);
@@ -4813,7 +4815,7 @@ function initSplitView(item){
   function onSplitBack(){
     hideSplitView();
     showView(PREV_VIEW);
-    setActiveNav(PREV_VIEW==='projects'?'projects':'home');
+    setActiveNav(['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home');
     const scrollKey = PREV_VIEW + '_scroll';
     if(SCROLL_POS[scrollKey]) window.scrollTo(0, SCROLL_POS[scrollKey]);
   }
