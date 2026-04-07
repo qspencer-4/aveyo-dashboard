@@ -1618,6 +1618,8 @@ let ALL_ITEMS=[];       // projects tab
 let WLIST_ITEMS=[];     // widget list items
 let FILTER='All';
 let PREV_VIEW='home';   // where detail came from
+let TICKETS_ITEMS = [];
+let TICKETS_FILTER = 'all';
 let WLIST_LABEL='';
 let CURRENT_WI=-1;
 
@@ -2126,7 +2128,67 @@ async function loadHome(){
 }
 
 // ── RESPONSIBILITY TAB STUBS ─────────────────────────────
-function loadTickets(){document.getElementById('tickets-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+async function loadTickets(){
+  if(TICKETS_ITEMS.length){ renderTickets(); return; }
+  document.getElementById('tickets-loading').style.display='block';
+  document.getElementById('tickets-list').innerHTML='';
+  try{
+    const raw = await fetchAllItems(29840119, 61747488);
+    TICKETS_ITEMS = raw.map(item=>{
+      const fields = item.fields||[];
+      const fv = (fid)=>{ const f=fields.find(f=>f.field_id===fid); return f?.values?.[0]?.value?.text||f?.values?.[0]?.value||''; };
+      const title = item.title||'';
+      const status = fv(266494686)||'Open';
+      const desc = fv(266494687)||'';
+      const created = item.created_on||'';
+      const createdBy = item.created_by?.name||'';
+      const parts = title.split(' - ');
+      const name = parts[0]?.replace(/^#\S+\s*/,'').trim()||title;
+      const address = parts[1]?.trim()||'';
+      const tidMatch = title.match(/^#?(\d+)/);
+      const tid = tidMatch?tidMatch[1]:String(item.item_id);
+      return {id:item.item_id, tid:'#'+tid, name, address, status:String(status).trim(), desc:String(desc).substring(0,200), created, createdBy, raw:item};
+    });
+    renderTickets();
+  }catch(e){
+    document.getElementById('tickets-list').innerHTML='<div class="resp-row"><div class="resp-row-desc" style="color:#E88B8B">Error: '+x(e.message)+'</div></div>';
+  }
+  document.getElementById('tickets-loading').style.display='none';
+}
+
+function renderTickets(){
+  const counts = {all:TICKETS_ITEMS.length, open:0, assigned:0};
+  TICKETS_ITEMS.forEach(t=>{
+    const s=t.status.toLowerCase();
+    if(s.includes('assign')) counts.assigned++;
+    else if(!s.includes('complet')&&!s.includes('cancel')) counts.open++;
+  });
+  document.getElementById('tickets-filters').innerHTML=
+    ['all','open','assigned'].map(f=>{
+      const n = counts[f];
+      const cls = f===TICKETS_FILTER?'resp-chip active':(f==='open'&&n>0?'resp-chip urgent':'resp-chip');
+      return '<span class="'+cls+'" data-tfilter="'+f+'">'+f.toUpperCase()+' '+n+'</span>';
+    }).join('');
+
+  let items = [...TICKETS_ITEMS];
+  if(TICKETS_FILTER==='open') items=items.filter(t=>!t.status.toLowerCase().includes('complet')&&!t.status.toLowerCase().includes('cancel')&&!t.status.toLowerCase().includes('assign'));
+  if(TICKETS_FILTER==='assigned') items=items.filter(t=>t.status.toLowerCase().includes('assign'));
+  items.sort((a,b)=>new Date(b.created)-new Date(a.created));
+
+  document.getElementById('tickets-list').innerHTML = items.length ? items.map(t=>{
+    const timer = timerText(t.created);
+    const tc = timerClass(timer.days);
+    const sl = t.status.toLowerCase();
+    const badgeCls = sl.includes('complet')?'neutral':sl.includes('assign')?'neutral':'good';
+    return '<div class="resp-row" data-ticketid="'+t.id+'">'+
+      '<div class="resp-row-top"><span class="resp-row-id">'+x(t.tid)+'</span><span class="resp-badge '+badgeCls+'">'+x(t.status.toUpperCase())+'</span></div>'+
+      '<div class="resp-row-name">'+x(t.name)+'</div>'+
+      (t.address?'<div class="resp-row-meta">'+x(t.address)+'</div>':'')+
+      (t.desc?'<div class="resp-row-desc">'+x(t.desc)+'</div>':'')+
+      '<div class="resp-row-bottom"><span class="resp-row-creator">Created by <b>'+x(t.createdBy)+'</b></span><span class="resp-timer '+tc+'">'+timer.text+'</span></div>'+
+    '</div>';
+  }).join('') : '<div class="resp-empty">No tickets found.</div>';
+}
 function loadCommsTab(){document.getElementById('comms-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadSOWResp(){document.getElementById('sowresp-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadPreInstall(){document.getElementById('preinstall-list').innerHTML='<div class="resp-empty">Loading...</div>';}
@@ -5382,6 +5444,23 @@ document.addEventListener('click',function(e){
       if(Math.sqrt((lx-a.r*0.7)*(lx-a.r*0.7)+(ly+a.r*0.7)*(ly+a.r*0.7))<14){
         SPE.annotations.splice(SPE.selectedIdx,1);SPE.selectedIdx=-1;redrawSPE();
       }
+    }
+  }
+});
+
+// Tickets tab: filter chips + row clicks
+document.addEventListener('click',function(e){
+  const chip = e.target.closest('[data-tfilter]');
+  if(chip){ TICKETS_FILTER=chip.dataset.tfilter; renderTickets(); return; }
+  const row = e.target.closest('#tickets-list .resp-row[data-ticketid]');
+  if(row){
+    // Try to find matching project by name, then open detail
+    const tid = parseInt(row.dataset.ticketid);
+    const ticket = TICKETS_ITEMS.find(t=>t.id===tid);
+    if(ticket){
+      // Look for matching project in ALL_ITEMS by name
+      const match = ALL_ITEMS.find(p=>ticket.name&&p.name&&p.name.toLowerCase().includes(ticket.name.toLowerCase()));
+      if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
     }
   }
 });
