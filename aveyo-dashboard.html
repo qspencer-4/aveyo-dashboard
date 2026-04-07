@@ -5449,19 +5449,18 @@ document.addEventListener('click',function(e){
 });
 
 // Tickets tab: filter chips + row clicks
-document.addEventListener('click',function(e){
+document.addEventListener('click',async function(e){
   const chip = e.target.closest('[data-tfilter]');
   if(chip){ TICKETS_FILTER=chip.dataset.tfilter; renderTickets(); return; }
   const row = e.target.closest('#tickets-list .resp-row[data-ticketid]');
   if(row){
-    // Try to find matching project by name, then open detail
     const tid = parseInt(row.dataset.ticketid);
     const ticket = TICKETS_ITEMS.find(t=>t.id===tid);
-    if(ticket){
-      // Look for matching project in ALL_ITEMS by name
-      const match = ALL_ITEMS.find(p=>ticket.name&&p.name&&p.name.toLowerCase().includes(ticket.name.toLowerCase()));
-      if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
-    }
+    if(!ticket) return;
+    // Ensure projects are loaded for matching
+    if(!ALL_ITEMS.length) await loadProjects();
+    const match = ALL_ITEMS.find(p=>ticket.name&&p.name&&p.name.toLowerCase().includes(ticket.name.toLowerCase()));
+    if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
   }
 });
 
