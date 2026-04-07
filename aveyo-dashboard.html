@@ -46,6 +46,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bnav-btn span{font-size:10px;color:var(--text3);font-weight:500}
 .bnav-btn.active svg{stroke:#ADD8E6}
 .bnav-btn.active span{color:#ADD8E6}
+.bnav{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bnav::-webkit-scrollbar{display:none}
+.bnav-btn svg{display:none}
+.bnav-badge{display:inline-block;min-width:16px;padding:1px 5px;font-size:9px;line-height:14px;text-align:center;background:rgba(255,255,255,.15);color:#fff;margin-left:4px;font-family:inherit}
+.bnav-badge.warn{background:#C9A96E}
+.bnav-badge.crit{background:#C97850}
+.bnav-badge:empty{display:none}
+.resp-filter{display:flex;gap:6px;padding:.75rem 1rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.resp-filter::-webkit-scrollbar{display:none}
+.resp-chip{flex:0 0 auto;padding:5px 12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.45);cursor:pointer;font-family:inherit}
+.resp-chip.active{background:rgba(173,216,230,.12);color:#ADD8E6;border-color:rgba(173,216,230,.25)}
+.resp-row{display:flex;align-items:center;padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;gap:.75rem}
+.resp-row:active{background:rgba(255,255,255,.03)}
+.resp-name{flex:1;font-size:13px;color:rgba(255,255,255,.85);letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resp-timer{font-size:11px;letter-spacing:.06em;text-align:right;white-space:nowrap}
+.resp-timer.fresh{color:#ADD8E6}
+.resp-timer.moderate{color:#fff}
+.resp-timer.overdue{color:#E88B8B}
+.resp-badge{font-size:10px;padding:2px 8px;letter-spacing:.08em;text-transform:uppercase;font-family:inherit}
+.resp-badge.status-good{background:rgba(173,216,230,.12);color:#ADD8E6}
+.resp-badge.status-warn{background:rgba(201,169,110,.15);color:#C9A96E}
+.resp-badge.status-crit{background:rgba(201,120,80,.15);color:#C97850}
+.resp-empty{padding:2rem 1rem;text-align:center;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.1em;text-transform:uppercase}
 .section-card{background:var(--bg);border-radius:var(--radius-lg);margin:.75rem;padding:1.25rem;border:.5px solid var(--border)}
 .field{margin-bottom:.875rem}
 .field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
@@ -1415,24 +1438,15 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 
   <!-- BOTTOM NAV -->
   <div class="bnav" id="bnav" style="display:none">
-    <button class="bnav-btn active" id="nav-home">
-      <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
-    </button>
-    <button class="bnav-btn" id="nav-projects">
-      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Projects</span>
-    </button>
-    <button class="bnav-btn" id="nav-sow">
-      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>SOW</span>
-    </button>
-    <button class="bnav-btn" id="nav-action">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Action</span>
-    </button>
-    <button class="bnav-btn" id="nav-comm">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Comms</span>
-    </button>
-    <button class="bnav-btn" id="nav-kb">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge</span>
-    </button>
+    <button class="bnav-btn active" id="nav-home"><span>HOME</span></button>
+    <button class="bnav-btn" id="nav-tickets"><span>TICKETS</span><span class="bnav-badge" id="badge-tickets"></span></button>
+    <button class="bnav-btn" id="nav-comms"><span>COMMS</span><span class="bnav-badge" id="badge-comms"></span></button>
+    <button class="bnav-btn" id="nav-sow"><span>SOW</span><span class="bnav-badge" id="badge-sow"></span></button>
+    <button class="bnav-btn" id="nav-preinstall"><span>PRE-INSTALL</span><span class="bnav-badge" id="badge-preinstall"></span></button>
+    <button class="bnav-btn" id="nav-review"><span>REVIEW</span><span class="bnav-badge" id="badge-review"></span></button>
+    <button class="bnav-btn" id="nav-change"><span>CHANGE</span><span class="bnav-badge" id="badge-change"></span></button>
+    <button class="bnav-btn" id="nav-roof"><span>ROOF</span><span class="bnav-badge" id="badge-roof"></span></button>
+    <button class="bnav-btn" id="nav-kb"><span>KB</span></button>
   </div>
 <!-- SOW TAB -->
 <div id="view-sow" class="view">
@@ -1472,6 +1486,55 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
     <input type="text" id="kb-search-input" placeholder="Search adders, SOPs..."/>
   </div>
   <div id="kb-content"></div>
+</div>
+
+<!-- TICKETS TAB -->
+<div id="view-tickets" class="view">
+  <div class="resp-filter" id="tickets-filters"></div>
+  <div class="loading" id="tickets-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="tickets-list"></div>
+</div>
+
+<!-- COMMS TAB -->
+<div id="view-comms" class="view">
+  <div class="resp-filter" id="comms-filters"></div>
+  <div class="loading" id="comms-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="comms-list"></div>
+</div>
+
+<!-- SOW RESPONSIBILITY TAB -->
+<div id="view-sowresp" class="view">
+  <div class="resp-filter" id="sowresp-filters"></div>
+  <div class="loading" id="sowresp-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="sowresp-list"></div>
+</div>
+
+<!-- PRE-INSTALL TAB -->
+<div id="view-preinstall" class="view">
+  <div class="resp-filter" id="preinstall-filters"></div>
+  <div class="loading" id="preinstall-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="preinstall-list"></div>
+</div>
+
+<!-- REVIEW TAB -->
+<div id="view-review" class="view">
+  <div class="resp-filter" id="review-filters"></div>
+  <div class="loading" id="review-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="review-list"></div>
+</div>
+
+<!-- CHANGE ORDERS TAB -->
+<div id="view-change" class="view">
+  <div class="resp-filter" id="change-filters"></div>
+  <div class="loading" id="change-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="change-list"></div>
+</div>
+
+<!-- ROOF TAB -->
+<div id="view-roof" class="view">
+  <div class="resp-filter" id="roof-filters"></div>
+  <div class="loading" id="roof-loading" style="display:none"><div class="spinner"></div>Loading...</div>
+  <div id="roof-list"></div>
 </div>
 
 <!-- COMPOSE MINIMIZED BAR -->
@@ -1558,8 +1621,8 @@ function loadToken(){try{return localStorage.getItem('aveyo_tok')||null;}catch(e
 function clearToken(){try{localStorage.removeItem('aveyo_tok');}catch(e){}}
 
 // ── VIEW MANAGEMENT ──────────────────────────────────────
-const VERSION='v112';
-const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',sow:'Scope of Work',kb:'Knowledge Base',action:'Action Needed',comm:'Communications'};
+const VERSION='v113';
+const SUBS={home:'Dashboard',projects:'My Projects',wlist:'',detail:'Project Detail',auth:'Sign In',tickets:'Support Tickets',comms:'Communications',sowresp:'Scope of Work',preinstall:'Pre-Install',review:'Project Review',change:'Change Orders',roof:'Roof Reviews',sow:'Scope of Work',kb:'Knowledge Base'};
 function showView(v){
   // Always close split view when navigating away from detail
   if(v !== 'detail'){
@@ -1577,18 +1640,15 @@ function showView(v){
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
   document.getElementById('btn-logout').style.display=isAuth?'none':'block';
-  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='action'||v==='comm')?'block':'none';
+  document.getElementById('btn-refresh').style.display=(v==='home'||v==='projects'||v==='sow'||v==='tickets'||v==='comms'||v==='sowresp'||v==='preinstall'||v==='review'||v==='change'||v==='roof')?'block':'none';
   document.getElementById('bnav').style.display=isAuth?'none':'flex';
   if(isAuth){ stopPolling(); } else { startPolling(); }
   document.getElementById('hdr-sub').textContent=v==='wlist'?WLIST_LABEL:(SUBS[v]||'');
 }
 function setActiveNav(tab){
-  document.getElementById('nav-home').classList.toggle('active',tab==='home');
-  document.getElementById('nav-projects').classList.toggle('active',tab==='projects');
-  document.getElementById('nav-sow').classList.toggle('active',tab==='sow');
-  document.getElementById('nav-action').classList.toggle('active',tab==='action');
-  document.getElementById('nav-comm').classList.toggle('active',tab==='comm');
-  document.getElementById('nav-kb').classList.toggle('active',tab==='kb');
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('nav-'+tab);
+  if(el) el.classList.add('active');
 }
 
 // ── EVENT WIRING (no inline onclick) ─────────────────────
@@ -1597,16 +1657,19 @@ document.getElementById('btn-demo').addEventListener('click',enterDemoMode);
 document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
 document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
+document.getElementById('nav-tickets').addEventListener('click',()=>{setActiveNav('tickets');showView('tickets');loadTickets();});
+document.getElementById('nav-comms').addEventListener('click',()=>{setActiveNav('comms');showView('comms');loadCommsTab();});
 document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sow');loadSOW();});
-document.getElementById('nav-action').addEventListener('click',()=>{setActiveNav('action');showView('action');loadAction();});
-document.getElementById('nav-comm').addEventListener('click',()=>{setActiveNav('comm');showView('comm');loadComm();});
+document.getElementById('nav-preinstall').addEventListener('click',()=>{setActiveNav('preinstall');showView('preinstall');loadPreInstall();});
+document.getElementById('nav-review').addEventListener('click',()=>{setActiveNav('review');showView('review');loadReview();});
+document.getElementById('nav-change').addEventListener('click',()=>{setActiveNav('change');showView('change');loadChangeOrders();});
+document.getElementById('nav-roof').addEventListener('click',()=>{setActiveNav('roof');showView('roof');loadRoof();});
 document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
-document.getElementById('nav-projects').addEventListener('click',()=>{setActiveNav('projects');showView('projects');if(!ALL_ITEMS.length)loadProjects();});
-document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav(PREV_VIEW==='projects'?'projects':'home');});
+document.getElementById('wlist-back').addEventListener('click',()=>{showView(PREV_VIEW==='projects'?'projects':'home');setActiveNav('home');});
 document.getElementById('detail-back').addEventListener('click',()=>{
   hideSplitView();
   showView(PREV_VIEW);
-  setActiveNav(PREV_VIEW==='projects'?'projects':'home');
+  setActiveNav('home');
   // Restore scroll position
   setTimeout(()=>{
     const scrollKey = PREV_VIEW + '_scroll';
@@ -1684,8 +1747,13 @@ function doRefresh(){
   if(active.id==='view-home'){clearCache();loadHome();}
   else if(active.id==='view-projects'){ALL_ITEMS=[];loadProjects();}
   else if(active.id==='view-sow'){SOW_ITEMS=[];loadSOW();}
-  else if(active.id==='view-action'){loadAction();}
-  else if(active.id==='view-comm'){loadComm();}
+  else if(active.id==='view-tickets'){loadTickets();}
+  else if(active.id==='view-comms'){loadCommsTab();}
+  else if(active.id==='view-sowresp'){loadSOWResp();}
+  else if(active.id==='view-preinstall'){loadPreInstall();}
+  else if(active.id==='view-review'){loadReview();}
+  else if(active.id==='view-change'){loadChangeOrders();}
+  else if(active.id==='view-roof'){loadRoof();}
 }
 
 
@@ -2021,10 +2089,11 @@ async function loadHome(){
   if(DEMO_MODE){
     WIDGETS.forEach(([,,,],i)=>setWidgetNum(i,DEMO_WIDGETS[i]||0));
     document.getElementById('cache-label').textContent='Demo mode';
+    updateNavBadges();
     return;
   }
   const allCached=WIDGETS.every(([,a,v])=>cGet(a+'_'+v)!==null);
-  if(allCached){updateCacheLabel();return;}
+  if(allCached){updateCacheLabel();updateNavBadges();return;}
   let rateLimited=false;
   for(let i=0;i<WIDGETS.length;i++){
     const[,appId,viewId,w,d]=WIDGETS[i];
@@ -2047,6 +2116,51 @@ async function loadHome(){
     await delay(350);
   }
   updateCacheLabel();
+  updateNavBadges();
+}
+
+// ── RESPONSIBILITY TAB STUBS ─────────────────────────────
+function loadTickets(){document.getElementById('tickets-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadCommsTab(){document.getElementById('comms-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadSOWResp(){document.getElementById('sowresp-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadPreInstall(){document.getElementById('preinstall-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadReview(){document.getElementById('review-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadChangeOrders(){document.getElementById('change-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+function loadRoof(){document.getElementById('roof-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+
+// ── NAV BADGE COUNTS ─────────────────────────────────────
+function updateNavBadges(){
+  const map={
+    'badge-tickets':3,
+    'badge-comms':17,
+    'badge-sow':4,
+    'badge-preinstall':14,
+    'badge-review':2,
+    'badge-change':16,
+    'badge-roof':19
+  };
+  Object.entries(map).forEach(([badgeId,wi])=>{
+    const el=document.getElementById(badgeId);
+    if(!el)return;
+    const[,appId,viewId,warn,crit]=WIDGETS[wi];
+    const n=cGet(appId+'_'+viewId);
+    if(n===null||n===0){el.textContent='';el.className='bnav-badge';return;}
+    el.textContent=n;
+    el.className='bnav-badge'+(n>=crit?' crit':n>=warn?' warn':'');
+  });
+}
+
+// ── TIMER HELPERS ────────────────────────────────────────
+function timerClass(days,reviewMode){
+  if(reviewMode){return days<=3?'fresh':days<=7?'moderate':'overdue';}
+  return days<=1?'fresh':days<=3?'moderate':'overdue';
+}
+function timerText(dateStr){
+  if(!dateStr)return{text:'--',days:0};
+  const diff=Date.now()-new Date(dateStr).getTime();
+  const days=Math.floor(diff/864e5);
+  const hrs=Math.floor((diff%864e5)/36e5);
+  return{text:days+'d '+hrs+'h',days};
 }
 
 // ── WIDGET CLICK → PROJECT LIST ──────────────────────────
