@@ -2491,6 +2491,205 @@ function buildTicketStatus(){
   }).join('');
 }
 
+function buildTicketActions(){
+  const btns = [
+    {key:'comment',label:'COMMENT',primary:true},
+    {key:'rep',label:'MSG REP',primary:false},
+    {key:'customer',label:'MSG CUST',primary:false}
+  ];
+  document.getElementById('td-actions').innerHTML = btns.map(b=>{
+    const cls = TD_COMPOSE===b.key ? 'td-action-btn active' : ('td-action-btn'+(b.primary?' primary':''));
+    return '<button class="'+cls+'" data-td-action="'+b.key+'">'+b.label+'</button>';
+  }).join('');
+}
+
+function openTicketCompose(type){
+  TD_COMPOSE = type;
+  buildTicketActions();
+  const t = TD_TICKET;
+  const p = TD_PROJECT;
+  const repName = p ? ((p.repInfo||'').match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'' : '';
+  const labels = {
+    comment:'ADD COMMENT TO TICKET '+t.tid,
+    rep:'MESSAGE REP'+(repName?' — '+repName.toUpperCase():''),
+    customer:'MESSAGE CUSTOMER — '+t.name.toUpperCase()
+  };
+  const submitLabels = {comment:'POST COMMENT',rep:'SEND TO REP',customer:'SEND TO CUSTOMER'};
+  const el = document.getElementById('td-compose');
+  el.innerHTML =
+    '<div class="td-compose-label">'+x(labels[type])+'</div>'+
+    '<textarea id="td-compose-ta" placeholder="Type your message..."></textarea>'+
+    (type!=='comment'?'<div style="margin-top:6px"><button class="td-action-btn primary" id="td-compose-generate" style="width:100%">GENERATE WITH AI</button></div>':'')+
+    '<div class="td-compose-btns">'+
+      '<button class="td-compose-submit" id="td-compose-send" data-td-compose-type="'+type+'" disabled>'+submitLabels[type]+'</button>'+
+      '<button class="td-compose-cancel" id="td-compose-cancel">CANCEL</button>'+
+    '</div>';
+  el.classList.add('open');
+}
+
+function closeTicketCompose(){
+  TD_COMPOSE = null;
+  buildTicketActions();
+  document.getElementById('td-compose').classList.remove('open');
+  document.getElementById('td-compose').innerHTML = '';
+}
+
+function buildTicketTabs(){
+  const p = TD_PROJECT;
+  const otherTickets = TD_TICKET.projectNum ?
+    TICKETS_ITEMS.filter(t=>t.projectNum===TD_TICKET.projectNum && t.id!==TD_TICKET.id &&
+      !['complete','cancelled'].includes(t.status.toLowerCase())) : [];
+  const wBlocks = p ? parseBlocks(p.workOrders||'',/\\---|\n---\n/).filter(b=>b.includes('WO-')||b.includes('Type:')) : [];
+
+  let html = '';
+  html += '<button class="td-tab'+(TD_TAB==='activity'?' active':'')+'" data-td-tab="activity">ACTIVITY</button>';
+  html += '<button class="td-tab'+(TD_TAB==='tickets'?' active':'')+'" data-td-tab="tickets">TICKETS'+
+    (otherTickets.length?' <span class="td-tab-count">'+otherTickets.length+'</span>':'')+'</button>';
+  html += '<button class="td-tab'+(TD_TAB==='workorders'?' active':'')+'" data-td-tab="workorders">'+(window.innerWidth<768?'WOs':'WORK ORDERS')+
+    (wBlocks.length?' <span class="td-tab-count" style="color:rgba(255,255,255,.3)">'+wBlocks.length+'</span>':'')+'</button>';
+  html += '<button class="td-tab td-tab-project-mobile'+(TD_TAB==='project'?' active':'')+'" data-td-tab="project">PROJECT</button>';
+
+  document.getElementById('td-tabs-bar').innerHTML = html;
+}
+
+function renderTicketTabContent(){
+  const t = TD_TICKET;
+  const p = TD_PROJECT;
+  const el = document.getElementById('td-tab-content');
+
+  if(TD_TAB==='activity'){
+    if(!p || !p.comments){
+      el.innerHTML='<div class="td-activity-row"><div class="td-activity-body" style="color:rgba(255,255,255,.3)">No activity found.</div></div>';
+      return;
+    }
+    const blocks = parseBlocks(p.comments, /\*{3}/);
+    if(!blocks.length){
+      el.innerHTML='<div class="td-activity-row"><div class="td-activity-body" style="color:rgba(255,255,255,.3)">No comments.</div></div>';
+      return;
+    }
+    el.innerHTML = blocks.map(b=>{
+      const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);
+      const m=lines[0]&&lines[0].match(/^(\d{4}-\d{2}-\d{2})\s+\d{2}:\d{2}:\d{2}\s+(.+)/);
+      const date=m?m[1]:'';
+      const author=m?m[2]:'';
+      const body=lines.slice(m?1:0).join(' ');
+      const isSystem=author.toLowerCase().includes('system')||author.toLowerCase().includes('podio');
+      const ago=date?timerText(date):{text:''};
+      return '<div class="td-activity-row'+(isSystem?' td-activity-system':'')+'">'+
+        '<div class="td-activity-date"><span>'+x(date)+(author?' · ':'')+
+        '</span><span>'+x(ago.text||'')+'</span></div>'+
+        (author?'<div class="td-activity-author">'+x(author)+'</div>':'')+
+        '<div class="td-activity-body">'+x(body.substring(0,500))+(body.length>500?'...':'')+'</div>'+
+      '</div>';
+    }).join('');
+
+  } else if(TD_TAB==='tickets'){
+    const others = t.projectNum ?
+      TICKETS_ITEMS.filter(ti=>ti.projectNum===t.projectNum && ti.id!==t.id &&
+        !['complete','cancelled'].includes(ti.status.toLowerCase())) : [];
+    if(!others.length){
+      el.innerHTML='<div class="td-activity-row"><div class="td-activity-body" style="color:rgba(255,255,255,.3)">No other open tickets for this project.</div></div>';
+      return;
+    }
+    el.innerHTML = others.map(ti=>{
+      const timer=timerText(ti.created);
+      const tc2=timerClass(timer.days);
+      const sl=ti.status.toLowerCase();
+      const badgeCls=sl==='new'?'urgent':sl==='assigned'?'neutral':sl==='in progress'?'good':'neutral';
+      return '<div class="td-activity-row" style="cursor:pointer" data-td-switch-ticket="'+ti.id+'">'+
+        '<div class="td-activity-date"><span>'+x(ti.tid)+'</span><span class="resp-badge '+badgeCls+'" style="font-size:8px;padding:1px 6px">'+x(ti.status.toUpperCase())+'</span></div>'+
+        (ti.desc?'<div class="td-activity-body">'+x(ti.desc)+'</div>':'')+
+        '<div style="color:rgba(255,255,255,.3);font-size:9px;margin-top:2px">'+x(timer.text)+'</div>'+
+      '</div>';
+    }).join('');
+
+  } else if(TD_TAB==='workorders'){
+    if(!p){
+      el.innerHTML='<div class="td-activity-row"><div class="td-activity-body" style="color:rgba(255,255,255,.3)">No project matched.</div></div>';
+      return;
+    }
+    const wBlocks = parseBlocks(p.workOrders||'',/\\---|\n---\n/).filter(b=>b.includes('WO-')||b.includes('Type:'));
+    if(!wBlocks.length){
+      el.innerHTML='<div class="td-activity-row"><div class="td-activity-body" style="color:rgba(255,255,255,.3)">No work orders.</div></div>';
+      return;
+    }
+    el.innerHTML = wBlocks.map(b=>{
+      const status=(b.match(/Status:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';
+      const type=(b.match(/Type:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';
+      const appt=(b.match(/Appointment:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';
+      const desc=(b.match(/Description:\*?\*?\s*([^\n<*]+)/i)||[])[1]||'';
+      const woId=(b.match(/\[WO-(\d+)\]/)||[])[1]||'';
+      const woLink=(b.match(/\[WO-\d+\]\(([^)]+)\)/)||[])[1]||'';
+      const cls=status.toLowerCase().includes('complet')?'ts-complete':status.toLowerCase().includes('assign')?'ts-assigned':'ts-open';
+      return '<div class="td-activity-row">'+
+        '<div class="td-activity-date"><span>'+(woId&&woLink?'<a href="'+woLink+'" target="_blank" style="color:#ADD8E6;text-decoration:none">WO-'+woId+'</a>':'')+
+        (appt?' · '+x(appt.trim()):'')+'</span></div>'+
+        (type?'<div style="font-weight:600;font-size:11px;color:#fff;margin-top:2px">'+x(type.trim())+'</div>':'')+
+        (desc?'<div class="td-activity-body">'+x(desc.trim().substring(0,200))+'</div>':'')+
+        (status?'<span class="te-status '+cls+'" style="margin-top:4px;display:inline-block">'+x(status.trim())+'</span>':'')+
+      '</div>';
+    }).join('');
+
+  } else if(TD_TAB==='project'){
+    renderTicketProjectTab(el);
+  }
+
+  if(typeof wrapTicketSplit==='function') wrapTicketSplit();
+}
+
+function renderTicketProjectTab(el){
+  const t = TD_TICKET;
+  const p = TD_PROJECT;
+  const currentStage = p ? getDetailedStage(p) : '';
+  const projectItemId = p ? p.id : '';
+
+  const stages = PIPELINE_STAGES.filter(s=>s.key!=='Complete' && s.key!=='On Hold');
+  let foundCurrent = false;
+  const stageHtml = stages.map(s=>{
+    const isCurrent = s.key===currentStage || s.label===currentStage;
+    if(isCurrent) foundCurrent = true;
+    const state = isCurrent ? 'current' : (foundCurrent ? 'future' : 'done');
+    const statusLabel = state==='done'?'DONE':state==='current'?'CURRENT':'--';
+    const link = projectItemId ? 'https://podio.com/item/'+projectItemId : '#';
+    return '<a href="'+link+'" target="_blank" class="td-stage '+state+'">'+
+      '<div class="td-stage-dot '+state+'"></div>'+
+      '<span class="td-stage-name">'+x(s.label.toUpperCase())+'</span>'+
+      '<span class="td-stage-status">'+statusLabel+'</span>'+
+    '</a>';
+  }).join('');
+
+  const driveDefs = [
+    {label:'PARENT',fid:266618729},{label:'SITE SURVEY',fid:266618728},
+    {label:'DESIGN',fid:266618723},{label:'APPROVED',fid:268981903},
+    {label:'CUSTOMER DOCS',fid:266618731},{label:'PERMIT',fid:266618725}
+  ];
+  let driveHtml = '';
+  if(p && p.raw && p.raw.fields){
+    driveHtml = driveDefs.map(d=>{
+      const f = (p.raw.fields||[]).find(f=>f.field_id===d.fid);
+      const val = f && f.values && f.values[0] ? f.values[0].value : null;
+      if(!val) return '';
+      return '<a href="https://drive.google.com/drive/folders/'+val+'" target="_blank" class="td-drive-btn">'+d.label+'</a>';
+    }).filter(Boolean).join('');
+  }
+
+  const ticketLink = 'https://podio.com/item/'+t.id;
+  const projectLink = projectItemId ? 'https://podio.com/item/'+projectItemId : '';
+
+  el.innerHTML =
+    '<div style="padding:12px 14px">'+
+      '<div class="td-section-label" style="margin-bottom:8px">PIPELINE — TAP STAGE TO OPEN IN PODIO</div>'+
+      stageHtml+
+      '<div class="td-section-label" style="margin:16px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">GOOGLE DRIVE</div>'+
+      (driveHtml?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+driveHtml+'</div>':'<div style="color:rgba(255,255,255,.3);font-size:10px">No Drive folders linked.</div>')+
+      '<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">'+
+        '<a href="'+ticketLink+'" target="_blank" style="color:#ADD8E6;font-size:10px;text-decoration:none">Open Ticket in Podio</a>'+
+        (projectLink?'<span style="color:rgba(255,255,255,.15);margin:0 8px">|</span>'+
+        '<a href="'+projectLink+'" target="_blank" style="color:#ADD8E6;font-size:10px;text-decoration:none">Open Project in Podio</a>':'')+
+      '</div>'+
+    '</div>';
+}
+
 // ── NAV BADGE COUNTS ─────────────────────────────────────
 function updateNavBadges(){
   const map={
