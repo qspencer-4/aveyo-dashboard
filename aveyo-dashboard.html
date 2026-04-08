@@ -2402,6 +2402,7 @@ function openTicketDetail(ticket, project){
   TD_PROJECT = project;
   TD_TAB = 'activity';
   TD_COMPOSE = null;
+  PREV_VIEW = 'tickets';
   SCROLL_POS['tickets_scroll'] = window.scrollY;
 
   let items = [...TICKETS_ITEMS];
@@ -2473,11 +2474,11 @@ function buildTicketDetail(){
 
   buildTicketStatus();
   // Placeholder calls for functions added in next tasks
-  if(typeof buildTicketActions==='function') buildTicketActions();
-  if(typeof buildTicketTabs==='function') buildTicketTabs();
-  if(typeof renderTicketTabContent==='function') renderTicketTabContent();
-  if(typeof buildTicketPrevNext==='function') buildTicketPrevNext();
-  if(typeof buildTicketSidebar==='function') buildTicketSidebar(stage, repName, repPhone, repEmail);
+  buildTicketActions();
+  buildTicketTabs();
+  renderTicketTabContent();
+  buildTicketPrevNext();
+  buildTicketSidebar(stage, repName, repPhone, repEmail);
 }
 
 function buildTicketStatus(){
