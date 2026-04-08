@@ -2136,18 +2136,48 @@ async function loadTickets(){
     const raw = await fetchAllItems(29840119, 61747488);
     TICKETS_ITEMS = raw.map(item=>{
       const fields = item.fields||[];
-      const fv = (fid)=>{ const f=fields.find(f=>f.field_id===fid); return f?.values?.[0]?.value?.text||f?.values?.[0]?.value||''; };
       const title = item.title||'';
-      const status = fv(266494686)||'Open';
-      const desc = fv(266494687)||'';
+
+      // Iterate fields to find status and description dynamically
+      let desc = '';
+      let status = '';
+      for(const f of fields){
+        const val = f.values?.[0]?.value;
+        if(!val) continue;
+        const txt = typeof val === 'object' ? (val.text||'') : String(val);
+        // Category/status fields
+        if(f.type === 'category' || f.type === 'state'){
+          if(!status) status = txt;
+        }
+        // Longest text field is likely the description
+        if(txt.length > desc.length && txt.length > 20){
+          desc = txt;
+        }
+      }
+      if(!status) status = 'Open';
+
+      // Parse creator from description
+      let creator = '';
+      const creatorMatch = desc.match(/(?:Created by|Submitted by|From|Reporter)[:\s]+([^\n,]+)/i);
+      if(creatorMatch) creator = creatorMatch[1].trim();
+      if(!creator){
+        const firstLine = desc.split('\n')[0]?.trim()||'';
+        if(firstLine.length < 50 && !firstLine.includes(':') && !firstLine.includes('http')) creator = firstLine;
+      }
+
+      // Parse ticket number from title
+      const tidMatch = title.match(/#?(\d{4,})/);
+      const tid = tidMatch ? tidMatch[1] : String(item.item_id);
+
+      // Parse customer name from title — remove ticket number prefix
+      const name = title.replace(/^#?\d+\s*[-–]\s*/, '').replace(/^#?\d+\s+/, '').split(' - ')[0]?.trim() || title;
+      const address = title.split(' - ')[1]?.trim() || '';
+
+      // Strip HTML from description for display
+      const cleanDesc = desc.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+
       const created = item.created_on||'';
-      const createdBy = item.created_by?.name||'';
-      const parts = title.split(' - ');
-      const name = parts[0]?.replace(/^#\S+\s*/,'').trim()||title;
-      const address = parts[1]?.trim()||'';
-      const tidMatch = title.match(/^#?(\d+)/);
-      const tid = tidMatch?tidMatch[1]:String(item.item_id);
-      return {id:item.item_id, tid:'#'+tid, name, address, status:String(status).trim(), desc:String(desc).substring(0,200), created, createdBy, raw:item};
+      return {id:item.item_id, tid:'#'+tid, name, address, status:status.trim(), desc:cleanDesc.substring(0,200), created, creator:creator||'', raw:item};
     });
     renderTickets();
   }catch(e){
@@ -2185,7 +2215,7 @@ function renderTickets(){
       '<div class="resp-row-name">'+x(t.name)+'</div>'+
       (t.address?'<div class="resp-row-meta">'+x(t.address)+'</div>':'')+
       (t.desc?'<div class="resp-row-desc">'+x(t.desc)+'</div>':'')+
-      '<div class="resp-row-bottom"><span class="resp-row-creator">Created by <b>'+x(t.createdBy)+'</b></span><span class="resp-timer '+tc+'">'+timer.text+'</span></div>'+
+      '<div class="resp-row-bottom"><span class="resp-row-creator">Created by <b>'+x(t.creator)+'</b></span><span class="resp-timer '+tc+'">'+timer.text+'</span></div>'+
     '</div>';
   }).join('') : '<div class="resp-empty">No tickets found.</div>';
 }
