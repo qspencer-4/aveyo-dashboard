@@ -754,7 +754,10 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 .td-activity-row{padding:10px 14px;border-bottom:1px solid #1a1a1a}
 .td-activity-date{display:flex;justify-content:space-between;color:rgba(255,255,255,.5);font-size:10px;font-weight:600}
 .td-activity-author{color:#ADD8E6;font-size:10px;font-weight:600;margin-top:2px}
-.td-activity-body{color:#ddd;font-size:10px;margin-top:2px;line-height:1.4}
+.td-activity-body{color:#ddd;font-size:10px;margin-top:2px;line-height:1.4;max-height:3.6em;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease}
+.td-activity-body.expanded{max-height:none}
+.td-activity-body:not(.expanded)::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.4em;background:linear-gradient(transparent,#0a0a0a)}
+.td-activity-toggle{color:rgba(255,255,255,.3);font-size:9px;margin-top:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
 .td-activity-system .td-activity-author{color:rgba(255,255,255,.4)}
 .td-activity-system .td-activity-body{color:rgba(255,255,255,.6)}
 #td-prev-next{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#000;border-top:1px solid #1a1a1a}
@@ -1762,6 +1765,7 @@ function showView(v){
     TD_TICKET = null;
     TD_PROJECT = null;
     TD_COMPOSE = null;
+    if(window._tdTimerInterval){clearInterval(window._tdTimerInterval);window._tdTimerInterval=null;}
   }
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
@@ -2436,6 +2440,22 @@ function buildTicketDetail(){
   const tc = timerClass(timer.days);
   const ageColor = tc==='overdue'?'#E88B8B':tc==='moderate'?'#fff':'#ADD8E6';
 
+  // Start live timer
+  if(window._tdTimerInterval) clearInterval(window._tdTimerInterval);
+  function updateTdTimer(){
+    const el=document.getElementById('td-live-timer');
+    if(!el||!t.created)return;
+    const diff=Date.now()-new Date(t.created).getTime();
+    if(diff<0){el.textContent='--';return;}
+    const d=Math.floor(diff/864e5);
+    const h=Math.floor((diff%864e5)/36e5);
+    const m=Math.floor((diff%36e5)/6e4);
+    const s=Math.floor((diff%6e4)/1e3);
+    el.textContent=String(d).padStart(2,'0')+':'+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  window._tdTimerInterval=setInterval(updateTdTimer,1000);
+  setTimeout(updateTdTimer,0);
+
   document.getElementById('td-back-bar').innerHTML =
     '<span class="td-back" id="td-back-btn">&lt; TICKETS</span>'+
     '<span class="td-pos">'+(TD_INDEX+1)+' / '+TD_LIST.length+'</span>'+
@@ -2456,8 +2476,8 @@ function buildTicketDetail(){
         (t.address?'<div class="td-address">'+x(t.address)+'</div>':'')+
       '</div>'+
       '<div class="td-age">'+
-        '<div class="td-age-num" style="color:'+ageColor+'">'+timer.text+'</div>'+
-        '<div class="td-age-label">AGE</div>'+
+        '<div class="td-age-num" id="td-live-timer" style="color:'+ageColor+';font-variant-numeric:tabular-nums">'+timer.text+'</div>'+
+        '<div class="td-age-label">DD:HH:MM:SS</div>'+
       '</div>'+
     '</div>'+
     '<div style="height:1px;background:#333;margin:8px 0"></div>'+
@@ -2581,11 +2601,13 @@ function renderTicketTabContent(){
       const body=lines.slice(m?1:0).join(' ');
       const isSystem=author.toLowerCase().includes('system')||author.toLowerCase().includes('podio');
       const ago=date?timerText(date):{text:''};
+      const needsExpand = body.length > 120;
       return '<div class="td-activity-row'+(isSystem?' td-activity-system':'')+'">'+
         '<div class="td-activity-date"><span>'+x(date)+(author?' · ':'')+
         '</span><span>'+x(ago.text||'')+'</span></div>'+
         (author?'<div class="td-activity-author">'+x(author)+'</div>':'')+
-        '<div class="td-activity-body">'+x(body.substring(0,500))+(body.length>500?'...':'')+'</div>'+
+        '<div class="td-activity-body'+(needsExpand?'':' expanded')+'" data-td-expandable>'+x(body)+'</div>'+
+        (needsExpand?'<div class="td-activity-toggle" data-td-expand>Show more</div>':'')+
       '</div>';
     }).join('');
 
@@ -2679,11 +2701,12 @@ function renderTicketProjectTab(el){
     }).filter(Boolean).join('');
   }
 
-  const ticketLink = 'https://podio.com/item/'+t.id;
-  const projectLink = projectItemId ? 'https://podio.com/item/'+projectItemId : '';
+  const ticketLink = 'https://podio.com/aveyo/projects/apps/support-tickets/items/'+t.id;
+  const projectLink = projectItemId ? 'https://podio.com/aveyo/projects/apps/project/items/'+projectItemId : '';
 
   el.innerHTML =
     '<div style="padding:12px 14px">'+
+      (projectItemId?'<button class="td-action-btn primary" id="td-open-project" data-td-project-id="'+projectItemId+'" style="width:100%;margin-bottom:12px;padding:12px 0;font-size:10px">VIEW FULL PROJECT</button>':'')+
       '<div class="td-section-label" style="margin-bottom:8px">PIPELINE — TAP STAGE TO OPEN IN PODIO</div>'+
       stageHtml+
       '<div class="td-section-label" style="margin:16px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">GOOGLE DRIVE</div>'+
@@ -2739,10 +2762,11 @@ function buildTicketSidebar(stage, repName, repPhone, repEmail){
     }).filter(Boolean).join('');
   }
 
-  const ticketLink = 'https://podio.com/item/'+t.id;
-  const projectLink = projectItemId ? 'https://podio.com/item/'+projectItemId : '';
+  const ticketLink = 'https://podio.com/aveyo/projects/apps/support-tickets/items/'+t.id;
+  const projectLink = projectItemId ? 'https://podio.com/aveyo/projects/apps/project/items/'+projectItemId : '';
 
   document.getElementById('td-sidebar').innerHTML =
+    (projectItemId?'<button class="td-action-btn primary" id="td-sidebar-open-project" data-td-project-id="'+projectItemId+'" style="width:100%;margin-bottom:12px;padding:10px 0;font-size:10px">VIEW FULL PROJECT</button>':'')+
     '<div class="td-section-label" style="margin-bottom:10px">PROJECT NAVIGATION</div>'+
     stageHtml+
     '<div class="td-section-label" style="margin:12px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">GOOGLE DRIVE</div>'+
@@ -6184,6 +6208,33 @@ document.addEventListener('click', async function(e){
     const next = TD_LIST[TD_INDEX];
     const match = next.projectNum ? ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===next.projectNum) : null;
     openTicketDetail(next, match||TD_PROJECT);
+    return;
+  }
+  // Expand/collapse activity comments
+  const expandToggle = e.target.closest('[data-td-expand]');
+  if(expandToggle){
+    const row = expandToggle.closest('.td-activity-row');
+    const body = row ? row.querySelector('.td-activity-body') : null;
+    if(body){
+      body.classList.toggle('expanded');
+      expandToggle.textContent = body.classList.contains('expanded') ? 'Show less' : 'Show more';
+    }
+    return;
+  }
+  // Also toggle on body click
+  const expandBody = e.target.closest('[data-td-expandable]:not(.expanded)');
+  if(expandBody){
+    expandBody.classList.add('expanded');
+    const toggle = expandBody.parentElement.querySelector('[data-td-expand]');
+    if(toggle) toggle.textContent = 'Show less';
+    return;
+  }
+  // VIEW FULL PROJECT button
+  const projBtn = e.target.closest('[data-td-project-id]');
+  if(projBtn){
+    const projId = parseInt(projBtn.dataset.tdProjectId);
+    const item = ALL_ITEMS.find(i=>i.id===projId);
+    if(item){ PREV_VIEW='tickets'; openDetail(projId); }
     return;
   }
 });
