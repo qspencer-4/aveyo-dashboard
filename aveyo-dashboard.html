@@ -1758,6 +1758,11 @@ function showView(v){
     if(vd) vd.classList.remove('split-view');
     SPLIT_ITEM = null;
   }
+  if(v !== 'ticket-detail'){
+    TD_TICKET = null;
+    TD_PROJECT = null;
+    TD_COMPOSE = null;
+  }
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   const isAuth=(v==='auth');
@@ -2688,6 +2693,84 @@ function renderTicketProjectTab(el){
         '<a href="'+projectLink+'" target="_blank" style="color:#ADD8E6;font-size:10px;text-decoration:none">Open Project in Podio</a>':'')+
       '</div>'+
     '</div>';
+}
+
+function buildTicketPrevNext(){
+  document.getElementById('td-prev-next').innerHTML =
+    '<button class="td-nav-btn" id="td-prev-btn">&lt; PREV</button>'+
+    '<span class="td-nav-pos">TICKET '+(TD_INDEX+1)+' OF '+TD_LIST.length+'</span>'+
+    '<button class="td-nav-btn" id="td-next-btn">NEXT &gt;</button>';
+}
+
+function buildTicketSidebar(stage, repName, repPhone, repEmail){
+  if(window.innerWidth<768) return;
+  const t = TD_TICKET;
+  const p = TD_PROJECT;
+  const currentStage = stage;
+  const projectItemId = p ? p.id : '';
+
+  const stages = PIPELINE_STAGES.filter(s=>s.key!=='Complete' && s.key!=='On Hold');
+  let foundCurrent = false;
+  const stageHtml = stages.map(s=>{
+    const isCurrent = s.key===currentStage || s.label===currentStage;
+    if(isCurrent) foundCurrent = true;
+    const state = isCurrent ? 'current' : (foundCurrent ? 'future' : 'done');
+    const link = projectItemId ? 'https://podio.com/item/'+projectItemId : '#';
+    return '<a href="'+link+'" target="_blank" class="td-stage '+state+'" style="padding:3px 0">'+
+      '<div class="td-stage-dot '+state+'" style="width:5px;height:5px'+(state==='current'?';width:7px;height:7px':'')+'"></div>'+
+      '<span class="td-stage-name">'+x(s.label.toUpperCase())+'</span>'+
+      (state==='current'?'<span class="td-stage-status">CURRENT</span>':'')+
+    '</a>';
+  }).join('');
+
+  const driveDefs = [
+    {label:'PARENT FOLDER',fid:266618729},{label:'SITE SURVEY',fid:266618728},
+    {label:'DESIGN',fid:266618723},{label:'APPROVED',fid:268981903},
+    {label:'CUSTOMER DOCS',fid:266618731},{label:'PERMIT',fid:266618725}
+  ];
+  let driveHtml = '';
+  if(p && p.raw && p.raw.fields){
+    driveHtml = driveDefs.map(d=>{
+      const f = (p.raw.fields||[]).find(f=>f.field_id===d.fid);
+      const val = f && f.values && f.values[0] ? f.values[0].value : null;
+      if(!val) return '';
+      return '<a href="https://drive.google.com/drive/folders/'+val+'" target="_blank" class="td-drive-btn" style="display:block;margin-bottom:3px">'+d.label+'</a>';
+    }).filter(Boolean).join('');
+  }
+
+  const ticketLink = 'https://podio.com/item/'+t.id;
+  const projectLink = projectItemId ? 'https://podio.com/item/'+projectItemId : '';
+
+  document.getElementById('td-sidebar').innerHTML =
+    '<div class="td-section-label" style="margin-bottom:10px">PROJECT NAVIGATION</div>'+
+    stageHtml+
+    '<div class="td-section-label" style="margin:12px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">GOOGLE DRIVE</div>'+
+    (driveHtml||'<div style="color:rgba(255,255,255,.3);font-size:10px">No Drive folders linked.</div>')+
+    '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:4px">'+
+      '<a href="'+ticketLink+'" target="_blank" style="color:#ADD8E6;font-size:10px;text-decoration:none">Open Ticket in Podio</a>'+
+      (projectLink?'<a href="'+projectLink+'" target="_blank" style="color:#ADD8E6;font-size:10px;text-decoration:none">Open Project in Podio</a>':'')+
+    '</div>'+
+    (repName?'<div class="td-section-label" style="margin:12px 0 6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">REP</div>'+
+      '<div style="color:rgba(255,255,255,.6);font-size:10px;font-weight:600">'+x(repName)+'</div>'+
+      (repPhone?'<div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:2px">'+x(repPhone)+'</div>':'')+
+      (repEmail?'<div style="color:rgba(255,255,255,.4);font-size:9px">'+x(repEmail)+'</div>':''):'');
+}
+
+function wrapTicketSplit(){
+  if(window.innerWidth<768) return;
+  const tabsBar = document.getElementById('td-tabs-bar');
+  const tabContent = document.getElementById('td-tab-content');
+  const sidebar = document.getElementById('td-sidebar');
+  if(tabsBar.parentElement.classList.contains('td-split-left')) return;
+  const splitLeft = document.createElement('div');
+  splitLeft.className = 'td-split-left';
+  const split = document.createElement('div');
+  split.className = 'td-split';
+  tabsBar.parentElement.insertBefore(split, tabsBar);
+  split.appendChild(splitLeft);
+  splitLeft.appendChild(tabsBar);
+  splitLeft.appendChild(tabContent);
+  split.appendChild(sidebar);
 }
 
 // ── NAV BADGE COUNTS ─────────────────────────────────────
@@ -5948,17 +6031,166 @@ document.addEventListener('click',async function(e){
   if(chip){ TICKETS_FILTER=chip.dataset.tfilter; renderTickets(); return; }
   const row = e.target.closest('#tickets-list .resp-row[data-ticketid]');
   if(row){
+    const ticketId = parseInt(row.dataset.ticketid);
     const projNum = row.dataset.projnum;
+    const ticket = TICKETS_ITEMS.find(t=>t.id===ticketId);
+    if(!ticket) return;
     if(projNum && ALL_ITEMS.length){
       const match = ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===projNum);
-      if(match){ PREV_VIEW='tickets'; openDetail(match.id); return; }
+      if(match){ openTicketDetail(ticket, match); return; }
     }
-    // Fallback: load projects first then try again
     if(projNum && !ALL_ITEMS.length){
       await loadProjects();
       const match = ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===projNum);
-      if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
+      if(match){ openTicketDetail(ticket, match); return; }
     }
+    openTicketDetail(ticket, null);
+  }
+});
+
+// Ticket detail view: all click events
+document.addEventListener('click', async function(e){
+  if(e.target.closest('#td-back-btn')){
+    showView('tickets');
+    window.scrollTo(0, SCROLL_POS['tickets_scroll']||0);
+    return;
+  }
+  const pill = e.target.closest('.td-status-pill');
+  if(pill && pill.dataset.tdStatus){
+    const newStatus = pill.dataset.tdStatus;
+    const current = TD_TICKET.status.toLowerCase().replace(/\s+/g,'');
+    if(newStatus===current) return;
+    const statusMap = {new:'New',assigned:'Assigned',inprogress:'In Progress',complete:'Complete'};
+    const newStatusText = statusMap[newStatus];
+    TD_TICKET.status = newStatusText;
+    buildTicketStatus();
+    const fields = TD_TICKET.raw.fields||[];
+    let statusFieldId = null;
+    let optionId = null;
+    for(const f of fields){
+      if(!f.values||!f.values.length) continue;
+      const v = f.values[0].value;
+      if(v && typeof v==='object' && v.text){
+        if(['new','assigned','in progress','complete','on hold','cancelled'].includes(v.text.toLowerCase())){
+          statusFieldId = f.field_id;
+          if(f.config && f.config.settings && f.config.settings.options){
+            const opt = f.config.settings.options.find(o=>o.text.toLowerCase()===newStatusText.toLowerCase());
+            if(opt) optionId = opt.id;
+          }
+          break;
+        }
+      }
+    }
+    if(statusFieldId && optionId){
+      try{
+        await fetch('https://api.podio.com/item/'+TD_TICKET.id+'/value/'+statusFieldId,{
+          method:'PUT',
+          headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+          body:JSON.stringify({value:optionId})
+        });
+      }catch(err){ console.error('Status update failed:', err); }
+    }
+    return;
+  }
+  const actionBtn = e.target.closest('[data-td-action]');
+  if(actionBtn){
+    const type = actionBtn.dataset.tdAction;
+    if(TD_COMPOSE===type){ closeTicketCompose(); }
+    else { openTicketCompose(type); }
+    return;
+  }
+  if(e.target.closest('#td-compose-cancel')){
+    closeTicketCompose();
+    return;
+  }
+  const sendBtn = e.target.closest('#td-compose-send');
+  if(sendBtn && !sendBtn.disabled){
+    const type = sendBtn.dataset.tdComposeType;
+    const ta = document.getElementById('td-compose-ta');
+    const msg = ta ? ta.value.trim() : '';
+    if(!msg) return;
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'SENDING...';
+    try{
+      if(type==='comment'){
+        await fetch('https://api.podio.com/comment/item/'+TD_TICKET.id+'/',{
+          method:'POST',
+          headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+          body:JSON.stringify({value:msg})
+        });
+      } else {
+        const fieldId = type==='rep' ? FIELD.notes : FIELD.customerPhone;
+        const itemId = TD_PROJECT ? TD_PROJECT.id : TD_TICKET.id;
+        await fetch('https://api.podio.com/item/'+itemId+'/value/'+fieldId,{
+          method:'PUT',
+          headers:{'Authorization':'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+          body:JSON.stringify({value:msg})
+        });
+      }
+      closeTicketCompose();
+    }catch(err){
+      sendBtn.textContent = 'ERROR — TRY AGAIN';
+      sendBtn.disabled = false;
+    }
+    return;
+  }
+  if(e.target.closest('#td-compose-generate')){
+    const ta = document.getElementById('td-compose-ta');
+    const btn = e.target.closest('#td-compose-generate');
+    if(!ta||!btn) return;
+    btn.textContent = 'GENERATING...';
+    btn.disabled = true;
+    const itemId = TD_PROJECT ? TD_PROJECT.id : TD_TICKET.id;
+    const type = TD_COMPOSE==='rep'?'rep':'customer';
+    try{
+      const res = await fetch(VPS+'/generate-message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:itemId,type})});
+      const data = await res.json();
+      ta.value = data.message||data.text||'';
+      const sendBtn2 = document.getElementById('td-compose-send');
+      if(sendBtn2) sendBtn2.disabled = !ta.value.trim();
+    }catch(err){ ta.placeholder = 'Generation failed. Type manually.'; }
+    btn.textContent = 'GENERATE WITH AI';
+    btn.disabled = false;
+    return;
+  }
+  const tab = e.target.closest('.td-tab');
+  if(tab && tab.dataset.tdTab){
+    TD_TAB = tab.dataset.tdTab;
+    buildTicketTabs();
+    renderTicketTabContent();
+    return;
+  }
+  const switchTicket = e.target.closest('[data-td-switch-ticket]');
+  if(switchTicket){
+    const newId = parseInt(switchTicket.dataset.tdSwitchTicket);
+    const newTicket = TICKETS_ITEMS.find(t=>t.id===newId);
+    if(newTicket){
+      const projNum = newTicket.projectNum;
+      const match = projNum ? ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===projNum) : null;
+      openTicketDetail(newTicket, match||TD_PROJECT);
+    }
+    return;
+  }
+  if(e.target.closest('#td-prev-btn')||e.target.closest('#td-desk-prev')){
+    TD_INDEX = (TD_INDEX-1+TD_LIST.length)%TD_LIST.length;
+    const prev = TD_LIST[TD_INDEX];
+    const match = prev.projectNum ? ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===prev.projectNum) : null;
+    openTicketDetail(prev, match||TD_PROJECT);
+    return;
+  }
+  if(e.target.closest('#td-next-btn')||e.target.closest('#td-desk-next')){
+    TD_INDEX = (TD_INDEX+1)%TD_LIST.length;
+    const next = TD_LIST[TD_INDEX];
+    const match = next.projectNum ? ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===next.projectNum) : null;
+    openTicketDetail(next, match||TD_PROJECT);
+    return;
+  }
+});
+
+document.addEventListener('input', function(e){
+  if(e.target.id==='td-compose-ta'){
+    const sendBtn = document.getElementById('td-compose-send');
+    if(sendBtn) sendBtn.disabled = !e.target.value.trim();
   }
 });
 
