@@ -711,6 +711,90 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
 .kb-adder-name{color:rgba(255,255,255,.55)!important;font-size:11px!important}
 .kb-adder-cost{color:#ADD8E6!important;font-size:11px!important;font-weight:700!important}
 
+/* ── TICKET DETAIL VIEW ─────────────────────────────── */
+#view-ticket-detail{background:#000}
+#td-back-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #1a1a1a}
+#td-back-bar .td-back{color:#ADD8E6;font-size:11px;font-weight:700;cursor:pointer}
+#td-back-bar .td-pos{color:rgba(255,255,255,.3);font-size:10px}
+#td-header{background:#1a1a1a;padding:12px 14px;border-left:3px solid #ADD8E6}
+#td-header .td-ticket-num{color:#ADD8E6;font-weight:700;font-size:15px;letter-spacing:.5px}
+#td-header .td-customer{color:#fff;font-size:13px;font-weight:600;margin-top:2px}
+#td-header .td-address{color:rgba(255,255,255,.4);font-size:10px;margin-top:1px}
+#td-header .td-desc{color:#ddd;font-size:11px;line-height:1.5;margin-top:8px}
+#td-header .td-meta{display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap;color:rgba(255,255,255,.4);font-size:9px}
+#td-header .td-context{display:flex;gap:8px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08);align-items:center;flex-wrap:wrap}
+#td-header .td-age{text-align:right}
+#td-header .td-age-num{font-size:14px;font-weight:700}
+#td-header .td-age-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3)}
+#td-status{display:flex;gap:3px;padding:8px 12px;background:#000}
+.td-status-pill{flex:1;text-align:center;padding:8px 0;font-size:9px;letter-spacing:.5px;cursor:pointer;transition:opacity .15s;border:none;color:rgba(255,255,255,.4);background:#1a1a1a;font-family:inherit;font-weight:700}
+.td-status-pill:active{opacity:.7}
+.td-status-pill.active-new{background:#C97850;color:#fff}
+.td-status-pill.active-assigned{background:#C9A96E;color:#fff}
+.td-status-pill.active-inprogress{background:#ADD8E6;color:#000}
+.td-status-pill.active-complete{background:rgba(255,255,255,.35);color:#fff}
+#td-actions{display:flex;gap:4px;padding:0 12px 10px;background:#000}
+.td-action-btn{flex:1;text-align:center;padding:9px 0;font-size:9px;font-weight:700;letter-spacing:.5px;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);background:transparent;font-family:inherit;transition:opacity .15s}
+.td-action-btn:active{opacity:.7}
+.td-action-btn.primary{border-color:#ADD8E6;color:#ADD8E6}
+.td-action-btn.active{background:#ADD8E6;color:#000;border-color:#ADD8E6}
+#td-compose{display:none;margin:4px 12px 8px;border:1px solid #ADD8E6;padding:12px;background:#0d0d0d}
+#td-compose.open{display:block}
+#td-compose .td-compose-label{color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+#td-compose textarea{width:100%;min-height:60px;border:1px solid #333;padding:10px;color:#ddd;font-size:11px;background:#111;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box}
+#td-compose textarea:focus{outline:none;border-color:#ADD8E6}
+#td-compose .td-compose-btns{display:flex;gap:4px;margin-top:8px}
+#td-compose .td-compose-submit{flex:1;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:10px;font-weight:700;letter-spacing:.5px;border:none;cursor:pointer;font-family:inherit}
+#td-compose .td-compose-cancel{text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.4);padding:10px 16px;font-size:10px;background:transparent;cursor:pointer;font-family:inherit}
+#td-tabs-bar{display:flex;border-bottom:1px solid #333;background:#000;overflow-x:auto}
+.td-tab{padding:8px 14px;font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;background:transparent;border-top:none;border-left:none;border-right:none}
+.td-tab.active{color:#fff;border-bottom-color:#fff;font-weight:700}
+.td-tab .td-tab-count{color:#E88B8B}
+#td-tab-content{background:#0a0a0a;min-height:200px}
+.td-activity-row{padding:10px 14px;border-bottom:1px solid #1a1a1a}
+.td-activity-date{display:flex;justify-content:space-between;color:rgba(255,255,255,.5);font-size:10px;font-weight:600}
+.td-activity-author{color:#ADD8E6;font-size:10px;font-weight:600;margin-top:2px}
+.td-activity-body{color:#ddd;font-size:10px;margin-top:2px;line-height:1.4}
+.td-activity-system .td-activity-author{color:rgba(255,255,255,.4)}
+.td-activity-system .td-activity-body{color:rgba(255,255,255,.6)}
+#td-prev-next{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#000;border-top:1px solid #1a1a1a}
+#td-prev-next .td-nav-btn{color:#ADD8E6;font-size:11px;font-weight:700;cursor:pointer;background:transparent;border:none;font-family:inherit}
+#td-prev-next .td-nav-pos{color:rgba(255,255,255,.3);font-size:10px}
+.td-stage{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;text-decoration:none}
+.td-stage:active{opacity:.7}
+.td-stage-dot{width:6px;height:6px;flex-shrink:0}
+.td-stage-dot.done{background:#ADD8E6}
+.td-stage-dot.current{width:8px;height:8px;background:#ADD8E6;box-shadow:0 0 6px rgba(173,216,230,.5)}
+.td-stage-dot.future{background:rgba(255,255,255,.12)}
+.td-stage-name{font-size:9px;flex:1;letter-spacing:.5px}
+.td-stage.done .td-stage-name{color:rgba(255,255,255,.25)}
+.td-stage.current .td-stage-name{color:#ADD8E6;font-weight:700;font-size:10px}
+.td-stage.future .td-stage-name{color:rgba(255,255,255,.15)}
+.td-stage-status{font-size:8px}
+.td-stage.done .td-stage-status{color:rgba(255,255,255,.15)}
+.td-stage.current .td-stage-status{color:#ADD8E6;font-weight:700;font-size:9px}
+.td-stage.future .td-stage-status{color:rgba(255,255,255,.1)}
+.td-stage.current{background:rgba(173,216,230,.08);padding:7px 6px;margin:2px -6px}
+.td-drive-btn{border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:6px 12px;font-size:9px;letter-spacing:.5px;text-decoration:none;display:inline-block}
+.td-drive-btn:active{opacity:.7}
+.td-section-label{color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.td-sidebar{display:none}
+@media(min-width:768px){
+  #view-ticket-detail{display:flex;flex-direction:column}
+  .td-sidebar{display:block;flex:0 0 280px;background:#0a0a0a;padding:14px 16px;border-left:1px solid #1a1a1a}
+  #view-ticket-detail.active .td-split{display:flex}
+  .td-split{display:flex}
+  .td-split-left{flex:1}
+  .td-tab-project-mobile{display:none!important}
+  #td-prev-next{display:none}
+  #td-back-bar .td-desktop-nav{display:flex;align-items:center;gap:8px}
+  #td-back-bar .td-desktop-nav .td-nav-btn{color:#ADD8E6;font-size:11px;font-weight:700;cursor:pointer;background:transparent;border:none;font-family:inherit}
+}
+@media(max-width:767px){
+  .td-sidebar{display:none!important}
+  .td-desktop-nav{display:none!important}
+}
+
 /* ── SPLIT VIEW ── */
 .split-top{background:rgba(10,10,10,.97)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;backdrop-filter:blur(24px)}
 .split-section-tabs{background:rgba(10,10,10,.9)!important;border-bottom:1px solid rgba(255,255,255,.06)!important;gap:4px!important;padding:8px 1rem!important}
@@ -1512,6 +1596,19 @@ label{font-size:8px!important;letter-spacing:.22em!important;text-transform:uppe
   <div id="tickets-list"></div>
 </div>
 
+<!-- TICKET DETAIL VIEW -->
+<div id="view-ticket-detail" class="view">
+  <div id="td-back-bar"></div>
+  <div id="td-header"></div>
+  <div id="td-status"></div>
+  <div id="td-actions"></div>
+  <div id="td-compose"></div>
+  <div id="td-tabs-bar"></div>
+  <div id="td-tab-content"></div>
+  <div id="td-prev-next"></div>
+  <div id="td-sidebar" class="td-sidebar"></div>
+</div>
+
 <!-- COMMS TAB -->
 <div id="view-comms" class="view">
   <div class="resp-filter" id="comms-filters"></div>
@@ -1631,6 +1728,12 @@ let FILTER='All';
 let PREV_VIEW='home';   // where detail came from
 let TICKETS_ITEMS = [];
 let TICKETS_FILTER = 'all';
+let TD_TICKET = null;
+let TD_PROJECT = null;
+let TD_TAB = 'activity';
+let TD_COMPOSE = null;
+let TD_LIST = [];
+let TD_INDEX = 0;
 let WLIST_LABEL='';
 let CURRENT_WI=-1;
 
@@ -2287,6 +2390,106 @@ function loadPreInstall(){document.getElementById('preinstall-list').innerHTML='
 function loadReview(){document.getElementById('review-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadChangeOrders(){document.getElementById('change-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadRoof(){document.getElementById('roof-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+
+// ── TICKET DETAIL VIEW ──────────────────────────────────
+function openTicketDetail(ticket, project){
+  TD_TICKET = ticket;
+  TD_PROJECT = project;
+  TD_TAB = 'activity';
+  TD_COMPOSE = null;
+  SCROLL_POS['tickets_scroll'] = window.scrollY;
+
+  let items = [...TICKETS_ITEMS];
+  if(TICKETS_FILTER==='new') items=items.filter(t=>t.status.toLowerCase()==='new');
+  else if(TICKETS_FILTER==='assigned') items=items.filter(t=>t.status.toLowerCase()==='assigned');
+  else if(TICKETS_FILTER==='inprogress') items=items.filter(t=>t.status.toLowerCase()==='in progress');
+  items=items.filter(t=>{const s=t.status.toLowerCase();return s!=='complete'&&s!=='cancelled';});
+  items.sort((a,b)=>new Date(b.created)-new Date(a.created));
+  TD_LIST = items;
+  TD_INDEX = items.findIndex(t=>t.id===ticket.id);
+  if(TD_INDEX<0) TD_INDEX=0;
+
+  buildTicketDetail();
+  showView('ticket-detail');
+  setActiveNav('tickets');
+  window.scrollTo(0,0);
+}
+
+function buildTicketDetail(){
+  const t = TD_TICKET;
+  const p = TD_PROJECT;
+  if(!t) return;
+
+  const stage = p ? getDetailedStage(p) : '';
+  const repRaw = p ? (p.repInfo||'') : '';
+  const repName = (repRaw.match(/Rep Name:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const repPhone = (repRaw.match(/Phone:[*\s]+([^\n*]+)/i)||[])[1]||'';
+  const repEmail = (repRaw.match(/Email:[*\s]+([^\n*]+)/i)||[])[1]||'';
+
+  const timer = timerText(t.created);
+  const tc = timerClass(timer.days);
+  const ageColor = tc==='overdue'?'#E88B8B':tc==='moderate'?'#fff':'#ADD8E6';
+
+  document.getElementById('td-back-bar').innerHTML =
+    '<span class="td-back" id="td-back-btn">&lt; TICKETS</span>'+
+    '<span class="td-pos">'+(TD_INDEX+1)+' / '+TD_LIST.length+'</span>'+
+    '<span class="td-desktop-nav">'+
+      '<button class="td-nav-btn" id="td-desk-prev">&lt; PREV</button>'+
+      '<span style="color:rgba(255,255,255,.2);margin:0 4px">|</span>'+
+      '<button class="td-nav-btn" id="td-desk-next">NEXT &gt;</button>'+
+    '</span>';
+
+  const fullDesc = (t.raw && t.raw.title) ? t.raw.title.split(' - ').slice(3).join(' - ') : t.desc;
+  const cleanFullDesc = (fullDesc||t.desc||'').replace(/<br\s*\/?>/gi,' ').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+
+  document.getElementById('td-header').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+      '<div>'+
+        '<div class="td-ticket-num">'+x(t.tid)+'</div>'+
+        '<div class="td-customer">'+x(t.name)+'</div>'+
+        (t.address?'<div class="td-address">'+x(t.address)+'</div>':'')+
+      '</div>'+
+      '<div class="td-age">'+
+        '<div class="td-age-num" style="color:'+ageColor+'">'+timer.text+'</div>'+
+        '<div class="td-age-label">AGE</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="height:1px;background:#333;margin:8px 0"></div>'+
+    '<div class="td-desc">'+x(cleanFullDesc)+'</div>'+
+    '<div class="td-meta">'+
+      (t.ticketType?'<span>'+x(t.ticketType)+'</span><span style="color:rgba(255,255,255,.2)">|</span>':'')+
+      (t.creator?'<span>Created by '+x(t.creator)+'</span>':'')+
+    '</div>'+
+    (p?'<div class="td-context">'+
+      '<span style="color:#ADD8E6;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">'+x(stage)+'</span>'+
+      (repName?'<span style="color:rgba(255,255,255,.15)">|</span><span style="color:rgba(255,255,255,.4);font-size:9px">Rep: '+x(repName)+'</span>':'')+
+      (repPhone?'<span style="color:rgba(255,255,255,.15)">|</span><span style="color:rgba(255,255,255,.4);font-size:9px">'+x(repPhone)+'</span>':'')+
+    '</div>':'');
+
+  buildTicketStatus();
+  // Placeholder calls for functions added in next tasks
+  if(typeof buildTicketActions==='function') buildTicketActions();
+  if(typeof buildTicketTabs==='function') buildTicketTabs();
+  if(typeof renderTicketTabContent==='function') renderTicketTabContent();
+  if(typeof buildTicketPrevNext==='function') buildTicketPrevNext();
+  if(typeof buildTicketSidebar==='function') buildTicketSidebar(stage, repName, repPhone, repEmail);
+}
+
+function buildTicketStatus(){
+  const current = TD_TICKET.status.toLowerCase().replace(/\s+/g,'');
+  const statuses = [
+    {key:'new',label:'NEW',mobileLabel:'NEW'},
+    {key:'assigned',label:'ASSIGNED',mobileLabel:'ASSIGNED'},
+    {key:'inprogress',label:'IN PROGRESS',mobileLabel:'IN PROG'},
+    {key:'complete',label:'COMPLETE',mobileLabel:'COMPLETE'}
+  ];
+  document.getElementById('td-status').innerHTML = statuses.map(s=>{
+    const isActive = current===s.key;
+    const cls = isActive ? 'td-status-pill active-'+s.key : 'td-status-pill';
+    const label = window.innerWidth<768 ? s.mobileLabel : s.label;
+    return '<button class="'+cls+'" data-td-status="'+s.key+'">'+label+'</button>';
+  }).join('');
+}
 
 // ── NAV BADGE COUNTS ─────────────────────────────────────
 function updateNavBadges(){
