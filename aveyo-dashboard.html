@@ -2138,46 +2138,93 @@ async function loadTickets(){
       const fields = item.fields||[];
       const title = item.title||'';
 
-      // Iterate fields to find status and description dynamically
-      let desc = '';
-      let status = '';
+      // Parse title: "105976 - #06347 CUSTOMER NAME - ADDRESS - Description..."
+      let ticketNum='', projectNum='', name='', address='', titleDesc='';
+      const tm = title.match(/^(\d+)\s*-\s*#?(\d+)\s+(.+?)\s*-\s*(.+?)\s*-\s*(.+)$/);
+      if(tm){
+        ticketNum=tm[1]; projectNum=tm[2]; name=tm[3].trim(); address=tm[4].trim(); titleDesc=tm[5].trim();
+      } else {
+        // Fallback: split on " - "
+        const parts = title.split(' - ');
+        ticketNum = (parts[0]||'').trim().replace(/^#/,'');
+        name = (parts[1]||parts[0]||'').replace(/^#\d+\s*/,'').trim();
+        address = parts[2]||'';
+        titleDesc = parts.slice(3).join(' - ')||'';
+      }
+
+      // Find Ticket Status (category field)
+      let status = 'New';
       for(const f of fields){
-        const val = f.values?.[0]?.value;
-        if(!val) continue;
-        const txt = typeof val === 'object' ? (val.text||'') : String(val);
-        // Category/status fields
-        if(f.type === 'category' || f.type === 'state'){
-          if(!status) status = txt;
+        if(!f.values||!f.values.length) continue;
+        const v = f.values[0].value;
+        if(v && typeof v === 'object' && v.text){
+          const txt = v.text.toLowerCase();
+          if(['new','assigned','in progress','complete','on hold','cancelled'].some(s=>txt===s)){
+            status = v.text;
+            break;
+          }
         }
-        // Longest text field is likely the description
-        if(txt.length > desc.length && txt.length > 20){
+      }
+
+      // Find Ticket Type (another category field)
+      let ticketType = '';
+      for(const f of fields){
+        if(!f.values||!f.values.length) continue;
+        const v = f.values[0].value;
+        if(v && typeof v === 'object' && v.text){
+          const txt = v.text;
+          if(['Sales Rep Comment','Change Order','Contractor Comment','Customer Contact Needed','Customer Review','Equipment Change','Incoming Text Needs Attention','Install Item Needs Attention','Lender','OPS Comment','PTO Fail','Retention','Sales Rep Ticket','STATE/BBB','System Check','Work Order Complete','Work Order Issue'].some(s=>txt===s)){
+            ticketType = txt;
+            break;
+          }
+        }
+      }
+
+      // Find Details text field — parse Comment Creator
+      let creator = '';
+      let desc = titleDesc;
+      for(const f of fields){
+        if(!f.values||!f.values.length) continue;
+        const v = f.values[0].value;
+        const txt = (typeof v === 'object' ? (v.text||'') : String(v||'')).trim();
+        if(txt.length < 20) continue;
+        // Check if this is the Details field (has "Comment Creator:")
+        const creatorMatch = txt.match(/Comment Creator:\s*([^\n,]+)/i);
+        if(creatorMatch){
+          creator = creatorMatch[1].trim();
+        }
+        // Use Description field for display if we don't have one from title
+        if(!desc && txt.length > 10 && !txt.includes('Comment Creator:')){
           desc = txt;
         }
       }
-      if(!status) status = 'Open';
-
-      // Parse creator from description
-      let creator = '';
-      const creatorMatch = desc.match(/(?:Created by|Submitted by|From|Reporter)[:\s]+([^\n,]+)/i);
-      if(creatorMatch) creator = creatorMatch[1].trim();
-      if(!creator){
-        const firstLine = desc.split('\n')[0]?.trim()||'';
-        if(firstLine.length < 50 && !firstLine.includes(':') && !firstLine.includes('http')) creator = firstLine;
+      // If desc is still empty, try any text field
+      if(!desc){
+        for(const f of fields){
+          if(!f.values||!f.values.length) continue;
+          const v = f.values[0].value;
+          const txt = (typeof v === 'object' ? (v.text||'') : String(v||'')).trim();
+          if(txt.length > 10 && !txt.includes('Comment Creator:') && !txt.includes('Comment Location:')){
+            desc = txt; break;
+          }
+        }
       }
 
-      // Parse ticket number from title
-      const tidMatch = title.match(/#?(\d{4,})/);
-      const tid = tidMatch ? tidMatch[1] : String(item.item_id);
+      const cleanDesc = (desc||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
 
-      // Parse customer name from title — remove ticket number prefix
-      const name = title.replace(/^#?\d+\s*[-–]\s*/, '').replace(/^#?\d+\s+/, '').split(' - ')[0]?.trim() || title;
-      const address = title.split(' - ')[1]?.trim() || '';
-
-      // Strip HTML from description for display
-      const cleanDesc = desc.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
-
-      const created = item.created_on||'';
-      return {id:item.item_id, tid:'#'+tid, name, address, status:status.trim(), desc:cleanDesc.substring(0,200), created, creator:creator||'', raw:item};
+      return {
+        id: item.item_id,
+        tid: '#'+ticketNum,
+        projectNum: projectNum,
+        name: name,
+        address: address,
+        status: status.trim(),
+        ticketType: ticketType,
+        desc: cleanDesc.substring(0,200),
+        created: item.created_on||'',
+        creator: creator,
+        raw: item
+      };
     });
     renderTickets();
   }catch(e){
@@ -2187,37 +2234,44 @@ async function loadTickets(){
 }
 
 function renderTickets(){
-  const counts = {all:TICKETS_ITEMS.length, open:0, assigned:0};
+  const counts = {all:TICKETS_ITEMS.length, 'new':0, assigned:0, inprogress:0};
   TICKETS_ITEMS.forEach(t=>{
     const s=t.status.toLowerCase();
-    if(s.includes('assign')) counts.assigned++;
-    else if(!s.includes('complet')&&!s.includes('cancel')) counts.open++;
+    if(s==='new') counts['new']++;
+    else if(s==='assigned') counts.assigned++;
+    else if(s==='in progress') counts.inprogress++;
   });
   document.getElementById('tickets-filters').innerHTML=
-    ['all','open','assigned'].map(f=>{
+    [['all','ALL'],['new','NEW'],['assigned','ASSIGNED'],['inprogress','IN PROGRESS']].map(([f,label])=>{
       const n = counts[f];
-      const cls = f===TICKETS_FILTER?'resp-chip active':(f==='open'&&n>0?'resp-chip urgent':'resp-chip');
-      return '<span class="'+cls+'" data-tfilter="'+f+'">'+f.toUpperCase()+' '+n+'</span>';
+      const cls = f===TICKETS_FILTER?'resp-chip active':(f==='new'&&n>0?'resp-chip urgent':'resp-chip');
+      return '<span class="'+cls+'" data-tfilter="'+f+'">'+label+' '+n+'</span>';
     }).join('');
 
   let items = [...TICKETS_ITEMS];
-  if(TICKETS_FILTER==='open') items=items.filter(t=>!t.status.toLowerCase().includes('complet')&&!t.status.toLowerCase().includes('cancel')&&!t.status.toLowerCase().includes('assign'));
-  if(TICKETS_FILTER==='assigned') items=items.filter(t=>t.status.toLowerCase().includes('assign'));
+  if(TICKETS_FILTER==='new') items=items.filter(t=>t.status.toLowerCase()==='new');
+  else if(TICKETS_FILTER==='assigned') items=items.filter(t=>t.status.toLowerCase()==='assigned');
+  else if(TICKETS_FILTER==='inprogress') items=items.filter(t=>t.status.toLowerCase()==='in progress');
+  // Exclude completed/cancelled from ALL view too
+  items=items.filter(t=>{const s=t.status.toLowerCase();return s!=='complete'&&s!=='cancelled';});
   items.sort((a,b)=>new Date(b.created)-new Date(a.created));
 
   document.getElementById('tickets-list').innerHTML = items.length ? items.map(t=>{
     const timer = timerText(t.created);
     const tc = timerClass(timer.days);
     const sl = t.status.toLowerCase();
-    const badgeCls = sl.includes('complet')?'neutral':sl.includes('assign')?'neutral':'good';
-    return '<div class="resp-row" data-ticketid="'+t.id+'">'+
+    const badgeCls = sl==='new'?'urgent':sl==='assigned'?'neutral':sl==='in progress'?'good':'neutral';
+    return '<div class="resp-row" data-ticketid="'+t.id+'" data-projnum="'+x(t.projectNum)+'">'+
       '<div class="resp-row-top"><span class="resp-row-id">'+x(t.tid)+'</span><span class="resp-badge '+badgeCls+'">'+x(t.status.toUpperCase())+'</span></div>'+
       '<div class="resp-row-name">'+x(t.name)+'</div>'+
       (t.address?'<div class="resp-row-meta">'+x(t.address)+'</div>':'')+
       (t.desc?'<div class="resp-row-desc">'+x(t.desc)+'</div>':'')+
-      '<div class="resp-row-bottom"><span class="resp-row-creator">Created by <b>'+x(t.creator)+'</b></span><span class="resp-timer '+tc+'">'+timer.text+'</span></div>'+
+      '<div class="resp-row-bottom">'+
+        '<span class="resp-row-creator">'+(t.creator?'Created by <b>'+x(t.creator)+'</b>':'')+(t.ticketType?' · <span style="color:rgba(255,255,255,.3)">'+x(t.ticketType)+'</span>':'')+'</span>'+
+        '<span class="resp-timer '+tc+'">'+timer.text+'</span>'+
+      '</div>'+
     '</div>';
-  }).join('') : '<div class="resp-empty">No tickets found.</div>';
+  }).join('') : '<div class="resp-empty">No open tickets.</div>';
 }
 function loadCommsTab(){document.getElementById('comms-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadSOWResp(){document.getElementById('sowresp-list').innerHTML='<div class="resp-empty">Loading...</div>';}
@@ -5484,13 +5538,17 @@ document.addEventListener('click',async function(e){
   if(chip){ TICKETS_FILTER=chip.dataset.tfilter; renderTickets(); return; }
   const row = e.target.closest('#tickets-list .resp-row[data-ticketid]');
   if(row){
-    const tid = parseInt(row.dataset.ticketid);
-    const ticket = TICKETS_ITEMS.find(t=>t.id===tid);
-    if(!ticket) return;
-    // Ensure projects are loaded for matching
-    if(!ALL_ITEMS.length) await loadProjects();
-    const match = ALL_ITEMS.find(p=>ticket.name&&p.name&&p.name.toLowerCase().includes(ticket.name.toLowerCase()));
-    if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
+    const projNum = row.dataset.projnum;
+    if(projNum && ALL_ITEMS.length){
+      const match = ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===projNum);
+      if(match){ PREV_VIEW='tickets'; openDetail(match.id); return; }
+    }
+    // Fallback: load projects first then try again
+    if(projNum && !ALL_ITEMS.length){
+      await loadProjects();
+      const match = ALL_ITEMS.find(p=>p.num&&p.num.replace('#','')===projNum);
+      if(match){ PREV_VIEW='tickets'; openDetail(match.id); }
+    }
   }
 });
 
