@@ -5551,9 +5551,9 @@ function renderSurveyReview(iid, data){
     if(allPages.length){
       html += '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
         '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Photos <span style="font-weight:400;color:rgba(255,255,255,.25)">'+allPages.length+' pages · tap to zoom</span></div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px">';
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">';
       allPages.forEach(p=>{
-        html += '<div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;aspect-ratio:0.77;object-fit:cover;border:1px solid rgba(255,255,255,.04);cursor:pointer" onclick="openThumbZoom(this.src)" alt="p'+p.page+'"></div>';
+        html += '<div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;aspect-ratio:0.77;object-fit:cover;border:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="openThumbZoom(this.src)" alt="p'+p.page+'"></div>';
       });
       html += '</div></div>';
     }
@@ -6276,7 +6276,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=133').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=134').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
