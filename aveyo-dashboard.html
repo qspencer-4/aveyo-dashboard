@@ -5292,10 +5292,44 @@ async function loadPalmettoComparison(iid, fields){
     '</div>';
   }
 
+  // Google Drive folder links for design comparison
+  const custDocsFolder = fields.find(f=>f.field_id===266618731);
+  const custDocsId = custDocsFolder?.values?.[0]?.value;
+  const approvedFolder = fields.find(f=>f.field_id===268981903);
+  const approvedId = approvedFolder?.values?.[0]?.value;
+  const custDocsLink = custDocsId ? 'https://drive.google.com/drive/folders/'+custDocsId : '';
+  const approvedLink = approvedId ? 'https://drive.google.com/drive/folders/'+approvedId : '';
+
+  // System size row — no dropdown, auto-comparison only
+  const sizeRow = '<div style="padding:10px 12px;border-left:2px solid '+(sizeMatch?'rgba(173,216,230,.2)':'rgba(232,139,139,.2)')+';margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+      '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">System Size</span>'+
+      badge(sizeMatch)+
+    '</div>'+
+    '<div style="display:flex;gap:16px;font-size:10px">'+
+      '<div><span style="color:rgba(255,255,255,.3)">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+(podioSize?podioSize+' kW':'—')+'</span></div>'+
+      '<div><span style="color:rgba(255,255,255,.3)">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+(lrSize?lrSize+' kW':'—')+'</span></div>'+
+    '</div>'+
+  '</div>';
+
+  // Design matches row — compare proposal (customer docs) vs planset (approved folder)
+  const designRow = '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+      '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Design Matches</span>'+
+      '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">VISUAL CHECK</span>'+
+    '</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:6px">Compare the proposal layout in Customer Docs against the approved planset layout</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:6px">'+
+      (custDocsLink?'<a href="'+custDocsLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:4px 10px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">CUSTOMER DOCS ↗</a>':'')+
+      (approvedLink?'<a href="'+approvedLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:4px 10px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">APPROVED PLANSET ↗</a>':'')+
+    '</div>'+
+    dd(SOW_FIELD.designMatches, designMatches, yesNoOpts)+
+  '</div>';
+
   compDiv.innerHTML = '<div class="sow-section-hdr">LightReach Verification <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">via Palmetto API · '+x(lr.productName||'')+' · saves to Podio</span></div>'+
-    verifyRow('System Size Matches', podioSize?podioSize+' kW':'—', lrSize?lrSize+' kW':'—', sizeMatch, SOW_FIELD.systemSizeMatches, systemMatches)+
+    sizeRow+
     verifyRow('Contract Price Matches', podioPrice?'$'+podioPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', lrPrice?'$'+lrPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', priceMatch, SOW_FIELD.contractPriceMatches, priceMatches)+
-    verifyRow('Design Matches', podioPanel.trim()+' x'+podioPanelCount, lrPanels, panelModelMatch, SOW_FIELD.designMatches, designMatches)+
+    designRow+
     '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
         '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Inverters</span>'+
@@ -6025,7 +6059,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=122').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=123').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
