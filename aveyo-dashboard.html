@@ -5429,8 +5429,8 @@ function renderDesignCompare(iid, data){
     html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Layout Comparison</div>'+
       '<div style="display:flex;gap:8px;align-items:flex-start">'+
-        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PROPOSAL'+x(pgLabel1)+'</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;max-height:320px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Proposal layout"></div>':'')+
-        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PLANSET'+x(pgLabel2)+'</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;max-height:320px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Planset layout"></div>':'')+
+        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PROPOSAL'+x(pgLabel1)+'</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;max-height:400px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" alt="Proposal layout" onclick="openThumbZoom(this.src)"></div>':'')+
+        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PLANSET'+x(pgLabel2)+'</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;max-height:400px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" alt="Planset layout" onclick="openThumbZoom(this.src)"></div>':'')+
       '</div>'+
     '</div>';
   }
@@ -6190,7 +6190,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=130').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=131').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -6425,6 +6425,15 @@ if('serviceWorker' in navigator){
     });
   });
 })();
+
+// ── THUMBNAIL ZOOM OVERLAY ─────────────────────────────────
+function openThumbZoom(src){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:pointer';
+  overlay.innerHTML = '<img src="'+src+'" style="max-width:95vw;max-height:90vh;object-fit:contain;border:1px solid rgba(255,255,255,.1)">';
+  overlay.addEventListener('click',()=>overlay.remove());
+  document.body.appendChild(overlay);
+}
 
 // SOW Responsibility tab: filter chip clicks + row clicks
 document.addEventListener('click',function(e){
