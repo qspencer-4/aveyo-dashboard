@@ -5353,7 +5353,7 @@ async function loadPalmettoComparison(iid, fields){
     '</div>'+
     triRow('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, '—')+
     triRow('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, '—')+
-    '<div id="sow-design-compare-'+iid+'" style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,.25)">Loading design comparison from PDFs...</div>';
+    '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
   compDiv.after(layoutDiv);
 
   // Auto-run design comparison
@@ -5428,9 +5428,9 @@ function renderDesignCompare(iid, data){
     const pgLabel2 = data.planset_thumb_page ? ' (p'+data.planset_thumb_page+')' : '';
     html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Layout Comparison</div>'+
-      '<div style="display:flex;gap:6px;align-items:flex-start;max-width:400px">'+
-        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PROPOSAL'+x(pgLabel1)+'</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;max-height:180px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Proposal layout"></div>':'')+
-        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PLANSET'+x(pgLabel2)+'</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;max-height:180px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Planset layout"></div>':'')+
+      '<div style="display:flex;gap:8px;align-items:flex-start">'+
+        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PROPOSAL'+x(pgLabel1)+'</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;max-height:320px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Proposal layout"></div>':'')+
+        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PLANSET'+x(pgLabel2)+'</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;max-height:320px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Planset layout"></div>':'')+
       '</div>'+
     '</div>';
   }
@@ -6190,7 +6190,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=129').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=130').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
