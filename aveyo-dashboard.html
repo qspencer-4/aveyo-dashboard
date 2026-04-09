@@ -5356,8 +5356,17 @@ async function loadPalmettoComparison(iid, fields){
     '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
   compDiv.after(layoutDiv);
 
-  // Auto-run design comparison
+  // Site Survey Review section
+  const surveyDiv = document.createElement('div');
+  surveyDiv.className = 'sow-section';
+  surveyDiv.id = 'sow-survey-'+iid;
+  surveyDiv.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div>'+
+    '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
+  layoutDiv.after(surveyDiv);
+
+  // Auto-run design comparison and survey review
   loadDesignCompare(iid);
+  loadSurveyReview(iid);
 }
 
 const SOW_DESIGN_CACHE = {};
@@ -5474,6 +5483,83 @@ function renderDesignCompare(iid, data){
   html += '</div>';
 
   el.innerHTML = html;
+}
+
+const SOW_SURVEY_CACHE = {};
+
+async function loadSurveyReview(iid){
+  const section = document.getElementById('sow-survey-'+iid);
+  if(!section) return;
+
+  if(SOW_SURVEY_CACHE[iid]){
+    renderSurveyReview(iid, SOW_SURVEY_CACHE[iid]);
+    return;
+  }
+
+  try{
+    const res = await fetch(VPS+'/sow-survey-review',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sow_item_id:iid})
+    });
+    const data = await res.json();
+    SOW_SURVEY_CACHE[iid] = data;
+    renderSurveyReview(iid, data);
+  }catch(e){
+    section.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div><div style="padding:12px;color:#E88B8B;font-size:10px">Failed to load survey: '+x(e.message)+'</div>';
+  }
+}
+
+function renderSurveyReview(iid, data){
+  const section = document.getElementById('sow-survey-'+iid);
+  if(!section) return;
+
+  if(data.status!=='ok'){
+    section.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div><div style="padding:12px;color:#E88B8B;font-size:10px">'+x(data.message||'Error')+'</div>';
+    return;
+  }
+
+  let html = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">'+x(data.file_name||'')+' · '+data.total_pages+' pages</span></div>';
+
+  // Roof photos
+  const roofPages = data.roof_pages||[];
+  if(roofPages.length){
+    html += '<div style="padding:10px 12px;border-left:2px solid rgba(173,216,230,.2);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Roof Photos</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    roofPages.forEach(p=>{
+      html += '<div style="flex:1;min-width:140px;max-width:50%"><div style="font-size:7px;color:rgba(255,255,255,.2);letter-spacing:.5px;margin-bottom:2px">PAGE '+p.page+'</div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;max-height:400px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="openThumbZoom(this.src)" alt="Roof p'+p.page+'"></div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Tilt photos
+  const tiltPages = data.tilt_pages||[];
+  if(tiltPages.length){
+    html += '<div style="padding:10px 12px;border-left:2px solid rgba(173,216,230,.2);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Tilt / Pitch Photos</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    tiltPages.forEach(p=>{
+      html += '<div style="flex:1;min-width:140px;max-width:50%"><div style="font-size:7px;color:rgba(255,255,255,.2);letter-spacing:.5px;margin-bottom:2px">PAGE '+p.page+'</div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;max-height:400px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="openThumbZoom(this.src)" alt="Tilt p'+p.page+'"></div>';
+    });
+    html += '</div></div>';
+  }
+
+  // If no categorized pages found, show all pages with photos
+  if(!roofPages.length && !tiltPages.length){
+    const photoPages = (data.pages||[]).filter(p=>p.type!=='other'||true).slice(0, 8);
+    if(photoPages.length){
+      html += '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
+        '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Pages</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      photoPages.forEach(p=>{
+        html += '<div style="flex:1;min-width:140px;max-width:33%"><div style="font-size:7px;color:rgba(255,255,255,.2);letter-spacing:.5px;margin-bottom:2px">PAGE '+p.page+'</div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;max-height:300px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="openThumbZoom(this.src)" alt="Survey p'+p.page+'"></div>';
+      });
+      html += '</div></div>';
+    }
+  }
+
+  section.innerHTML = html;
 }
 
 const SOW_EXTRACT_CACHE = {};
@@ -6190,7 +6276,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=131').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=132').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
