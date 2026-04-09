@@ -5017,6 +5017,9 @@ document.getElementById('sow-list').addEventListener('click',function(e){
 document.getElementById('sow-back').addEventListener('click',()=>{
   document.getElementById('sow-detail').style.display='none';
   SOW_CURRENT_ITEM=null;
+  // Return to SOW queue if that's where we came from
+  showView('sowresp');
+  setActiveNav('sow');
 });
 
 document.getElementById('sow-view-select').addEventListener('change',()=>loadSOW());
@@ -6013,7 +6016,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=120').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=121').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
@@ -6249,12 +6252,29 @@ if('serviceWorker' in navigator){
   });
 })();
 
-// SOW Responsibility tab: filter chip clicks
+// SOW Responsibility tab: filter chip clicks + row clicks
 document.addEventListener('click',function(e){
   const chip = e.target.closest('[data-sowfilter]');
   if(chip){
     SOW_RESP_FILTER = chip.dataset.sowfilter;
     loadSOWResp();
+    return;
+  }
+  const row = e.target.closest('#sowresp-list .resp-row[data-sowid]');
+  if(row){
+    const sowId = parseInt(row.dataset.sowid);
+    // Find the raw item from cache
+    const items = SOW_RESP_CACHE[SOW_RESP_FILTER]||[];
+    const cached = items.find(s=>s.id===sowId);
+    if(cached && cached.raw){
+      SOW_CURRENT_ITEM = cached.raw;
+      SOW_ITEMS = [cached.raw]; // so openSOWDetail can find it
+      showView('sow');
+      buildSOWDetail(cached.raw);
+      document.getElementById('sow-detail').style.display='block';
+      document.getElementById('sow-list').innerHTML='';
+      window.scrollTo(0,0);
+    }
   }
 });
 
