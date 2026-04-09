@@ -5422,13 +5422,15 @@ function renderDesignCompare(iid, data){
     });
   }
 
-  // Side-by-side thumbnail comparison
+  // Side-by-side thumbnail comparison — compact
   if(data.proposal_thumb || data.planset_thumb){
+    const pgLabel1 = data.proposal_thumb_page ? ' (p'+data.proposal_thumb_page+')' : '';
+    const pgLabel2 = data.planset_thumb_page ? ' (p'+data.planset_thumb_page+')' : '';
     html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:8px">Layout Comparison</div>'+
-      '<div style="display:flex;gap:8px;align-items:flex-start">'+
-        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:4px">PROPOSAL</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;border:1px solid rgba(255,255,255,.08)" alt="Proposal"></div>':'')+
-        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:4px">PLANSET</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;border:1px solid rgba(255,255,255,.08)" alt="Planset"></div>':'')+
+      '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Layout Comparison</div>'+
+      '<div style="display:flex;gap:6px;align-items:flex-start;max-width:400px">'+
+        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PROPOSAL'+x(pgLabel1)+'</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;max-height:180px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Proposal layout"></div>':'')+
+        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.8px;margin-bottom:3px">PLANSET'+x(pgLabel2)+'</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;max-height:180px;object-fit:contain;border:1px solid rgba(255,255,255,.06)" alt="Planset layout"></div>':'')+
       '</div>'+
     '</div>';
   }
@@ -6188,7 +6190,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=128').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=129').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
