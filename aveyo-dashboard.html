@@ -5396,75 +5396,80 @@ function renderDesignCompare(iid, data){
 
   let html = '';
 
-  // Show files found
-  html += '<div style="font-size:9px;color:rgba(255,255,255,.25);margin-bottom:8px;letter-spacing:.3px">';
-  if(data.proposal_file) html += 'Proposal: '+x(data.proposal_file);
-  if(data.planset_file) html += ' | Planset: '+x(data.planset_file);
-  html += '</div>';
-
   // Update Panels and Inverters rows with planset data
   const layoutSection = document.getElementById('sow-layout-'+iid);
-  if(layoutSection && data.planset){
+  if(layoutSection && data.planset && !data.planset.error){
     const ps = data.planset;
-    // Find and update the "Not loaded" planset values
-    const rows = layoutSection.querySelectorAll('[style*="border-left"]');
-    rows.forEach(row=>{
-      const label = row.querySelector('div:first-child');
-      if(!label) return;
-      const txt = label.textContent.trim();
-      const plansetSpans = row.querySelectorAll('span');
-      plansetSpans.forEach(sp=>{
-        if(sp.textContent === '—' && sp.previousSibling && sp.previousSibling.textContent && sp.previousSibling.textContent.includes('Planset')){
-          if(txt === 'Panels' && ps.panel_model){
-            sp.textContent = (ps.panel_manufacturer||'')+' '+ps.panel_model+' x'+(ps.panel_count||'?');
-          }
-          if(txt === 'Inverters' && ps.inverter_model){
-            sp.textContent = (ps.inverter_manufacturer||'')+' '+ps.inverter_model+' x'+(ps.inverter_count||'?');
+    const allSpans = layoutSection.querySelectorAll('span');
+    allSpans.forEach(sp=>{
+      if(sp.textContent.trim()==='—'){
+        const prev = sp.previousElementSibling || (sp.parentNode && sp.parentNode.querySelector('span:first-child'));
+        const parentText = sp.parentNode ? sp.parentNode.textContent : '';
+        if(parentText.includes('Planset')){
+          // Check which row we're in
+          const row = sp.closest('[style*="border-left"]');
+          if(row){
+            const rowLabel = row.querySelector('div:first-child');
+            if(rowLabel && rowLabel.textContent.trim()==='Panels' && ps.panel_model){
+              sp.textContent = (ps.panel_manufacturer?ps.panel_manufacturer+' ':'')+ps.panel_model+' x'+(ps.panel_count||'?');
+            }
+            if(rowLabel && rowLabel.textContent.trim()==='Inverters' && ps.inverter_model){
+              sp.textContent = (ps.inverter_manufacturer?ps.inverter_manufacturer+' ':'')+ps.inverter_model+' x'+(ps.inverter_count||'?');
+            }
           }
         }
-      });
+      }
     });
   }
 
-  // Show layout comparison
-  if(data.proposal && data.planset){
+  // Side-by-side thumbnail comparison
+  if(data.proposal_thumb || data.planset_thumb){
+    html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:8px">Layout Comparison</div>'+
+      '<div style="display:flex;gap:8px;align-items:flex-start">'+
+        (data.proposal_thumb?'<div style="flex:1;min-width:0"><div style="font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:4px">PROPOSAL</div><img src="data:image/png;base64,'+data.proposal_thumb+'" style="width:100%;border:1px solid rgba(255,255,255,.08)" alt="Proposal"></div>':'')+
+        (data.planset_thumb?'<div style="flex:1;min-width:0"><div style="font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:4px">PLANSET</div><img src="data:image/png;base64,'+data.planset_thumb+'" style="width:100%;border:1px solid rgba(255,255,255,.08)" alt="Planset"></div>':'')+
+      '</div>'+
+    '</div>';
+  }
+
+  // Layout text descriptions
+  if(data.proposal && data.planset && !data.proposal.error && !data.planset.error){
     const p = data.proposal;
     const s = data.planset;
 
     if(p.panel_layout_description || s.panel_layout_description){
-      html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-        '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px">Layout Comparison</div>'+
-        '<div style="display:flex;flex-direction:column;gap:6px;font-size:10px">'+
-          (p.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Proposal:</span> <span style="color:rgba(255,255,255,.55)">'+x(p.panel_layout_description)+'</span></div>':'')+
-          (s.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Planset:</span> <span style="color:rgba(255,255,255,.55)">'+x(s.panel_layout_description)+'</span></div>':'')+
-        '</div>'+
+      html += '<div style="padding:6px 12px;font-size:10px;display:flex;flex-direction:column;gap:4px">'+
+        (p.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Proposal:</span> <span style="color:rgba(255,255,255,.5)">'+x(p.panel_layout_description)+'</span></div>':'')+
+        (s.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Planset:</span> <span style="color:rgba(255,255,255,.5)">'+x(s.panel_layout_description)+'</span></div>':'')+
       '</div>';
     }
 
-    // Show check results
+    // Equipment match results
     if(data.checks){
-      const checks = data.checks;
       let checkHtml = '';
-      for(const[key, val] of Object.entries(checks)){
+      for(const[key, val] of Object.entries(data.checks)){
         if(key === 'layout') continue;
         if('match' in val){
           const color = val.match ? '#ADD8E6' : '#E88B8B';
           const label = key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-          checkHtml += '<span style="color:'+color+';font-size:9px;margin-right:10px">'+
-            (val.match?'✓':'✗')+' '+x(label)+
-          '</span>';
+          checkHtml += '<span style="color:'+color+';font-size:9px;margin-right:10px">'+(val.match?'✓':'✗')+' '+x(label)+'</span>';
         }
       }
       if(checkHtml){
         html += '<div style="padding:6px 12px;display:flex;flex-wrap:wrap;gap:4px">'+checkHtml+'</div>';
       }
       if(data.all_match !== undefined){
-        html += '<div style="padding:4px 12px;font-size:10px;font-weight:700;color:'+(data.all_match?'#ADD8E6':'#E88B8B')+'">'+
-          (data.all_match?'ALL EQUIPMENT MATCHES':'EQUIPMENT MISMATCHES DETECTED')+
-        '</div>';
+        html += '<div style="padding:4px 12px;font-size:10px;font-weight:700;color:'+(data.all_match?'#ADD8E6':'#E88B8B')+'">'+(data.all_match?'ALL EQUIPMENT MATCHES':'EQUIPMENT MISMATCHES DETECTED')+'</div>';
       }
     }
   }
+
+  // Files used
+  html += '<div style="padding:4px 12px;font-size:8px;color:rgba(255,255,255,.15);letter-spacing:.3px">';
+  if(data.proposal_file) html += x(data.proposal_file);
+  if(data.planset_file) html += ' vs '+x(data.planset_file);
+  html += '</div>';
 
   el.innerHTML = html;
 }
@@ -6183,7 +6188,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=127').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=128').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
