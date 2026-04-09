@@ -5545,15 +5545,15 @@ function renderSurveyReview(iid, data){
     html += '</div></div>';
   }
 
-  // If no categorized pages found, show all pages with photos
+  // If no categorized pages found, show all photo pages in a grid
   if(!roofPages.length && !tiltPages.length){
-    const photoPages = (data.pages||[]).filter(p=>p.type!=='other'||true).slice(0, 8);
-    if(photoPages.length){
+    const allPages = (data.pages||[]).slice(1); // skip cover page
+    if(allPages.length){
       html += '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
-        '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Pages</div>'+
-        '<div style="display:flex;gap:6px;flex-wrap:wrap">';
-      photoPages.forEach(p=>{
-        html += '<div style="flex:1;min-width:140px;max-width:33%"><div style="font-size:7px;color:rgba(255,255,255,.2);letter-spacing:.5px;margin-bottom:2px">PAGE '+p.page+'</div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;max-height:300px;object-fit:contain;border:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="openThumbZoom(this.src)" alt="Survey p'+p.page+'"></div>';
+        '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Photos <span style="font-weight:400;color:rgba(255,255,255,.25)">'+allPages.length+' pages · tap to zoom</span></div>'+
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px">';
+      allPages.forEach(p=>{
+        html += '<div><img src="data:image/png;base64,'+p.thumb+'" style="width:100%;aspect-ratio:0.77;object-fit:cover;border:1px solid rgba(255,255,255,.04);cursor:pointer" onclick="openThumbZoom(this.src)" alt="p'+p.page+'"></div>';
       });
       html += '</div></div>';
     }
@@ -6276,7 +6276,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=132').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=133').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
