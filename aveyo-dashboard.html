@@ -5309,39 +5309,50 @@ async function loadPalmettoComparison(iid, fields){
     '</div>'+
   '</div>';
 
+  // Get planset data if already cached
+  const plansetData = SOW_EXTRACT_CACHE[iid];
+  const planset = plansetData?.planset||{};
+  const plansetPanel = planset.panel_model ? planset.panel_model+' x'+(planset.panel_count||'?') : null;
+  const plansetInverter = planset.inverter_model ? (planset.inverter_count||1)+'x '+planset.inverter_model : null;
+  const plansetNote = plansetData ? '' : '<div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:4px;letter-spacing:.3px">Run PDF Check below to load planset data</div>';
+
   compDiv.innerHTML = '<div class="sow-section-hdr">LightReach Verification <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">via Palmetto API · '+x(lr.productName||'')+' · saves to Podio</span></div>'+
     sizeRow+
     verifyRow('Contract Price Matches', podioPrice?'$'+podioPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', lrPrice?'$'+lrPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', priceMatch, SOW_FIELD.contractPriceMatches, priceMatches)+
-    '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
-        '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Inverters</span>'+
-        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">INFO ONLY</span>'+
-      '</div>'+
-      '<div style="display:flex;gap:16px;font-size:10px">'+
-        '<div><span style="color:rgba(255,255,255,.3)">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(podioInverter.trim()+' x'+podioInvCount)+'</span></div>'+
-        '<div><span style="color:rgba(255,255,255,.3)">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(lrInverters)+'</span></div>'+
-      '</div>'+
-    '</div>'+
     '<div style="padding:6px 12px;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.5px">'+
       '<a href="https://palmetto.finance/accounts/'+x(financeId)+'" target="_blank" style="color:#ADD8E6;text-decoration:none">OPEN IN LIGHTREACH ↗</a>'+
     '</div>';
 
-  // Layout & Equipment section — separate from LightReach verification
+  // Layout & Equipment section
+  function triRow(label, podioVal, lrVal, plansetVal){
+    return '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px">'+x(label)+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:3px;font-size:10px">'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(String(podioVal||'—'))+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(String(lrVal||'—'))+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Planset:</span> <span style="color:rgba(255,255,255,.6)">'+x(String(plansetVal||'Not loaded'))+'</span></div>'+
+      '</div>'+
+    '</div>';
+  }
+
   const layoutDiv = document.createElement('div');
   layoutDiv.className = 'sow-section';
   layoutDiv.innerHTML = '<div class="sow-section-hdr">Layout & Equipment <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
-    '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
         '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Design Matches</span>'+
         '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">VISUAL CHECK</span>'+
       '</div>'+
       '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">Does the proposal layout in Customer Docs match the stamped plans in the Approved folder?</div>'+
-      '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
         (custDocsLink?'<a href="'+custDocsLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN CUSTOMER DOCS ↗</a>':'')+
         (approvedLink?'<a href="'+approvedLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN APPROVED PLANS ↗</a>':'')+
       '</div>'+
       dd(SOW_FIELD.designMatches, designMatches, yesNoOpts)+
-    '</div>';
+    '</div>'+
+    triRow('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, plansetPanel)+
+    triRow('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, plansetInverter)+
+    plansetNote;
   compDiv.after(layoutDiv);
 }
 
@@ -6059,7 +6070,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=125').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=126').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
