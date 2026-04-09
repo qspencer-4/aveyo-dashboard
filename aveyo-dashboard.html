@@ -5337,11 +5337,12 @@ async function loadPalmettoComparison(iid, fields){
 
   const layoutDiv = document.createElement('div');
   layoutDiv.className = 'sow-section';
+  layoutDiv.id = 'sow-layout-'+iid;
   layoutDiv.innerHTML = '<div class="sow-section-hdr">Layout & Equipment <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
     '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
         '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Design Matches</span>'+
-        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">VISUAL CHECK</span>'+
+        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">saves to Podio</span>'+
       '</div>'+
       '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">Does the proposal layout in Customer Docs match the stamped plans in the Approved folder?</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
@@ -5350,10 +5351,122 @@ async function loadPalmettoComparison(iid, fields){
       '</div>'+
       dd(SOW_FIELD.designMatches, designMatches, yesNoOpts)+
     '</div>'+
-    triRow('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, plansetPanel)+
-    triRow('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, plansetInverter)+
-    plansetNote;
+    triRow('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, '—')+
+    triRow('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, '—')+
+    '<div id="sow-design-compare-'+iid+'" style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,.25)">Loading design comparison from PDFs...</div>';
   compDiv.after(layoutDiv);
+
+  // Auto-run design comparison
+  loadDesignCompare(iid);
+}
+
+const SOW_DESIGN_CACHE = {};
+
+async function loadDesignCompare(iid){
+  const el = document.getElementById('sow-design-compare-'+iid);
+  if(!el) return;
+
+  if(SOW_DESIGN_CACHE[iid]){
+    renderDesignCompare(iid, SOW_DESIGN_CACHE[iid]);
+    return;
+  }
+
+  try{
+    const res = await fetch(VPS+'/sow-design-compare',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sow_item_id:iid})
+    });
+    const data = await res.json();
+    SOW_DESIGN_CACHE[iid] = data;
+    renderDesignCompare(iid, data);
+  }catch(e){
+    el.innerHTML = '<span style="color:#E88B8B">Design comparison failed: '+x(e.message)+'</span>';
+  }
+}
+
+function renderDesignCompare(iid, data){
+  const el = document.getElementById('sow-design-compare-'+iid);
+  if(!el) return;
+
+  if(data.status!=='ok'){
+    el.innerHTML = '<span style="color:#E88B8B">'+x(data.message||'Error')+'</span>';
+    return;
+  }
+
+  let html = '';
+
+  // Show files found
+  html += '<div style="font-size:9px;color:rgba(255,255,255,.25);margin-bottom:8px;letter-spacing:.3px">';
+  if(data.proposal_file) html += 'Proposal: '+x(data.proposal_file);
+  if(data.planset_file) html += ' | Planset: '+x(data.planset_file);
+  html += '</div>';
+
+  // Update Panels and Inverters rows with planset data
+  const layoutSection = document.getElementById('sow-layout-'+iid);
+  if(layoutSection && data.planset){
+    const ps = data.planset;
+    // Find and update the "Not loaded" planset values
+    const rows = layoutSection.querySelectorAll('[style*="border-left"]');
+    rows.forEach(row=>{
+      const label = row.querySelector('div:first-child');
+      if(!label) return;
+      const txt = label.textContent.trim();
+      const plansetSpans = row.querySelectorAll('span');
+      plansetSpans.forEach(sp=>{
+        if(sp.textContent === '—' && sp.previousSibling && sp.previousSibling.textContent && sp.previousSibling.textContent.includes('Planset')){
+          if(txt === 'Panels' && ps.panel_model){
+            sp.textContent = (ps.panel_manufacturer||'')+' '+ps.panel_model+' x'+(ps.panel_count||'?');
+          }
+          if(txt === 'Inverters' && ps.inverter_model){
+            sp.textContent = (ps.inverter_manufacturer||'')+' '+ps.inverter_model+' x'+(ps.inverter_count||'?');
+          }
+        }
+      });
+    });
+  }
+
+  // Show layout comparison
+  if(data.proposal && data.planset){
+    const p = data.proposal;
+    const s = data.planset;
+
+    if(p.panel_layout_description || s.panel_layout_description){
+      html += '<div style="border-left:2px solid rgba(255,255,255,.08);padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+        '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px">Layout Comparison</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;font-size:10px">'+
+          (p.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Proposal:</span> <span style="color:rgba(255,255,255,.55)">'+x(p.panel_layout_description)+'</span></div>':'')+
+          (s.panel_layout_description?'<div><span style="color:rgba(255,255,255,.3)">Planset:</span> <span style="color:rgba(255,255,255,.55)">'+x(s.panel_layout_description)+'</span></div>':'')+
+        '</div>'+
+      '</div>';
+    }
+
+    // Show check results
+    if(data.checks){
+      const checks = data.checks;
+      let checkHtml = '';
+      for(const[key, val] of Object.entries(checks)){
+        if(key === 'layout') continue;
+        if('match' in val){
+          const color = val.match ? '#ADD8E6' : '#E88B8B';
+          const label = key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+          checkHtml += '<span style="color:'+color+';font-size:9px;margin-right:10px">'+
+            (val.match?'✓':'✗')+' '+x(label)+
+          '</span>';
+        }
+      }
+      if(checkHtml){
+        html += '<div style="padding:6px 12px;display:flex;flex-wrap:wrap;gap:4px">'+checkHtml+'</div>';
+      }
+      if(data.all_match !== undefined){
+        html += '<div style="padding:4px 12px;font-size:10px;font-weight:700;color:'+(data.all_match?'#ADD8E6':'#E88B8B')+'">'+
+          (data.all_match?'ALL EQUIPMENT MATCHES':'EQUIPMENT MISMATCHES DETECTED')+
+        '</div>';
+      }
+    }
+  }
+
+  el.innerHTML = html;
 }
 
 const SOW_EXTRACT_CACHE = {};
@@ -6070,7 +6183,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=126').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=127').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
