@@ -5210,16 +5210,13 @@ function buildSOWDetail(item){
 }
 
 async function loadPalmettoComparison(iid, fields){
-  // Extract Finance ID from Funding Info field
   const fundingField = fields.find(f=>f.field_id===268339026);
   const fundingRaw = fundingField?.values?.[0]?.value || '';
   const financeId = parseFinanceId(typeof fundingRaw==='object'?(fundingRaw.text||fundingRaw.value||''):String(fundingRaw));
 
-  // Get container — insert before the verification checklist section
   const detailBody = document.getElementById('sow-detail-body');
   if(!detailBody) return;
 
-  // Create placeholder
   const compDiv = document.createElement('div');
   compDiv.id = 'sow-palmetto-'+iid;
   compDiv.className = 'sow-section';
@@ -5241,62 +5238,74 @@ async function loadPalmettoComparison(iid, fields){
     return;
   }
 
-  // Get Podio values
+  // Podio values
   const podioSize = parseFloat(sowFV(fields, SOW_FIELD.systemSize)||0);
   const podioPrice = parseFloat(sowFV(fields, SOW_FIELD.contractPrice)||0);
+  const systemMatches = sowFV(fields, SOW_FIELD.systemSizeMatches);
+  const priceMatches = sowFV(fields, SOW_FIELD.contractPriceMatches);
+  const designMatches = sowFV(fields, SOW_FIELD.designMatches);
 
-  // System size comparison
+  // LightReach values
   const lrSize = lr.systemSizeKw||0;
   const sizeMatch = Math.abs(podioSize - lrSize) < 0.1;
-
-  // Contract price comparison
   const lrPrice = lr.totalSystemCost||0;
   const priceMatch = Math.abs(podioPrice - lrPrice) < 1;
-
-  // Equipment from LightReach
   const lrPanels = lr.panelManufacturer ? lr.panelManufacturer+' '+lr.panelModel+' x'+lr.totalPanelCount : '—';
   const lrInverters = (lr.inverters||[]).map(inv=>inv.manufacturer+' '+inv.model+' x'+inv.count).join(', ') || '—';
 
-  // Get Podio system specs for equipment comparison
+  // Podio equipment specs
   const specsField = fields.find(f=>f.field_id===267133979);
   const specsRaw = specsField?.values?.[0]?.value || '';
   const specsClean = (typeof specsRaw==='object'?(specsRaw.text||''):String(specsRaw)).replace(/<[^>]*>/g,' ').replace(/\*+/g,'').trim();
-
-  // Parse panel/inverter from Podio specs
   const podioPanel = (specsClean.match(/Panel Model[:\s]+([^\n]+)/i)||[])[1]||'—';
   const podioPanelCount = (specsClean.match(/Panel Count[:\s]+(\d+)/i)||[])[1]||'?';
   const podioInverter = (specsClean.match(/Inverter Model[:\s]+([^\n]+)/i)||[])[1]||'—';
   const podioInvCount = (specsClean.match(/Inverter Count[:\s]+(\d+)/i)||[])[1]||'?';
+  const panelModelMatch = lrPanels!=='—' && podioPanel!=='—' &&
+    podioPanel.toLowerCase().replace(/[^a-z0-9]/g,'').includes(lr.panelModel?.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)||'xxx');
 
-  function matchBadge(match){
+  // Dropdown builder (saves to Podio)
+  function dd(fid, val, opts){
+    const o = opts.map(o=>'<option value="'+o.id+'" '+(val===o.t?'selected':'')+'>'+x(o.t)+'</option>').join('');
+    return '<select class="sow-dropdown" data-sow-field="'+fid+'" data-sow-item="'+iid+'" style="max-width:160px;margin-top:6px"><option value="">— Not set —</option>'+o+'</select>';
+  }
+  const yesNoOpts = [{id:1,t:'Yes'},{id:2,t:'No'}];
+
+  function badge(match){
     return match
       ? '<span style="color:#ADD8E6;font-size:9px;font-weight:700;letter-spacing:.5px">MATCH</span>'
       : '<span style="color:#E88B8B;font-size:9px;font-weight:700;letter-spacing:.5px">MISMATCH</span>';
   }
 
-  function row(label, podioVal, lrVal, match){
-    const borderColor = match ? 'rgba(173,216,230,.2)' : 'rgba(232,139,139,.2)';
-    return '<div style="padding:8px 12px;border-left:2px solid '+borderColor+';margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+  function verifyRow(label, podioVal, lrVal, match, fid, currentVal){
+    const bc = match ? 'rgba(173,216,230,.2)' : 'rgba(232,139,139,.2)';
+    return '<div style="padding:10px 12px;border-left:2px solid '+bc+';margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
         '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">'+x(label)+'</span>'+
-        matchBadge(match)+
+        badge(match)+
       '</div>'+
-      '<div style="display:flex;gap:16px;font-size:10px">'+
+      '<div style="display:flex;gap:16px;font-size:10px;margin-bottom:2px">'+
         '<div><span style="color:rgba(255,255,255,.3)">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(String(podioVal))+'</span></div>'+
         '<div><span style="color:rgba(255,255,255,.3)">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(String(lrVal))+'</span></div>'+
       '</div>'+
+      dd(fid, currentVal, yesNoOpts)+
     '</div>';
   }
 
-  // Equipment match check — compare panel model strings loosely
-  const panelModelMatch = lrPanels!=='—' && podioPanel!=='—' &&
-    podioPanel.toLowerCase().replace(/[^a-z0-9]/g,'').includes(lr.panelModel?.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)||'xxx');
-
-  compDiv.innerHTML = '<div class="sow-section-hdr">LightReach Verification <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">via Palmetto API · '+x(lr.productName||'')+'</span></div>'+
-    row('System Size', podioSize?podioSize+' kW':'—', lrSize?lrSize+' kW':'—', sizeMatch)+
-    row('Contract Price', podioPrice?'$'+podioPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', lrPrice?'$'+lrPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', priceMatch)+
-    row('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, panelModelMatch)+
-    row('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, false)+
+  compDiv.innerHTML = '<div class="sow-section-hdr">LightReach Verification <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">via Palmetto API · '+x(lr.productName||'')+' · saves to Podio</span></div>'+
+    verifyRow('System Size Matches', podioSize?podioSize+' kW':'—', lrSize?lrSize+' kW':'—', sizeMatch, SOW_FIELD.systemSizeMatches, systemMatches)+
+    verifyRow('Contract Price Matches', podioPrice?'$'+podioPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', lrPrice?'$'+lrPrice.toLocaleString('en-US',{minimumFractionDigits:2}):'—', priceMatch, SOW_FIELD.contractPriceMatches, priceMatches)+
+    verifyRow('Design Matches', podioPanel.trim()+' x'+podioPanelCount, lrPanels, panelModelMatch, SOW_FIELD.designMatches, designMatches)+
+    '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+        '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Inverters</span>'+
+        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">INFO ONLY</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:16px;font-size:10px">'+
+        '<div><span style="color:rgba(255,255,255,.3)">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(podioInverter.trim()+' x'+podioInvCount)+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3)">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(lrInverters)+'</span></div>'+
+      '</div>'+
+    '</div>'+
     '<div style="padding:6px 12px;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.5px">'+
       '<a href="https://palmetto.finance/accounts/'+x(financeId)+'" target="_blank" style="color:#ADD8E6;text-decoration:none">OPEN IN LIGHTREACH ↗</a>'+
     '</div>';
@@ -6016,7 +6025,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=121').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=122').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
