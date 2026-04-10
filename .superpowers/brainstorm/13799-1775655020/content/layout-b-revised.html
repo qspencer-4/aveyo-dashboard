@@ -1,0 +1,170 @@
+<h2>Option B Revised — Actions Below Activity</h2>
+<p class="subtitle">Ticket hero pinned at top, tabbed context below, actions always visible under the active tab content</p>
+
+<div class="cards">
+  <!-- Version 1: Actions as a sticky footer bar -->
+  <div class="card" data-choice="b1" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Sticky ticket header -->
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:rgba(255,255,255,.5);font-size:10px;margin-top:2px">123 Main St · Install Complete · Rep: Mike Johnson</div>
+          <div style="color:#ddd;font-size:11px;margin-top:6px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:4px">Sales Rep Comment · Created by Mike Johnson · 3d ago</div>
+        </div>
+        <!-- Tabs (no Actions tab) -->
+        <div style="display:flex;border-bottom:1px solid #333;margin-top:4px">
+          <span style="padding:6px 14px;font-size:10px;color:#fff;border-bottom:2px solid #fff">ACTIVITY</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+        </div>
+        <!-- Activity content -->
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:2px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 5 · Mike Johnson</div>
+          <div style="color:#ddd;font-size:10px">Called customer, no answer. Left voicemail about scheduling tech visit.</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 3 · System</div>
+          <div style="color:#ddd;font-size:10px">Ticket created from Sales Rep Comment</div>
+        </div>
+        <!-- Actions pinned at bottom -->
+        <div style="height:1px;background:#333;margin:8px 0"></div>
+        <div style="display:flex;gap:4px;padding:4px 0">
+          <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:10px;font-weight:700">UPDATE STATUS</span>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:4px">
+          <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:8px 0;font-size:9px">COMMENT</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:9px">MSG REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:9px">MSG CUST</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">< PREV</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT ></span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B1) Actions as Bottom Bar</h3>
+      <p>Actions live at the very bottom of the view, always below whatever tab content you're looking at. Primary action (Update Status) is a full-width highlighted button. Secondary actions (Comment, Msg Rep, Msg Cust) are a row below it. Prev/Next below that. Actions are always reachable by scrolling down — they follow the content.</p>
+    </div>
+  </div>
+
+  <!-- Version 2: Actions as inline section between tabs and content -->
+  <div class="card" data-choice="b2" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Sticky ticket header -->
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:rgba(255,255,255,.5);font-size:10px;margin-top:2px">123 Main St · Install Complete · Rep: Mike Johnson</div>
+          <div style="color:#ddd;font-size:11px;margin-top:6px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:4px">Sales Rep Comment · Created by Mike Johnson · 3d ago</div>
+        </div>
+        <!-- Status bar (tappable) -->
+        <div style="display:flex;gap:4px;padding:8px 0;margin-top:2px">
+          <span style="flex:1;text-align:center;background:#C97850;color:#fff;padding:6px 0;font-size:9px;font-weight:700">NEW</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:6px 0;font-size:9px">ASSIGNED</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:6px 0;font-size:9px">IN PROGRESS</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:6px 0;font-size:9px">COMPLETE</span>
+        </div>
+        <!-- Quick action buttons -->
+        <div style="display:flex;gap:4px;padding:0 0 6px">
+          <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:7px 0;font-size:9px;font-weight:700">ADD COMMENT</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:7px 0;font-size:9px">MSG REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:7px 0;font-size:9px">MSG CUST</span>
+        </div>
+        <!-- Tabs -->
+        <div style="display:flex;border-bottom:1px solid #333">
+          <span style="padding:6px 14px;font-size:10px;color:#fff;border-bottom:2px solid #fff">ACTIVITY</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+        </div>
+        <!-- Activity content -->
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:2px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 5 · Mike Johnson</div>
+          <div style="color:#ddd;font-size:10px">Called customer, no answer. Left voicemail about scheduling tech visit.</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 3 · System</div>
+          <div style="color:#ddd;font-size:10px">Ticket created from Sales Rep Comment</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 1 · Customer Portal</div>
+          <div style="color:#ddd;font-size:10px">Customer submitted ticket via online portal</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">< PREV</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT ></span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B2) Actions Between Header & Tabs</h3>
+      <p>Status selector and action buttons sit right below the ticket header, above the tabs. You see the ticket, immediately see what you can do, then scroll down into context tabs. Status change is a single tap on the status bar. Actions are always visible without scrolling on most phones.</p>
+    </div>
+  </div>
+
+  <!-- Version 3: Actions as sticky footer -->
+  <div class="card" data-choice="b3" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Sticky ticket header -->
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:rgba(255,255,255,.5);font-size:10px;margin-top:2px">123 Main St · Install Complete · Rep: Mike Johnson</div>
+          <div style="color:#ddd;font-size:11px;margin-top:6px">Inverter error E-102. Not producing since Tuesday.</div>
+        </div>
+        <!-- Tabs -->
+        <div style="display:flex;border-bottom:1px solid #333;margin-top:4px">
+          <span style="padding:6px 14px;font-size:10px;color:#fff;border-bottom:2px solid #fff">ACTIVITY</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+        </div>
+        <!-- Activity content (scrollable middle) -->
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:2px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 5 · Mike Johnson</div>
+          <div style="color:#ddd;font-size:10px">Called customer, no answer. Left voicemail.</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 3 · System</div>
+          <div style="color:#ddd;font-size:10px">Ticket created from Sales Rep Comment</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 1 · Customer Portal</div>
+          <div style="color:#ddd;font-size:10px">Customer submitted ticket via online portal</div>
+        </div>
+        <!-- Sticky action footer -->
+        <div style="height:1px;background:#ADD8E6;margin:10px 0 0"></div>
+        <div style="background:#0a0a0a;padding:8px 0 4px">
+          <div style="display:flex;gap:4px">
+            <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:9px;font-weight:700">STATUS</span>
+            <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:10px 0;font-size:9px;font-weight:700">COMMENT</span>
+            <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:10px 0;font-size:9px">REP</span>
+            <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:10px 0;font-size:9px">CUST</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 4px 0">
+            <span style="color:rgba(255,255,255,.3);font-size:10px">< PREV</span>
+            <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+            <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B3) Sticky Action Footer</h3>
+      <p>Actions are fixed to the bottom of the screen (above the bottom nav). They never scroll away — always one thumb-tap away no matter where you are in the content. Header sticks to top, tabs + content scroll in the middle, action bar fixed at bottom. Like a toolbar that's always there.</p>
+    </div>
+  </div>
+</div>

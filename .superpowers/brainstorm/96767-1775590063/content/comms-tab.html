@@ -1,0 +1,178 @@
+<h2>Comms Tab — What should this look like?</h2>
+<p class="subtitle">Projects needing rep or customer updates. How should they be organized?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#000;padding:12px 0 0;font-family:sans-serif">
+        <div style="background:#0a0a0a;margin:0 auto;width:340px;height:480px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)">
+          <!-- Header -->
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center">
+            <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:.02em">AVEYO</span>
+            <span style="color:rgba(255,255,255,.3);font-size:8px;letter-spacing:.15em;margin-left:auto">COMMS</span>
+          </div>
+          <!-- Filter: Rep / Customer -->
+          <div style="padding:8px 16px;display:flex;gap:6px;border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-size:7px;letter-spacing:.12em;color:#fff;border-bottom:2px solid #fff;padding:4px 8px">ALL 5</span>
+            <span style="font-size:7px;letter-spacing:.12em;color:#ADD8E6;border:1px solid rgba(173,216,230,.25);padding:4px 8px">REP 3</span>
+            <span style="font-size:7px;letter-spacing:.12em;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.08);padding:4px 8px">CUSTOMER 2</span>
+          </div>
+          <!-- List -->
+          <div style="padding:0">
+            <!-- Item 1 - needs rep update -->
+            <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="color:#fff;font-size:12px;font-weight:600">John Martinez</span>
+                <span style="background:rgba(173,216,230,.12);color:#ADD8E6;font-size:6px;font-weight:700;padding:2px 8px;letter-spacing:.1em;border:1px solid rgba(173,216,230,.2)">REP UPDATE</span>
+              </div>
+              <div style="color:rgba(255,255,255,.35);font-size:9px;margin-bottom:4px">Permit &middot; Sawyer Kieffer</div>
+              <div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:6px">Permit submitted 3/18 — rep hasn't been notified</div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:rgba(255,255,255,.2);font-size:9px">Last contact: 12d ago</span>
+                <span style="color:#E88B8B;font-size:9px;font-weight:700">12d</span>
+              </div>
+            </div>
+            <!-- Item 2 - needs customer text -->
+            <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="color:#fff;font-size:12px;font-weight:600">Sarah Johnson</span>
+                <span style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-size:6px;font-weight:700;padding:2px 8px;letter-spacing:.1em;border:1px solid rgba(255,255,255,.1)">CUSTOMER TEXT</span>
+              </div>
+              <div style="color:rgba(255,255,255,.35);font-size:9px;margin-bottom:4px">Install &middot; Sawyer Kieffer</div>
+              <div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:6px">Install scheduled 4/15 — customer needs confirmation</div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:rgba(255,255,255,.2);font-size:9px">Last contact: 8d ago</span>
+                <span style="color:#fff;font-size:9px;font-weight:700">8d</span>
+              </div>
+            </div>
+            <!-- Item 3 -->
+            <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="color:#fff;font-size:12px;font-weight:600">Mike Chen</span>
+                <span style="background:rgba(173,216,230,.12);color:#ADD8E6;font-size:6px;font-weight:700;padding:2px 8px;letter-spacing:.1em;border:1px solid rgba(173,216,230,.2)">REP UPDATE</span>
+              </div>
+              <div style="color:rgba(255,255,255,.35);font-size:9px;margin-bottom:4px">Design &middot; Jordan Mills</div>
+              <div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:6px">Design revision complete — rep needs to review</div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:rgba(255,255,255,.2);font-size:9px">Last contact: 2d ago</span>
+                <span style="color:#ADD8E6;font-size:9px;font-weight:700">2d</span>
+              </div>
+            </div>
+          </div>
+          <!-- Bottom nav -->
+          <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid rgba(255,255,255,.07);background:#000;display:flex;overflow-x:auto;padding:6px 4px;gap:4px">
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">HOME</span></div>
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">TICKETS</span></div>
+            <div style="flex-shrink:0;padding:8px 10px;border-bottom:2px solid #fff"><span style="color:#fff;font-size:7px;letter-spacing:.12em">COMMS</span> <span style="background:rgba(173,216,230,.2);color:#ADD8E6;font-size:6px;font-weight:700;padding:1px 4px">5</span></div>
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">SOW</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Unified Queue with Filter Chips</h3>
+      <p>All comms in one list — filter by All / Rep / Customer at the top. Each row shows project name, milestone, rep, reason for contact, and days since last contact (with same color timer). Tap to open project and compose message.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#000;padding:12px 0 0;font-family:sans-serif">
+        <div style="background:#0a0a0a;margin:0 auto;width:340px;height:480px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)">
+          <!-- Header -->
+          <div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center">
+            <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:.02em">AVEYO</span>
+            <span style="color:rgba(255,255,255,.3);font-size:8px;letter-spacing:.15em;margin-left:auto">COMMS</span>
+          </div>
+          <!-- Two sections stacked -->
+          <div style="padding:0">
+            <!-- Rep section -->
+            <div style="padding:10px 16px 6px;border-bottom:1px solid rgba(255,255,255,.04)">
+              <div style="font-size:7px;letter-spacing:.22em;color:rgba(255,255,255,.2);margin-bottom:8px">REP UPDATES NEEDED</div>
+              <!-- Rep item 1 -->
+              <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="color:#fff;font-size:11px;font-weight:600">John Martinez</div>
+                    <div style="color:rgba(255,255,255,.3);font-size:9px">Permit &middot; Sawyer Kieffer</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#E88B8B;font-size:9px;font-weight:700">12d</div>
+                    <button style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.25);color:#ADD8E6;font-size:7px;letter-spacing:.1em;padding:3px 8px;cursor:pointer;margin-top:3px;font-family:sans-serif">SEND</button>
+                  </div>
+                </div>
+              </div>
+              <!-- Rep item 2 -->
+              <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="color:#fff;font-size:11px;font-weight:600">Mike Chen</div>
+                    <div style="color:rgba(255,255,255,.3);font-size:9px">Design &middot; Jordan Mills</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#ADD8E6;font-size:9px;font-weight:700">2d</div>
+                    <button style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.25);color:#ADD8E6;font-size:7px;letter-spacing:.1em;padding:3px 8px;cursor:pointer;margin-top:3px;font-family:sans-serif">SEND</button>
+                  </div>
+                </div>
+              </div>
+              <!-- Rep item 3 -->
+              <div style="padding:10px 0">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="color:#fff;font-size:11px;font-weight:600">David Park</div>
+                    <div style="color:rgba(255,255,255,.3);font-size:9px">PTO &middot; Sawyer Kieffer</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#fff;font-size:9px;font-weight:700">5d</div>
+                    <button style="background:rgba(173,216,230,.1);border:1px solid rgba(173,216,230,.25);color:#ADD8E6;font-size:7px;letter-spacing:.1em;padding:3px 8px;cursor:pointer;margin-top:3px;font-family:sans-serif">SEND</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Customer section -->
+            <div style="padding:10px 16px 6px">
+              <div style="font-size:7px;letter-spacing:.22em;color:rgba(255,255,255,.2);margin-bottom:8px">CUSTOMER TEXTS NEEDED</div>
+              <!-- Customer item 1 -->
+              <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="color:#fff;font-size:11px;font-weight:600">Sarah Johnson</div>
+                    <div style="color:rgba(255,255,255,.3);font-size:9px">Install &middot; (555) 012-3456</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#fff;font-size:9px;font-weight:700">8d</div>
+                    <button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:7px;letter-spacing:.1em;padding:3px 8px;cursor:pointer;margin-top:3px;font-family:sans-serif">TEXT</button>
+                  </div>
+                </div>
+              </div>
+              <!-- Customer item 2 -->
+              <div style="padding:10px 0">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="color:#fff;font-size:11px;font-weight:600">Lisa Williams</div>
+                    <div style="color:rgba(255,255,255,.3);font-size:9px">Inspection &middot; (555) 789-0123</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#E88B8B;font-size:9px;font-weight:700">15d</div>
+                    <button style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:7px;letter-spacing:.1em;padding:3px 8px;cursor:pointer;margin-top:3px;font-family:sans-serif">TEXT</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Bottom nav -->
+          <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid rgba(255,255,255,.07);background:#000;display:flex;overflow-x:auto;padding:6px 4px;gap:4px">
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">HOME</span></div>
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">TICKETS</span></div>
+            <div style="flex-shrink:0;padding:8px 10px;border-bottom:2px solid #fff"><span style="color:#fff;font-size:7px;letter-spacing:.12em">COMMS</span> <span style="background:rgba(173,216,230,.2);color:#ADD8E6;font-size:6px;font-weight:700;padding:1px 4px">5</span></div>
+            <div style="flex-shrink:0;padding:8px 10px"><span style="color:rgba(255,255,255,.3);font-size:7px;letter-spacing:.12em">SOW</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Split Sections with Quick Actions</h3>
+      <p>Two sections: "Rep Updates Needed" on top, "Customer Texts Needed" below. Each row has a SEND/TEXT button right there — tap to generate and send without opening the project. Fastest path to action.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,4 @@
+{"type":"server-started","port":51304,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:51304","screen_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/42862-1775745493/content","state_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/42862-1775745493/state"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/42862-1775745493/content/sow-detail-options.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/42862-1775745493/content/sow-detail-responsive.html"}
+{"type":"server-stopped","reason":"idle timeout"}

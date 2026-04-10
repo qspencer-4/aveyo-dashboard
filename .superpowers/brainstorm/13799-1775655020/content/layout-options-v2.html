@@ -1,0 +1,298 @@
+<h2>Ticket Detail View — All 6 Layout Options</h2>
+<p class="subtitle">Click the layout that feels right for triaging tickets on mobile</p>
+
+<div class="cards">
+  <!-- OPTION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+          <div style="color:rgba(255,255,255,.5);font-size:10px">123 Main St · Sales Rep Comment · 3d ago</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">STATUS</div>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:10px">NEW</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">ASSIGNED</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">IN PROGRESS</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">COMPLETE</span>
+          </div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">DESCRIPTION</div>
+          <div style="color:#ddd;font-size:11px;margin-top:2px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">PROJECT CONTEXT</div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="color:#ADD8E6;font-size:10px">Install Complete</span>
+            <span style="color:rgba(255,255,255,.5);font-size:10px">Rep: Mike Johnson</span>
+          </div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">RECENT ACTIVITY (3)</div>
+          <div style="color:rgba(255,255,255,.6);font-size:10px;margin-top:2px">2026-04-05 · Mike: Called customer, no answer...</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:6px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">ACTIONS</div>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <span style="border:1px solid #ADD8E6;color:#ADD8E6;padding:4px 10px;font-size:10px">COMMENT</span>
+            <span style="border:1px solid #ADD8E6;color:#ADD8E6;padding:4px 10px;font-size:10px">REP MSG</span>
+            <span style="border:1px solid #ADD8E6;color:#ADD8E6;padding:4px 10px;font-size:10px">CUST MSG</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">PREV</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A) Stacked Sections</h3>
+      <p>Everything scrolls vertically in priority order. Ticket on top, context below, actions at bottom. Simple, consistent with the rest of the app.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+          <div style="color:rgba(255,255,255,.5);font-size:10px">123 Main St · Install Complete · Rep: Mike Johnson</div>
+          <div style="color:#ddd;font-size:11px;margin-top:6px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:10px">NEW</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">ASSIGNED</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">IN PROG</span>
+            <span style="background:#333;color:rgba(255,255,255,.4);padding:2px 8px;font-size:10px">DONE</span>
+          </div>
+        </div>
+        <div style="display:flex;border-bottom:1px solid #333;margin-top:4px">
+          <span style="padding:6px 12px;font-size:10px;color:#fff;border-bottom:2px solid #fff">ACTIVITY</span>
+          <span style="padding:6px 12px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 12px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+          <span style="padding:6px 12px;font-size:10px;color:rgba(255,255,255,.3)">ACTIONS</span>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:2px">
+          <div style="color:rgba(255,255,255,.6);font-size:10px">2026-04-05 · Mike Johnson</div>
+          <div style="color:#ddd;font-size:10px">Called customer, no answer. Left voicemail.</div>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-top:1px">
+          <div style="color:rgba(255,255,255,.6);font-size:10px">2026-04-03 · System</div>
+          <div style="color:#ddd;font-size:10px">Ticket created from Sales Rep Comment</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">PREV</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B) Ticket Hero + Tabbed Context</h3>
+      <p>Ticket info pinned at top (sticky). Below it, horizontal tabs switch between Activity, Other Tickets, Work Orders, and Actions. Less scrolling, more tapping.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="color:#ADD8E6;font-weight:700;font-size:13px">#105976 — JOHN SMITH</div>
+            <span style="color:rgba(255,255,255,.3);font-size:10px">PREV | NEXT</span>
+          </div>
+          <div style="color:#ddd;font-size:11px;margin-top:4px">Inverter error E-102, not producing since Tues.</div>
+          <div style="display:flex;gap:4px;margin-top:6px;align-items:center">
+            <span style="background:#C97850;color:#fff;padding:2px 8px;font-size:10px">NEW</span>
+            <span style="color:rgba(255,255,255,.2);font-size:10px">|</span>
+            <span style="color:rgba(255,255,255,.4);font-size:9px">Install Complete</span>
+            <span style="color:rgba(255,255,255,.2);font-size:10px">|</span>
+            <span style="color:rgba(255,255,255,.4);font-size:9px">Rep: Mike J.</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;padding:8px 12px;background:#0a0a0a">
+          <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:8px 0;font-size:10px;font-weight:700">UPDATE STATUS</span>
+          <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:8px 0;font-size:10px;font-weight:700">ADD COMMENT</span>
+        </div>
+        <div style="display:flex;gap:6px;padding:0 12px 8px;background:#0a0a0a">
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:10px">MSG REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:10px">MSG CUSTOMER</span>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:2px;display:flex;justify-content:space-between">
+          <span style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">RECENT ACTIVITY (3)</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">V</span>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:1px;display:flex;justify-content:space-between">
+          <span style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">OTHER TICKETS (2)</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">V</span>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:1px;display:flex;justify-content:space-between">
+          <span style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px">WORK ORDERS (1)</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">V</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C) Action-First + Expandable</h3>
+      <p>Compact header, action buttons front and center, context in collapsible sections below. Optimized for fast resolution — see ticket, act, move on.</p>
+    </div>
+  </div>
+
+  <!-- OPTION D -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Thread/chat style -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px 8px">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">< TICKETS</span>
+          <span style="color:#ADD8E6;font-weight:700;font-size:12px">#105976</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT ></span>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:1px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:#ADD8E6;font-weight:700;font-size:12px">JOHN SMITH</span>
+            <span style="background:#C97850;color:#fff;padding:1px 8px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:rgba(255,255,255,.4);font-size:10px">123 Main St · Install Complete · 3d</div>
+        </div>
+        <div style="padding:8px 12px;border-left:2px solid #ADD8E6;margin:6px 0 6px 12px">
+          <div style="color:#ddd;font-size:11px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:4px">Sales Rep Comment · Created by Mike Johnson</div>
+        </div>
+        <div style="padding:4px 12px;margin-left:12px;border-left:2px solid rgba(255,255,255,.15)">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 5 · Mike Johnson</div>
+          <div style="color:rgba(255,255,255,.6);font-size:10px">Called customer, no answer. Left voicemail about scheduling tech visit.</div>
+        </div>
+        <div style="padding:4px 12px;margin:4px 0 4px 12px;border-left:2px solid rgba(255,255,255,.15)">
+          <div style="color:rgba(255,255,255,.5);font-size:10px;font-weight:600">Apr 4 · Quentin Spencer</div>
+          <div style="color:rgba(255,255,255,.6);font-size:10px">Assigned to Mike. Check if inverter is under warranty.</div>
+        </div>
+        <div style="height:1px;background:#333;margin:8px 0"></div>
+        <div style="display:flex;gap:4px;padding:4px 12px">
+          <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:6px 0;font-size:9px">REPLY</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:6px 0;font-size:9px">STATUS</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:6px 0;font-size:9px">REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:6px 0;font-size:9px">CUST</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;margin-top:4px">
+          <span style="color:rgba(255,255,255,.3);font-size:9px">OTHER TICKETS: 2</span>
+          <span style="color:rgba(255,255,255,.3);font-size:9px">WORK ORDERS: 1</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D) Thread View</h3>
+      <p>Reads like a conversation thread. Ticket description at top, then activity flows downward chronologically like a chat. Actions pinned at bottom. Feels like reading a support ticket in Slack or Linear. Natural for tracking what happened and adding your response.</p>
+    </div>
+  </div>
+
+  <!-- OPTION E -->
+  <div class="card" data-choice="e" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Dashboard cards style -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px 6px">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">< TICKETS</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">2 / 12</span>
+          <span style="color:rgba(255,255,255,.3);font-size:10px">NEXT ></span>
+        </div>
+        <div style="background:#1a1a1a;padding:10px 12px;margin-bottom:4px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="color:#ADD8E6;font-weight:700;font-size:14px">#105976</div>
+              <div style="color:#fff;font-size:12px;font-weight:600;margin-top:2px">JOHN SMITH</div>
+              <div style="color:rgba(255,255,255,.4);font-size:10px">123 Main St</div>
+            </div>
+            <div style="text-align:right">
+              <span style="background:#C97850;color:#fff;padding:3px 10px;font-size:10px;display:inline-block">NEW</span>
+              <div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:4px">3 DAYS AGO</div>
+            </div>
+          </div>
+          <div style="height:1px;background:#333;margin:8px 0"></div>
+          <div style="color:#ddd;font-size:11px">Inverter error E-102. Not producing since Tuesday.</div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;margin-top:4px">Sales Rep Comment · by Mike Johnson</div>
+        </div>
+        <div style="display:flex;gap:4px;padding:0 0 4px">
+          <div style="flex:1;background:#1a1a1a;padding:8px;text-align:center">
+            <div style="color:rgba(255,255,255,.4);font-size:8px;text-transform:uppercase;letter-spacing:1px">STAGE</div>
+            <div style="color:#ADD8E6;font-size:11px;font-weight:700;margin-top:2px">INSTALL COMPLETE</div>
+          </div>
+          <div style="flex:1;background:#1a1a1a;padding:8px;text-align:center">
+            <div style="color:rgba(255,255,255,.4);font-size:8px;text-transform:uppercase;letter-spacing:1px">REP</div>
+            <div style="color:#fff;font-size:11px;margin-top:2px">Mike Johnson</div>
+          </div>
+          <div style="flex:1;background:#1a1a1a;padding:8px;text-align:center">
+            <div style="color:rgba(255,255,255,.4);font-size:8px;text-transform:uppercase;letter-spacing:1px">TICKETS</div>
+            <div style="color:#E88B8B;font-size:14px;font-weight:700;margin-top:2px">3</div>
+          </div>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:4px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">LATEST ACTIVITY</div>
+          <div style="color:rgba(255,255,255,.6);font-size:10px">Apr 5 · Mike: Called customer, no answer. Left voicemail.</div>
+        </div>
+        <div style="display:flex;gap:4px;padding:8px 0">
+          <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:10px;font-weight:700">UPDATE STATUS</span>
+        </div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:8px 0;font-size:9px">COMMENT</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:8px 0;font-size:9px">MSG REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:8px 0;font-size:9px">MSG CUST</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>E) Dashboard Cards</h3>
+      <p>Ticket as a hero card on top, then a row of stat cards showing project context at a glance (stage, rep, ticket count). Latest activity preview, then action buttons. Data-dense like Stripe — everything visible without scrolling.</p>
+    </div>
+  </div>
+
+  <!-- OPTION F -->
+  <div class="card" data-choice="f" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <!-- Swipeable panels -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px 6px">
+          <span style="color:rgba(255,255,255,.3);font-size:10px">< TICKETS</span>
+          <span style="color:#ADD8E6;font-weight:700;font-size:12px">#105976 — JOHN SMITH</span>
+        </div>
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:rgba(255,255,255,.4);font-size:9px">Sales Rep Comment · by Mike Johnson · 3d</span>
+            <span style="background:#C97850;color:#fff;padding:1px 6px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:#ddd;font-size:11px;margin-top:4px">Customer reports inverter showing error code E-102. System not producing since Tuesday.</div>
+        </div>
+        <div style="display:flex;border-bottom:1px solid #333;margin-top:2px">
+          <span style="padding:8px 14px;font-size:10px;color:#fff;border-bottom:2px solid #ADD8E6;font-weight:700">RESOLVE</span>
+          <span style="padding:8px 14px;font-size:10px;color:rgba(255,255,255,.3)">CONTEXT</span>
+          <span style="padding:8px 14px;font-size:10px;color:rgba(255,255,255,.3)">HISTORY</span>
+        </div>
+        <div style="padding:10px 12px">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">CHANGE STATUS</div>
+          <div style="display:flex;gap:4px;margin-bottom:10px">
+            <span style="background:#C97850;color:#fff;padding:4px 10px;font-size:10px;border:1px solid #C97850">NEW</span>
+            <span style="background:transparent;color:rgba(255,255,255,.5);padding:4px 10px;font-size:10px;border:1px solid #333">ASSIGNED</span>
+            <span style="background:transparent;color:rgba(255,255,255,.5);padding:4px 10px;font-size:10px;border:1px solid #333">IN PROG</span>
+            <span style="background:transparent;color:rgba(255,255,255,.5);padding:4px 10px;font-size:10px;border:1px solid #333">DONE</span>
+          </div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">ADD COMMENT</div>
+          <div style="border:1px solid #333;padding:8px;color:rgba(255,255,255,.3);font-size:10px;min-height:40px">Type your comment...</div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <span style="flex:1;text-align:center;border:1px solid #ADD8E6;color:#ADD8E6;padding:8px 0;font-size:10px">SAVE & NEXT</span>
+            <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:10px">MSG REP</span>
+            <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 0;font-size:10px">MSG CUST</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>F) Resolve / Context / History Panels</h3>
+      <p>Ticket header always visible. Three swipeable panels below: RESOLVE (status + comment + actions — the default), CONTEXT (project info, rep, other tickets, WOs), HISTORY (activity timeline). Default lands on Resolve so you can act immediately. Swipe to Context when you need background.</p>
+    </div>
+  </div>
+</div>

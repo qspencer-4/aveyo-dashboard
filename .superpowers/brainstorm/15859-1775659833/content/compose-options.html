@@ -1,0 +1,132 @@
+<h2>How Should Compose Work?</h2>
+<p class="subtitle">When you tap ADD COMMENT, MSG REP, or MSG CUST — what happens?</p>
+
+<div class="cards">
+  <!-- Option A: Inline expand -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#ADD8E6;font-weight:700;font-size:12px">#105976 — JOHN SMITH</span>
+            <span style="background:#C97850;color:#fff;padding:2px 6px;font-size:9px">NEW</span>
+          </div>
+          <div style="color:rgba(255,255,255,.4);font-size:10px">Inverter error E-102. Not producing since Tues.</div>
+        </div>
+        <div style="display:flex;gap:4px;padding:6px 0">
+          <span style="flex:1;text-align:center;background:#C97850;color:#fff;padding:5px 0;font-size:9px;font-weight:700">NEW</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:5px 0;font-size:9px">ASSIGNED</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:5px 0;font-size:9px">IN PROGRESS</span>
+          <span style="flex:1;text-align:center;background:#222;color:rgba(255,255,255,.4);padding:5px 0;font-size:9px">COMPLETE</span>
+        </div>
+        <div style="display:flex;gap:4px;padding:0 0 4px">
+          <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:7px 0;font-size:9px;font-weight:700">ADD COMMENT</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:7px 0;font-size:9px">MSG REP</span>
+          <span style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:7px 0;font-size:9px">MSG CUST</span>
+        </div>
+        <div style="border:1px solid #ADD8E6;padding:10px;margin:4px 0;background:#0d0d0d">
+          <div style="color:rgba(255,255,255,.4);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ADD COMMENT TO TICKET</div>
+          <div style="border:1px solid #333;padding:8px;color:rgba(255,255,255,.3);font-size:10px;min-height:50px;background:#111">Checked inverter warranty — still covered. Scheduling tech for Thursday.|</div>
+          <div style="display:flex;gap:4px;margin-top:6px">
+            <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:8px 0;font-size:10px;font-weight:700">POST COMMENT</span>
+            <span style="text-align:center;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.4);padding:8px 12px;font-size:10px">CANCEL</span>
+          </div>
+        </div>
+        <div style="display:flex;border-bottom:1px solid #333;margin-top:4px">
+          <span style="padding:6px 14px;font-size:10px;color:#fff;border-bottom:2px solid #fff">ACTIVITY</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:2px">
+          <div style="color:rgba(255,255,255,.5);font-size:10px">Apr 5 · Mike Johnson — Called customer, no answer...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A) Inline Expand</h3>
+      <p>Tapping an action expands a compose area right below the buttons, pushing the tabs down. You type, submit, and it collapses back. Everything stays on one page — no overlays, no navigation. Simple and predictable.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Bottom sheet -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="opacity:0.3">
+          <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+            <span style="color:#ADD8E6;font-weight:700;font-size:12px">#105976 — JOHN SMITH</span>
+          </div>
+          <div style="display:flex;gap:4px;padding:6px 0">
+            <span style="flex:1;text-align:center;background:#C97850;color:#fff;padding:5px 0;font-size:9px">NEW</span>
+            <span style="flex:1;text-align:center;background:#222;padding:5px 0;font-size:9px">ASSIGNED</span>
+            <span style="flex:1;text-align:center;background:#222;padding:5px 0;font-size:9px">IN PROG</span>
+            <span style="flex:1;text-align:center;background:#222;padding:5px 0;font-size:9px">DONE</span>
+          </div>
+          <div style="display:flex;gap:4px;padding:0 0 4px">
+            <span style="flex:1;text-align:center;border:1px solid #ADD8E6;padding:7px 0;font-size:9px">COMMENT</span>
+            <span style="flex:1;text-align:center;border:1px solid #333;padding:7px 0;font-size:9px">REP</span>
+            <span style="flex:1;text-align:center;border:1px solid #333;padding:7px 0;font-size:9px">CUST</span>
+          </div>
+        </div>
+        <div style="background:#1a1a1a;border-top:2px solid #ADD8E6;padding:14px;margin-top:8px">
+          <div style="width:40px;height:3px;background:#444;margin:0 auto 10px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="color:#ADD8E6;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px">ADD COMMENT</span>
+            <span style="color:rgba(255,255,255,.4);font-size:10px">X CLOSE</span>
+          </div>
+          <div style="color:rgba(255,255,255,.4);font-size:9px;margin-bottom:4px">#105976 — JOHN SMITH</div>
+          <div style="border:1px solid #333;padding:10px;color:rgba(255,255,255,.3);font-size:10px;min-height:60px;background:#111">Checked inverter warranty — still covered. Scheduling tech for Thursday.|</div>
+          <div style="display:flex;gap:4px;margin-top:8px">
+            <span style="flex:1;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:10px;font-weight:700">POST COMMENT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B) Bottom Sheet</h3>
+      <p>A panel slides up from the bottom, dimming the ticket view behind it. Focused compose experience — nothing else competes for attention. Dismiss by tapping X or swiping down. Feels native on iPhone.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Scroll to compose -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#111">
+      <div style="font-family:monospace;font-size:11px;color:#fff;line-height:1.6">
+        <div style="background:#1a1a1a;padding:8px 12px;margin-bottom:2px;border-left:3px solid #ADD8E6">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#ADD8E6;font-weight:700;font-size:12px">#105976 — JOHN SMITH</span>
+            <span style="background:#C97850;color:#fff;padding:2px 6px;font-size:9px">NEW</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:rgba(255,255,255,.15);font-size:10px;padding:2px 0">... scrolled down ...</div>
+        <div style="display:flex;border-bottom:1px solid #333">
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">ACTIVITY</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">TICKETS (2)</span>
+          <span style="padding:6px 14px;font-size:10px;color:rgba(255,255,255,.3)">WORK ORDERS</span>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:2px;opacity:.4">
+          <div style="color:rgba(255,255,255,.5);font-size:10px">Apr 5 · Mike Johnson — Called customer...</div>
+        </div>
+        <div style="background:#1a1a1a;padding:6px 12px;margin-top:1px;opacity:.4">
+          <div style="color:rgba(255,255,255,.5);font-size:10px">Apr 3 · System — Ticket created...</div>
+        </div>
+        <div style="height:1px;background:#333;margin:8px 0"></div>
+        <div style="padding:8px 0">
+          <div style="display:flex;gap:4px;margin-bottom:6px">
+            <span style="padding:5px 12px;font-size:9px;color:#000;background:#ADD8E6;font-weight:700">COMMENT</span>
+            <span style="padding:5px 12px;font-size:9px;color:rgba(255,255,255,.4);border:1px solid #333">REP UPDATE</span>
+            <span style="padding:5px 12px;font-size:9px;color:rgba(255,255,255,.4);border:1px solid #333">CUST TEXT</span>
+          </div>
+          <div style="border:1px solid #333;padding:8px;color:rgba(255,255,255,.3);font-size:10px;min-height:50px;background:#111">Checked inverter warranty — still covered.|</div>
+          <div style="margin-top:6px">
+            <span style="display:block;text-align:center;background:#ADD8E6;color:#000;padding:10px 0;font-size:10px;font-weight:700">POST COMMENT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C) Scroll to Compose</h3>
+      <p>Tapping an action auto-scrolls to a compose section at the bottom of the page. Consistent with how the existing project detail view already works. Familiar pattern, but you lose sight of the ticket header.</p>
+    </div>
+  </div>
+</div>

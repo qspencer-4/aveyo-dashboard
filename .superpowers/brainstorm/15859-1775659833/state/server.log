@@ -1,0 +1,7 @@
+{"type":"server-started","port":50749,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:50749","screen_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content","state_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/state"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content/compose-options.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content/full-design.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content/responsive-layout.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content/project-nav.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/15859-1775659833/content/full-design-v2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

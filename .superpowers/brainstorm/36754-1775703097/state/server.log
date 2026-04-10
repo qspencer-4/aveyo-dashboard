@@ -1,0 +1,8 @@
+{"type":"server-started","port":56086,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:56086","screen_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content","state_dir":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/state"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content/sow-queue-rows.html"}
+{"source":"user-event","type":"click","text":"B\n    \n      With System Info & Checklist Progress\n      Everything in A plus system size and verification progress bar\n      \n        \n          #06347\n          READY FOR SOW\n        \n        Justin Pims\n        1234 Solar Way, Phoenix AZ\n        \n          8.4 kW\n          |\n          $32,500\n        \n        \n          \n            \n          \n          5/8 VERIFIED\n        \n        \n          Rep: Mike Johnson\n          02:14:33:07","choice":"b","id":null,"timestamp":1775704050590}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content/waiting.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content/sow-queue-full.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content/sow-queue-responsive.html"}
+{"type":"screen-added","file":"/Users/qspencer/aveyo-dev/.superpowers/brainstorm/36754-1775703097/content/sow-queue-v2.html"}
+{"type":"server-stopped","reason":"idle timeout"}
