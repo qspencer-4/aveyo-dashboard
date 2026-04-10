@@ -5208,6 +5208,55 @@ function buildSOWDetail(item){
     </div>`;
   loadSoldProduction(iid);
   loadPalmettoComparison(iid, fields);
+
+  // Layout & Equipment section (independent of LightReach)
+  const custDocsFolder2 = fields.find(f=>f.field_id===266618731);
+  const custDocsId2 = custDocsFolder2?.values?.[0]?.value;
+  const approvedFolder2 = fields.find(f=>f.field_id===268981903);
+  const approvedId2 = approvedFolder2?.values?.[0]?.value;
+  const custDocsLink2 = custDocsId2 ? 'https://drive.google.com/drive/folders/'+custDocsId2 : '';
+  const approvedLink2 = approvedId2 ? 'https://drive.google.com/drive/folders/'+approvedId2 : '';
+  const designMatches2 = sowFV(fields, SOW_FIELD.designMatches);
+
+  const layoutDiv2 = document.createElement('div');
+  layoutDiv2.className = 'sow-section';
+  layoutDiv2.id = 'sow-layout-'+iid;
+  layoutDiv2.innerHTML = '<div class="sow-section-hdr">Layout & Equipment <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Design Matches</span>'+
+        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">saves to Podio</span>'+
+      '</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">Does the proposal layout in Customer Docs match the stamped plans in the Approved folder?</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
+        (custDocsLink2?'<a href="'+custDocsLink2+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN CUSTOMER DOCS ↗</a>':'')+
+        (approvedLink2?'<a href="'+approvedLink2+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN APPROVED PLANS ↗</a>':'')+
+      '</div>'+
+      sowDD('designMatches',SOW_FIELD.designMatches,designMatches2,iid)+
+    '</div>'+
+    '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
+
+  // Insert after last sow-section in detail body
+  const lastSection = document.getElementById('sow-detail-body').querySelector('.sow-section:last-of-type');
+  if(lastSection) lastSection.after(layoutDiv2);
+  else document.getElementById('sow-detail-body').appendChild(layoutDiv2);
+
+  // Site Survey Review section with Roof Review dropdown
+  const roofReview2 = sowFV(fields, SOW_FIELD.roofReview);
+  const surveyDiv2 = document.createElement('div');
+  surveyDiv2.className = 'sow-section';
+  surveyDiv2.id = 'sow-survey-'+iid;
+  surveyDiv2.innerHTML = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+
+      sowDD('roofReview',SOW_FIELD.roofReview,roofReview2,iid)+
+    '</div>'+
+    '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
+  layoutDiv2.after(surveyDiv2);
+
+  // Auto-run design comparison and survey review
+  loadDesignCompare(iid);
+  loadSurveyReview(iid);
 }
 
 async function loadPalmettoComparison(iid, fields){
@@ -5340,42 +5389,27 @@ async function loadPalmettoComparison(iid, fields){
     '</div>';
   }
 
-  const layoutDiv = document.createElement('div');
-  layoutDiv.className = 'sow-section';
-  layoutDiv.id = 'sow-layout-'+iid;
-  layoutDiv.innerHTML = '<div class="sow-section-hdr">Layout & Equipment <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
-    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
-        '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Design Matches</span>'+
-        '<span style="color:rgba(255,255,255,.25);font-size:9px;letter-spacing:.5px">saves to Podio</span>'+
-      '</div>'+
-      '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">Does the proposal layout in Customer Docs match the stamped plans in the Approved folder?</div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
-        (custDocsLink?'<a href="'+custDocsLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN CUSTOMER DOCS ↗</a>':'')+
-        (approvedLink?'<a href="'+approvedLink+'" target="_blank" style="font-size:9px;color:#ADD8E6;text-decoration:none;padding:5px 12px;border:1px solid rgba(173,216,230,.2);letter-spacing:.5px">OPEN APPROVED PLANS ↗</a>':'')+
-      '</div>'+
-      dd(SOW_FIELD.designMatches, designMatches, yesNoOpts)+
-    '</div>'+
-    triRow('Panels', podioPanel.trim()+' x'+podioPanelCount, lrPanels, '—')+
-    triRow('Inverters', podioInverter.trim()+' x'+podioInvCount, lrInverters, '—')+
-    '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
-  compDiv.after(layoutDiv);
-
-  // Site Survey Review section with Roof Review dropdown
-  const surveyDiv = document.createElement('div');
-  surveyDiv.className = 'sow-section';
-  surveyDiv.id = 'sow-survey-'+iid;
-  surveyDiv.innerHTML = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
-    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+
-      sowDD('roofReview',SOW_FIELD.roofReview,roofReview,iid)+
-    '</div>'+
-    '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
-  layoutDiv.after(surveyDiv);
-
-  // Auto-run design comparison and survey review
-  loadDesignCompare(iid);
-  loadSurveyReview(iid);
+  // Update Layout section with LightReach panel/inverter data if it exists
+  const layoutSection = document.getElementById('sow-layout-'+iid);
+  if(layoutSection){
+    const panelRow = '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px">Panels</div>'+
+      '<div style="display:flex;flex-direction:column;gap:3px;font-size:10px">'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(podioPanel.trim()+' x'+podioPanelCount)+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(lrPanels)+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Planset:</span> <span style="color:rgba(255,255,255,.6)" id="sow-planset-panels-'+iid+'">Loading...</span></div>'+
+      '</div></div>';
+    const invRow = '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px">Inverters</div>'+
+      '<div style="display:flex;flex-direction:column;gap:3px;font-size:10px">'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Podio:</span> <span style="color:rgba(255,255,255,.6)">'+x(podioInverter.trim()+' x'+podioInvCount)+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+x(lrInverters)+'</span></div>'+
+        '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:70px">Planset:</span> <span style="color:rgba(255,255,255,.6)" id="sow-planset-inv-'+iid+'">Loading...</span></div>'+
+      '</div></div>';
+    // Insert before the design compare loading div
+    const dcDiv = document.getElementById('sow-design-compare-'+iid);
+    if(dcDiv) dcDiv.insertAdjacentHTML('beforebegin', panelRow + invRow);
+  }
 }
 
 const SOW_DESIGN_CACHE = {};
@@ -6306,7 +6340,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=141').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=142').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
