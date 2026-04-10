@@ -5545,18 +5545,17 @@ function renderSurveyReview(iid, data){
     html += '</div></div>';
   }
 
-  // If no categorized pages found, show all photo pages in a grid
-  if(!roofPages.length && !tiltPages.length){
-    const allPages = (data.pages||[]).slice(1); // skip cover page
-    if(allPages.length){
-      html += '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
-        '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Photos <span style="font-weight:400;color:rgba(255,255,255,.25)">'+allPages.length+' pages · tap to zoom</span></div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">';
-      allPages.forEach(p=>{
-        html += '<div><img data-zoom src="data:image/png;base64,'+p.thumb+'" style="width:100%;aspect-ratio:0.77;object-fit:cover;border:1px solid rgba(255,255,255,.06);cursor:pointer" alt="p'+p.page+'"></div>';
-      });
-      html += '</div></div>';
-    }
+  // Show all photos in a grid
+  const allPhotos = (data.pages||[]).filter(p=>p.size>10000); // skip small icons
+  if(allPhotos.length){
+    html += '<div style="padding:10px 12px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px">Survey Photos <span style="font-weight:400;color:rgba(255,255,255,.25)">'+allPhotos.length+' photos · tap to zoom</span></div>'+
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">';
+    allPhotos.forEach(p=>{
+      const mime = p.mime||'image/jpeg';
+      html += '<div><img data-zoom src="data:'+mime+';base64,'+p.thumb+'" style="width:100%;aspect-ratio:1;object-fit:cover;border:1px solid rgba(255,255,255,.04);cursor:pointer" alt="photo"></div>';
+    });
+    html += '</div></div>';
   }
 
   section.innerHTML = html;
@@ -6276,7 +6275,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=135').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=136').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
