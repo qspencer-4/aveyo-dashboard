@@ -5104,7 +5104,6 @@ function buildSOWDetail(item){
   }
 
   const verifyRows = [
-    {label:'Roof Review',key:'roofReview',fid:SOW_FIELD.roofReview,val:roofReview,good:['approved'],warn:['needed'],hint:'Check site survey report'},
     {label:'Electrical Work',key:'electricalWork',fid:SOW_FIELD.electricalWork,val:electricalWork,good:['not needed'],warn:['yes','200','400','derate','reloc','line','battery','dms','other'],hint:''},
     {label:'Structural Upgrade',key:'structuralUpgrade',fid:SOW_FIELD.structuralUpgrade,val:structUpgrade,good:['no'],warn:['yes'],hint:'Check PE letter'},
     {label:'Rep Scope Approval',key:'repScopeApproval',fid:SOW_FIELD.repScopeApproval,val:repScopeApproval,good:['approved'],warn:['rejected'],hint:''},
@@ -5356,11 +5355,15 @@ async function loadPalmettoComparison(iid, fields){
     '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
   compDiv.after(layoutDiv);
 
-  // Site Survey Review section
+  // Site Survey Review section with Roof Review dropdown
   const surveyDiv = document.createElement('div');
   surveyDiv.className = 'sow-section';
   surveyDiv.id = 'sow-survey-'+iid;
-  surveyDiv.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div>'+
+  surveyDiv.innerHTML = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+
+      sowDD('roofReview',SOW_FIELD.roofReview,roofReview)+
+    '</div>'+
     '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
   layoutDiv.after(surveyDiv);
 
@@ -6275,7 +6278,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=136').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=137').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
