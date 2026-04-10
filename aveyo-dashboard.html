@@ -5206,6 +5206,7 @@ function buildSOWDetail(item){
 }
 
 async function loadPalmettoComparison(iid, fields){
+  console.log('[SOW] loadPalmettoComparison called with iid:', iid, 'fields:', fields.length);
   const fundingField = fields.find(f=>f.field_id===268339026);
   const fundingRaw = fundingField?.values?.[0]?.value || '';
   const financeId = parseFinanceId(typeof fundingRaw==='object'?(fundingRaw.text||fundingRaw.value||''):String(fundingRaw));
@@ -5375,8 +5376,9 @@ async function loadPalmettoComparison(iid, fields){
 const SOW_DESIGN_CACHE = {};
 
 async function loadDesignCompare(iid){
+  console.log('[SOW] loadDesignCompare called with iid:', iid);
   const el = document.getElementById('sow-design-compare-'+iid);
-  if(!el) return;
+  if(!el){ console.log('[SOW] design compare element not found for', iid); return; }
 
   if(SOW_DESIGN_CACHE[iid]){
     renderDesignCompare(iid, SOW_DESIGN_CACHE[iid]);
@@ -5495,8 +5497,9 @@ function renderDesignCompare(iid, data){
 const SOW_SURVEY_CACHE = {};
 
 async function loadSurveyReview(iid){
+  console.log('[SOW] loadSurveyReview called with iid:', iid);
   const section = document.getElementById('sow-survey-'+iid);
-  if(!section) return;
+  if(!section){ console.log('[SOW] survey element not found for', iid); return; }
 
   if(SOW_SURVEY_CACHE[iid]){
     renderSurveyReview(iid, SOW_SURVEY_CACHE[iid]);
@@ -6298,7 +6301,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=139').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=140').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
