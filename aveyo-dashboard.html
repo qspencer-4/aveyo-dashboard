@@ -5384,11 +5384,15 @@ async function loadDesignCompare(iid){
   }
 
   try{
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 180000); // 3 min timeout
     const res = await fetch(VPS+'/sow-design-compare',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({sow_item_id:iid})
+      body:JSON.stringify({sow_item_id:iid}),
+      signal:controller.signal
     });
+    clearTimeout(timeout);
     const data = await res.json();
     SOW_DESIGN_CACHE[iid] = data;
     renderDesignCompare(iid, data);
@@ -5500,11 +5504,15 @@ async function loadSurveyReview(iid){
   }
 
   try{
+    const controller2 = new AbortController();
+    const timeout2 = setTimeout(()=>controller2.abort(), 180000);
     const res = await fetch(VPS+'/sow-survey-review',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({sow_item_id:iid})
+      body:JSON.stringify({sow_item_id:iid}),
+      signal:controller2.signal
     });
+    clearTimeout(timeout2);
     const data = await res.json();
     SOW_SURVEY_CACHE[iid] = data;
     renderSurveyReview(iid, data);
@@ -6290,7 +6298,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=138').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=139').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
