@@ -5518,11 +5518,23 @@ function renderSurveyReview(iid, data){
   if(!section) return;
 
   if(data.status!=='ok'){
-    section.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div><div style="padding:12px;color:#E88B8B;font-size:10px">'+x(data.message||'Error')+'</div>';
+    const existingDD2 = section.querySelector('.sow-dropdown');
+    const roofDD2 = existingDD2 ? existingDD2.outerHTML : '';
+    section.innerHTML = '<div class="sow-section-hdr">Site Survey Review</div>'+
+      '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)"><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+roofDD2+'</div>'+
+      '<div style="padding:12px;color:#E88B8B;font-size:10px">'+x(data.message||'Error')+'</div>';
     return;
   }
 
-  let html = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">'+x(data.file_name||'')+' · '+data.total_pages+' pages</span></div>';
+  // Preserve the Roof Review dropdown that was set in buildSOWDetail
+  const existingDD = section.querySelector('.sow-dropdown');
+  const roofDDhtml = existingDD ? existingDD.outerHTML : '';
+
+  let html = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">'+x(data.file_name||'')+' · saves to Podio</span></div>'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+
+      roofDDhtml+
+    '</div>';
 
   // Roof photos
   const roofPages = data.roof_pages||[];
@@ -6278,7 +6290,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=137').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=138').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
