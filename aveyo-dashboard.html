@@ -5258,9 +5258,23 @@ function buildSOWDetail(item){
     '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
   layoutDiv2.after(surveyDiv2);
 
-  // Auto-run design comparison and survey review
+  // Production Check section
+  const permitDesign2 = sowFV(fields, SOW_FIELD.permitDesign);
+  const prodDiv = document.createElement('div');
+  prodDiv.className = 'sow-section';
+  prodDiv.id = 'sow-prodcheck-'+iid;
+  prodDiv.innerHTML = '<div class="sow-section-hdr">Production Check <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
+    '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Permit Package Design</div>'+
+      sowDD('permitDesign',SOW_FIELD.permitDesign,permitDesign2,iid)+
+    '</div>'+
+    '<div id="sow-aurora-prod-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading Aurora production data...</span></div>';
+  surveyDiv2.after(prodDiv);
+
+  // Auto-run design comparison, survey review, and aurora production
   loadDesignCompare(iid);
   loadSurveyReview(iid);
+  loadAuroraProduction(iid, fields);
   }catch(e){
     console.error('[SOW] buildSOWDetail CRASHED:', e);
     const db = document.getElementById('sow-detail-body');
@@ -5633,6 +5647,115 @@ function renderSurveyReview(iid, data){
   }
 
   section.innerHTML = html;
+}
+
+const SOW_AURORA_CACHE = {};
+
+async function loadAuroraProduction(iid, fields){
+  const el = document.getElementById('sow-aurora-prod-'+iid);
+  if(!el) return;
+
+  // Get customer name from title
+  const item = SOW_CURRENT_ITEM;
+  if(!item) return;
+  const title = item.title||'';
+  const namePart = title.replace(/^#\S+\s+/,'').split(' - ')[0]||'';
+
+  if(!namePart){
+    el.innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:10px">Could not determine customer name</div>';
+    return;
+  }
+
+  if(SOW_AURORA_CACHE[iid]){
+    renderAuroraProduction(iid, SOW_AURORA_CACHE[iid]);
+    return;
+  }
+
+  try{
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 120000);
+    const res = await fetch(VPS+'/aurora-production',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({customer_name:namePart}),
+      signal:controller.signal
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    SOW_AURORA_CACHE[iid] = data;
+    renderAuroraProduction(iid, data);
+  }catch(e){
+    el.innerHTML = '<div style="color:#E88B8B;font-size:10px">Aurora lookup failed: '+x(e.message)+'</div>';
+  }
+}
+
+function renderAuroraProduction(iid, data){
+  const el = document.getElementById('sow-aurora-prod-'+iid);
+  if(!el) return;
+
+  if(data.status!=='ok'){
+    el.innerHTML = '<div style="color:#E88B8B;font-size:10px">'+x(data.message||'Error')+'</div>';
+    return;
+  }
+
+  // Get LightReach production from Palmetto cache
+  const lrData = Object.values(PALMETTO_CACHE)[0];
+  const lrProduction = lrData ? lrData.productionKwh : null;
+  const auroraProduction = data.current_production_kwh;
+
+  // Calculate percentage difference
+  let pctDiff = null;
+  let needsChangeOrder = false;
+  if(lrProduction && auroraProduction){
+    pctDiff = ((auroraProduction - lrProduction) / lrProduction * 100).toFixed(1);
+    needsChangeOrder = parseFloat(pctDiff) < -5;
+  }
+
+  const diffColor = needsChangeOrder ? '#E88B8B' : (pctDiff && parseFloat(pctDiff) < 0 ? '#fff' : '#ADD8E6');
+
+  let html = '';
+
+  // Production comparison
+  html += '<div style="padding:10px 12px;border-left:2px solid '+(needsChangeOrder?'rgba(232,139,139,.3)':'rgba(173,216,230,.2)')+';margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+      '<span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Annual Production</span>'+
+      (needsChangeOrder?'<span style="color:#E88B8B;font-size:9px;font-weight:700;letter-spacing:.5px">CHANGE ORDER NEEDED</span>':
+       pctDiff?'<span style="color:'+diffColor+';font-size:9px;font-weight:700;letter-spacing:.5px">'+pctDiff+'%</span>':'')+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:3px;font-size:10px">'+
+      '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:80px">LightReach:</span> <span style="color:rgba(255,255,255,.6)">'+(lrProduction?Math.round(lrProduction).toLocaleString()+' kWh':'—')+'</span></div>'+
+      '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:80px">Aurora:</span> <span style="color:'+diffColor+'">'+
+        (auroraProduction?Math.round(auroraProduction).toLocaleString()+' kWh':'—')+'</span></div>'+
+    '</div>'+
+    (needsChangeOrder?'<div style="margin-top:8px;padding:6px 10px;background:rgba(232,139,139,.08);border:1px solid rgba(232,139,139,.15);font-size:10px;color:#E88B8B">Production dropped '+Math.abs(pctDiff)+'% from LightReach. A change order with LightReach is required when production drops more than 5%.</div>':'')+
+  '</div>';
+
+  // System size
+  html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">System Size (Aurora)</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.5)">'+(data.current_system_size_kw?data.current_system_size_kw+' kW':'—')+' · '+x(data.current_design||'')+'</div>'+
+  '</div>';
+
+  // Design history
+  if(data.designs && data.designs.length > 1){
+    html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Design History</div>';
+    data.designs.forEach(d=>{
+      html += '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:2px">'+
+        x(d.name)+': '+(d.production_kwh?Math.round(d.production_kwh).toLocaleString()+' kWh':'—')+
+        ' · '+(d.system_size_kw||'?')+' kW'+
+        (d.simulation_valid===false?' <span style="color:#E88B8B">(invalid)</span>':'')+
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Aurora link
+  html += '<div style="padding:6px 12px;font-size:9px">'+
+    '<a href="'+x(data.aurora_url||'')+'" target="_blank" style="color:#ADD8E6;text-decoration:none;letter-spacing:.5px">OPEN IN AURORA ↗</a>'+
+  '</div>';
+
+  el.innerHTML = html;
 }
 
 const SOW_EXTRACT_CACHE = {};
@@ -6349,7 +6472,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=144').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=145').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
