@@ -2,6 +2,7 @@
 # Add this route to /root/podio-sync/server.py on the VPS
 # Compares proposal (Customer Docs) vs planset (Approved folder)
 # Extracts panel layout, equipment, and system specs from both PDFs
+# REQUIRES: pip install PyMuPDF  (provides the 'fitz' module for PDF→PNG thumbnails)
 
 @app.route("/sow-design-compare", methods=["POST"])
 def sow_design_compare():
@@ -167,15 +168,36 @@ def sow_design_compare():
   "mount_type": "<roof mount, ground mount, or null>",
   "estimated_production_kwh": <number or null>,
   "roof_type": "<string or null>",
-  "panel_layout_description": "<brief description of where panels are placed on the roof - which roof faces, how many per array, etc.>"
+  "panel_layout_description": "<brief description of where panels are placed on the roof - which roof faces, how many per array, etc.>",
+  "layout_page": <1-based page number that shows the panel layout / roof plan diagram, or 1 if not found>
 }
 Return ONLY valid JSON, no other text."""
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
+        def render_page_thumbnail(pdf_data, page_num, max_width=800):
+            """Render a specific page of a PDF as a base64 PNG thumbnail.
+            page_num is 1-based."""
+            try:
+                import fitz  # PyMuPDF
+                doc = fitz.open(stream=pdf_data, filetype="pdf")
+                page_idx = min(page_num - 1, len(doc) - 1)
+                page_idx = max(0, page_idx)
+                page = doc[page_idx]
+                # Scale to max_width while preserving aspect ratio
+                zoom = max_width / page.rect.width
+                mat = fitz.Matrix(zoom, zoom)
+                pix = page.get_pixmap(matrix=mat)
+                png_data = pix.tobytes("png")
+                doc.close()
+                return base64.standard_b64encode(png_data).decode(), page_idx + 1
+            except Exception as e:
+                print(f"[sow-design-compare] thumbnail render failed: {e}")
+                return None, None
+
         def extract_from_pdf(pdf_data, label):
-            pdf_data = truncate_pdf(pdf_data, 8)
-            encoded = base64.standard_b64encode(pdf_data).decode()
+            pdf_data_truncated = truncate_pdf(pdf_data, 8)
+            encoded = base64.standard_b64encode(pdf_data_truncated).decode()
             try:
                 msg = client.messages.create(
                     model="claude-sonnet-4-20250514",
@@ -203,15 +225,29 @@ Return ONLY valid JSON, no other text."""
             except Exception as e:
                 return {"error": str(e)}
 
-        # Extract from proposal
+        # Extract from proposal + generate layout thumbnail
+        proposal_pdf_data = None
         if proposal_file:
-            pdf_data = download_file(proposal_file["id"])
-            result["proposal"] = extract_from_pdf(pdf_data, "proposal")
+            proposal_pdf_data = download_file(proposal_file["id"])
+            result["proposal"] = extract_from_pdf(proposal_pdf_data, "proposal")
+            # Render layout page thumbnail
+            layout_pg = (result["proposal"] or {}).get("layout_page", 1) or 1
+            thumb, actual_pg = render_page_thumbnail(proposal_pdf_data, layout_pg)
+            if thumb:
+                result["proposal_thumb"] = thumb
+                result["proposal_thumb_page"] = actual_pg
 
-        # Extract from planset
+        # Extract from planset + generate layout thumbnail
+        planset_pdf_data = None
         if planset_file:
-            pdf_data = download_file(planset_file["id"])
-            result["planset"] = extract_from_pdf(pdf_data, "planset")
+            planset_pdf_data = download_file(planset_file["id"])
+            result["planset"] = extract_from_pdf(planset_pdf_data, "planset")
+            # Render layout page thumbnail
+            layout_pg = (result["planset"] or {}).get("layout_page", 1) or 1
+            thumb, actual_pg = render_page_thumbnail(planset_pdf_data, layout_pg)
+            if thumb:
+                result["planset_thumb"] = thumb
+                result["planset_thumb_page"] = actual_pg
 
         # ── COMPARE ──────────────────────────────────────────
         if result["proposal"] and result["planset"]:

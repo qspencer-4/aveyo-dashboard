@@ -5712,8 +5712,15 @@ function renderAuroraProduction(iid, data){
   }
 
   const diffColor = needsChangeOrder ? '#E88B8B' : (pctDiff && parseFloat(pctDiff) < 0 ? '#fff' : '#ADD8E6');
+  const milestoneLabel = data.milestone && data.milestone!=='unknown' ? data.milestone.toUpperCase() : '';
 
   let html = '';
+
+  // Sold design header
+  html += '<div style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center">'+
+    '<span style="font-size:10px;color:rgba(255,255,255,.5)">'+x(data.current_design||'Design')+'</span>'+
+    (milestoneLabel?'<span style="font-size:7px;font-weight:700;letter-spacing:.8px;color:#ADD8E6;padding:2px 8px;border:1px solid rgba(173,216,230,.2)">'+milestoneLabel+'</span>':'')+
+  '</div>';
 
   // Production comparison
   html += '<div style="padding:10px 12px;border-left:2px solid '+(needsChangeOrder?'rgba(232,139,139,.3)':'rgba(173,216,230,.2)')+';margin-bottom:4px;background:rgba(255,255,255,.02)">'+
@@ -5730,20 +5737,105 @@ function renderAuroraProduction(iid, data){
     (needsChangeOrder?'<div style="margin-top:8px;padding:6px 10px;background:rgba(232,139,139,.08);border:1px solid rgba(232,139,139,.15);font-size:10px;color:#E88B8B">Production dropped '+Math.abs(pctDiff)+'% from LightReach. A change order with LightReach is required when production drops more than 5%.</div>':'')+
   '</div>';
 
-  // System size
+  // System size + panels
   html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
-    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">System Size (Aurora)</div>'+
-    '<div style="font-size:10px;color:rgba(255,255,255,.5)">'+(data.current_system_size_kw?data.current_system_size_kw+' kW':'—')+' · '+x(data.current_design||'')+'</div>'+
+    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">System Size</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.5)">'+(data.current_system_size_kw?data.current_system_size_kw+' kW':'—')+'</div>'+
+    (data.total_panels?'<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">'+data.total_panels+' panels'+
+      (data.panel_manufacturer||data.panel_model?' — '+(data.panel_manufacturer?x(data.panel_manufacturer)+' ':'')+x(data.panel_model||''):'')+
+      (data.panel_wattage?' ('+data.panel_wattage+'W)':'')+
+    '</div>':'')+
   '</div>';
+
+  // Layout / arrays
+  if(data.arrays && data.arrays.length){
+    html += '<div style="padding:8px 12px;border-left:2px solid rgba(173,216,230,.15);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Panel Layout</div>';
+    data.arrays.forEach(function(arr,i){
+      html += '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:2px">'+
+        'Array '+(i+1)+': '+(arr.panel_count||'?')+' panels'+
+        (arr.azimuth!=null?' · '+arr.azimuth+'\u00B0 az':'')+
+        (arr.pitch!=null?' · '+arr.pitch+'\u00B0 pitch':'')+
+        (arr.orientation?' · '+x(arr.orientation):'')+
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Inverters
+  if(data.inverters && data.inverters.length){
+    html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Inverters</div>';
+    data.inverters.forEach(function(inv){
+      html += '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:2px">'+
+        (inv.manufacturer?x(inv.manufacturer)+' ':'')+x(inv.model||'Unknown')+
+        (inv.count>1?' x'+inv.count:'')+
+        (inv.type?' <span style="color:rgba(255,255,255,.25)">('+x(inv.type)+')</span>':'')+
+        (inv.power_rating?' · '+inv.power_rating+'W':'')+
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Roof measurements
+  if(data.roof && (data.roof.total_area_sqft || (data.roof.faces && data.roof.faces.length))){
+    html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Measurements</div>';
+    if(data.roof.total_area_sqft){
+      html += '<div style="font-size:10px;color:rgba(255,255,255,.4)">Total area: '+Math.round(data.roof.total_area_sqft).toLocaleString()+' sq ft'+
+        (data.roof.modules_area_sqft?' · Panel area: '+Math.round(data.roof.modules_area_sqft).toLocaleString()+' sq ft':'')+
+      '</div>';
+    }
+    if(data.roof.pitch){
+      html += '<div style="font-size:10px;color:rgba(255,255,255,.4)">Avg pitch: '+data.roof.pitch+'\u00B0</div>';
+    }
+    if(data.roof.edges){
+      var e=data.roof.edges;
+      var edgeParts=[];
+      if(e.eave) edgeParts.push('Eave: '+Math.round(e.eave)+'ft');
+      if(e.ridge) edgeParts.push('Ridge: '+Math.round(e.ridge)+'ft');
+      if(e.hip) edgeParts.push('Hip: '+Math.round(e.hip)+'ft');
+      if(e.rake) edgeParts.push('Rake: '+Math.round(e.rake)+'ft');
+      if(e.valley) edgeParts.push('Valley: '+Math.round(e.valley)+'ft');
+      if(edgeParts.length) html += '<div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px">'+edgeParts.join(' · ')+'</div>';
+    }
+    if(data.roof.faces && data.roof.faces.length){
+      html += '<div style="margin-top:4px">';
+      data.roof.faces.forEach(function(f,i){
+        html += '<div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:1px">'+
+          'Face '+(i+1)+': '+(f.area_sqft?Math.round(f.area_sqft)+' sq ft':'')+
+          (f.azimuth!=null?' · '+f.azimuth+'\u00B0':'')+
+          (f.pitch!=null?' · '+f.pitch+'\u00B0 pitch':'')+
+          (f.module_count?' · '+f.module_count+' panels':'')+
+        '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  // Lidar / shade data
+  if(data.lidar_source || data.tsrf || data.tof || data.annual_irradiance){
+    html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
+      '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Lidar / Shade</div>'+
+      '<div style="display:flex;flex-direction:column;gap:2px;font-size:10px">';
+    if(data.lidar_source) html += '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:90px">Source:</span> <span style="color:rgba(255,255,255,.5)">'+x(data.lidar_source)+'</span></div>';
+    if(data.tsrf) html += '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:90px">TSRF:</span> <span style="color:rgba(255,255,255,.5)">'+data.tsrf+'%</span></div>';
+    if(data.tof) html += '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:90px">TOF:</span> <span style="color:rgba(255,255,255,.5)">'+data.tof+'%</span></div>';
+    if(data.annual_irradiance) html += '<div><span style="color:rgba(255,255,255,.3);display:inline-block;width:90px">Irradiance:</span> <span style="color:rgba(255,255,255,.5)">'+Math.round(data.annual_irradiance).toLocaleString()+' kWh/m\u00B2</span></div>';
+    html += '</div></div>';
+  }
 
   // Design history
   if(data.designs && data.designs.length > 1){
     html += '<div style="padding:8px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Design History</div>';
-    data.designs.forEach(d=>{
-      html += '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:2px">'+
-        x(d.name)+': '+(d.production_kwh?Math.round(d.production_kwh).toLocaleString()+' kWh':'—')+
+    data.designs.forEach(function(d){
+      var isSold = d.is_sold || (d.milestone||'').toLowerCase()==='sold';
+      html += '<div style="font-size:10px;color:'+(isSold?'rgba(173,216,230,.7)':'rgba(255,255,255,.4)')+';margin-bottom:2px">'+
+        (isSold?'\u25B8 ':'')+x(d.name)+': '+(d.production_kwh?Math.round(d.production_kwh).toLocaleString()+' kWh':'—')+
         ' · '+(d.system_size_kw||'?')+' kW'+
+        (d.milestone?' <span style="color:rgba(255,255,255,.2);font-size:8px;letter-spacing:.3px">['+x(d.milestone)+']</span>':'')+
         (d.simulation_valid===false?' <span style="color:#E88B8B">(invalid)</span>':'')+
       '</div>';
     });
