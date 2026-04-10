@@ -5152,7 +5152,7 @@ function buildSOWDetail(item){
       ${address?`<div class="detail-addr">${x(address)}</div>`:''}
       ${driveLinks?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${driveLinks}</div>`:''}
     </div>
-    <div class="sow-section">
+    <div class="sow-section" id="sow-projinfo-${iid}">
       <div class="sow-section-hdr">Project Info</div>
       <div class="sow-info-row"><span class="sow-info-key">System Size</span><span class="sow-info-val">${x(systemSize?systemSize+' kW':'—')}</span></div>
       <div class="sow-info-row"><span class="sow-info-key">Contract Price (Podio)</span><span class="sow-info-val">${x(contractPrice?'$'+parseFloat(contractPrice).toLocaleString():'—')}</span></div>
@@ -5238,9 +5238,11 @@ function buildSOWDetail(item){
     '</div>'+
     '<div id="sow-design-compare-'+iid+'" style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Analyzing proposal &amp; planset PDFs...</span></div>';
 
-  // Insert after last sow-section in detail body
-  const lastSection = document.getElementById('sow-detail-body').querySelector('.sow-section:last-of-type');
-  if(lastSection) lastSection.after(layoutDiv2);
+  // Insert after LightReach section (or Project Info if LightReach hasn't loaded yet)
+  const lrSection = document.getElementById('sow-palmetto-'+iid);
+  const projInfo = document.getElementById('sow-projinfo-'+iid);
+  if(lrSection) lrSection.after(layoutDiv2);
+  else if(projInfo) projInfo.after(layoutDiv2);
   else document.getElementById('sow-detail-body').appendChild(layoutDiv2);
 
   // Site Survey Review section with Roof Review dropdown
@@ -6347,7 +6349,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=143').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=144').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
