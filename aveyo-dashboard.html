@@ -5052,6 +5052,7 @@ function sowDD(key, fid, val, itemId){
 
 // ── SOW DETAIL ───────────────────────────────────────────
 function buildSOWDetail(item){
+  try{
   const fields = item.fields||[];
   const title = item.title||'';
   const namePart = title.replace(/^#\S+\s+/,'');
@@ -5081,7 +5082,8 @@ function buildSOWDetail(item){
   const distInfo = getDistanceAdder(lat, lng);
 
   const fundingField = fields.find(f=>f.field_id===268339026);
-  const fundingRaw = fundingField?.values?.[0]?.value || '';
+  const fundingRawVal = fundingField?.values?.[0]?.value || '';
+  const fundingRaw = typeof fundingRawVal==='object' ? (fundingRawVal.text||fundingRawVal.value||'') : String(fundingRawVal);
   const lrMatch = fundingRaw.match(/Contract Price[*\s:]+\$?([\d,\.]+)/);
   const lrPrice = lrMatch ? lrMatch[1].replace(/,/g,'') : null;
 
@@ -5257,6 +5259,11 @@ function buildSOWDetail(item){
   // Auto-run design comparison and survey review
   loadDesignCompare(iid);
   loadSurveyReview(iid);
+  }catch(e){
+    console.error('[SOW] buildSOWDetail CRASHED:', e);
+    const db = document.getElementById('sow-detail-body');
+    if(db) db.innerHTML += '<div style="padding:1rem;color:#E88B8B;font-size:12px">Error building SOW detail: '+e.message+'</div>';
+  }
 }
 
 async function loadPalmettoComparison(iid, fields){
@@ -6340,7 +6347,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=142').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=143').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
