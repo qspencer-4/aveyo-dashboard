@@ -1,229 +1,358 @@
 # ── AURORA PRODUCTION ENDPOINT (ENHANCED) ─────────────────
-# Add this route to /root/podio-sync/server.py on the VPS
-# Pulls sold milestone design from Aurora Solar API:
-#   layout, inverters, roof measurements, lidar/shade, production
+# REPLACES the existing aurora_production function in /root/podio-sync/server.py
+# Uses Aurora web login + GraphQL (same auth as existing endpoint)
+# Now pulls SOLD MILESTONE design with: layout, inverters, roof, lidar, production
 #
-# Requires: AURORA_API_KEY and AURORA_TENANT_ID in environment or config
-# Aurora API docs: https://docs.aurorasolar.com/reference
+# DEPLOY: Replace lines 5619-5750 (the existing aurora-production block) in server.py
+#         Then restart: systemctl restart podio-sync
 
+# ── AURORA PRODUCTION CHECK V3 ─────────────────────────────
 @app.route("/aurora-production", methods=["POST"])
 def aurora_production():
-    """Look up Aurora project by customer name, pull sold design data."""
+    """Get sold milestone design data from Aurora Solar for a project."""
     try:
-        import json as json2
-
         data = request.get_json(silent=True) or {}
-        customer_name = data.get("customer_name", "").strip()
+        customer_name = data.get("customer_name", "")
         if not customer_name:
             return jsonify({"status": "error", "message": "customer_name required"}), 400
 
-        AURORA_KEY = os.environ.get("AURORA_API_KEY", AURORA_API_KEY)
-        AURORA_TENANT = os.environ.get("AURORA_TENANT_ID", AURORA_TENANT_ID)
-        BASE = "https://api-sync.aurorasolar.com"
-        headers = {
-            "Authorization": f"Bearer {AURORA_KEY}",
-            "Content-Type": "application/json"
-        }
+        import re as re2
+        import json as json2
 
-        # ── FIND PROJECT BY CUSTOMER NAME ─────────────────────
-        def find_project(name):
-            """Search Aurora projects for matching customer name."""
-            page = 1
-            while True:
-                r = requests.get(
-                    f"{BASE}/tenants/{AURORA_TENANT}/projects",
-                    headers=headers,
-                    params={"page": page, "per_page": 250}
-                )
-                if r.status_code != 200:
-                    break
-                projects = r.json().get("projects", [])
-                if not projects:
-                    break
-                # Match by customer name (case-insensitive partial match)
-                name_lower = name.lower()
-                for p in projects:
-                    p_name = (p.get("name") or "").lower()
-                    p_customer = (p.get("customer_name") or "").lower()
-                    if name_lower in p_name or name_lower in p_customer:
-                        return p
-                page += 1
-                # Safety: don't paginate forever
-                if page > 20:
-                    break
-            return None
+        AURORA_EMAIL = "q.spencer@aveyo.com"
+        AURORA_PASS = "Clippers3326!"
 
-        project = find_project(customer_name)
-        if not project:
-            return jsonify({
-                "status": "error",
-                "message": f"No Aurora project found for '{customer_name}'"
-            }), 404
+        session = requests.Session()
 
-        project_id = project["id"]
-        aurora_url = f"https://app.aurorasolar.com/projects/{project_id}"
+        # Step 1: Login to Aurora
+        login_page = session.get("https://app.aurorasolar.com/login")
+        csrf_match = re2.search(r'name="authenticity_token" value="([^"]+)"', login_page.text)
+        if not csrf_match:
+            return jsonify({"status": "error", "message": "Could not get Aurora CSRF token"}), 500
 
-        # ── GET ALL DESIGNS FOR PROJECT ───────────────────────
-        designs_res = requests.get(
-            f"{BASE}/tenants/{AURORA_TENANT}/projects/{project_id}/designs",
-            headers=headers
+        login_resp = session.post("https://app.aurorasolar.com/user_sessions", data={
+            "utf8": "\u2713",
+            "authenticity_token": csrf_match.group(1),
+            "email": AURORA_EMAIL,
+            "password": AURORA_PASS,
+            "commit": "Log in"
+        }, allow_redirects=False)
+
+        home = session.get("https://app.aurorasolar.com/")
+        csrf2_match = re2.search(r'csrf-token.*?content="([^"]+)"', home.text)
+        csrf2 = csrf2_match.group(1) if csrf2_match else ""
+
+        api_headers = {"X-CSRF-Token": csrf2, "Accept": "application/json", "Content-Type": "application/json"}
+
+        # Step 2: Find project by customer name
+        all_projects = []
+        for page in range(1, 10):
+            resp = session.get(
+                f"https://app.aurorasolar.com/api/projects?per_page=100&page={page}",
+                headers=api_headers
+            )
+            pdata = resp.json()
+            projects = pdata.get("projects", [])
+            all_projects.extend(projects)
+            if len(projects) < 100:
+                break
+
+        name_parts = [p.lower() for p in customer_name.split() if len(p) > 1]
+        best_project = None
+        best_score = 0
+        for p in all_projects:
+            pname = (p.get("name") or "").lower()
+            first = (p.get("customer_first_name") or "").lower()
+            last = (p.get("customer_last_name") or "").lower()
+            full = f"{first} {last}"
+            score = sum(1 for part in name_parts if part in pname or part in full)
+            if score > best_score:
+                best_score = score
+                best_project = p
+
+        if not best_project or best_score == 0:
+            return jsonify({"status": "error", "message": f"No Aurora project found for '{customer_name}'", "total_projects": len(all_projects)}), 404
+
+        project_id = best_project["id"]
+
+        # Step 3: Get full project with designs
+        proj_resp = session.get(
+            f"https://app.aurorasolar.com/api/projects/{project_id}",
+            headers=api_headers
         )
-        if designs_res.status_code != 200:
-            return jsonify({
-                "status": "error",
-                "message": "Failed to fetch designs from Aurora"
-            }), 500
+        proj_data = proj_resp.json()
+        project = proj_data.get("project", proj_data)
+        designs_list = proj_data.get("designs", [])
 
-        all_designs = designs_res.json().get("designs", [])
-        if not all_designs:
-            return jsonify({
-                "status": "error",
-                "message": "No designs found for this project",
-                "aurora_url": aurora_url
-            }), 404
-
-        # ── FIND SOLD MILESTONE DESIGN ────────────────────────
+        # Step 4: Find SOLD milestone design (fallback to latest)
         sold_design = None
-        for d in all_designs:
+        for d in designs_list:
             milestone = (d.get("milestone") or "").lower()
             if milestone == "sold":
                 sold_design = d
                 break
-
-        # Fallback: most recent design if no sold milestone
         if not sold_design:
-            sold_design = all_designs[0]
+            sold_design = designs_list[-1] if designs_list else None
 
-        design_id = sold_design["id"]
+        if not sold_design:
+            return jsonify({"status": "error", "message": "No designs found", "aurora_url": f"https://v2.aurorasolar.com/projects/{project_id}"}), 404
 
-        # ── GET FULL DESIGN DETAILS ───────────────────────────
-        design_res = requests.get(
-            f"{BASE}/tenants/{AURORA_TENANT}/designs/{design_id}",
-            headers=headers
+        sold_id = sold_design["id"]
+
+        # Step 5: GraphQL — get full sold design details
+        gql_query = """
+        query SoldDesignDetails($id: ID!) {
+          designById(id: $id) {
+            id
+            name
+            masterPerformanceSimulation {
+              acPowerAnnual
+              acPowerMonthly
+              valid
+            }
+            components {
+              type
+              manufacturer
+              model
+              quantity
+              attributes
+            }
+            arrays {
+              moduleCount
+              azimuth
+              tilt
+              orientation
+              roofFaceId
+              module {
+                manufacturer
+                model
+                wattage
+              }
+            }
+            roofSummary {
+              totalArea
+              modulesArea
+              averagePitch
+              faces {
+                area
+                azimuth
+                pitch
+                moduleCount
+              }
+              edges {
+                eave
+                ridge
+                hip
+                rake
+                valley
+              }
+            }
+            lidarSource
+            irradianceAnalysis {
+              tsrf
+              tof
+              annualIrradiance
+            }
+          }
+        }
+        """
+
+        gql_resp = session.post(
+            "https://app.aurorasolar.com/graphql",
+            headers=api_headers,
+            json={"query": gql_query, "variables": {"id": sold_id}}
         )
-        design_data = design_res.json() if design_res.status_code == 200 else {}
+        gql_data = gql_resp.json().get("data", {}).get("designById", {})
 
-        # ── GET ROOF MEASUREMENTS ─────────────────────────────
-        roof_res = requests.get(
-            f"{BASE}/tenants/{AURORA_TENANT}/designs/{design_id}/roof_summary",
-            headers=headers
-        )
-        roof_data = roof_res.json() if roof_res.status_code == 200 else {}
+        # If complex GraphQL fails, fall back to simpler query
+        if not gql_data:
+            simple_gql = '{ designById(id: "' + sold_id + '") { id name masterPerformanceSimulation { acPowerAnnual valid } } }'
+            gql_resp2 = session.post(
+                "https://app.aurorasolar.com/graphql",
+                headers=api_headers,
+                json={"query": simple_gql}
+            )
+            gql_data = gql_resp2.json().get("data", {}).get("designById", {})
 
-        # ── PARSE DESIGN DATA ─────────────────────────────────
+        # Step 6: Also try the REST design endpoint for extra data
+        design_rest = {}
+        try:
+            dr = session.get(
+                f"https://app.aurorasolar.com/api/designs/{sold_id}",
+                headers=api_headers
+            )
+            if dr.status_code == 200:
+                design_rest = dr.json().get("design", dr.json())
+        except:
+            pass
 
-        # Arrays / layout info
-        arrays_raw = design_data.get("arrays", "[]")
-        if isinstance(arrays_raw, str):
-            try:
-                arrays = json2.loads(arrays_raw)
-            except:
-                arrays = []
-        else:
-            arrays = arrays_raw if isinstance(arrays_raw, list) else []
+        # ── PARSE PRODUCTION ──────────────────────────────────
+        sim = gql_data.get("masterPerformanceSimulation") or {}
+        production_kwh = None
+        if sim.get("acPowerAnnual"):
+            production_kwh = round(sim["acPowerAnnual"] / 1000, 1)
+        monthly_production = sim.get("acPowerMonthly") or []
+        if monthly_production:
+            monthly_production = [round(m / 1000, 1) if m else 0 for m in monthly_production]
 
-        # Build layout summary from arrays
+        system_stc = sold_design.get("system_size_stc")
+        system_size_kw = round(system_stc / 1000, 2) if system_stc else None
+
+        # ── PARSE LAYOUT / ARRAYS ─────────────────────────────
+        arrays_gql = gql_data.get("arrays") or []
         layout_arrays = []
         total_panels = 0
         panel_model = None
         panel_manufacturer = None
         panel_wattage = None
-        for arr in arrays:
-            count = arr.get("module_count") or arr.get("num_modules") or 0
+
+        for arr in arrays_gql:
+            count = arr.get("moduleCount") or 0
             total_panels += count
-            azimuth = arr.get("azimuth")
-            pitch = arr.get("pitch") or arr.get("tilt")
-            model = arr.get("module_model") or arr.get("module") or {}
-            if isinstance(model, dict):
-                if not panel_model:
-                    panel_model = model.get("model") or model.get("name")
-                    panel_manufacturer = model.get("manufacturer")
-                    panel_wattage = model.get("wattage") or model.get("stc_power")
-            elif isinstance(model, str) and not panel_model:
-                panel_model = model
+            mod = arr.get("module") or {}
+            if not panel_model and mod:
+                panel_model = mod.get("model")
+                panel_manufacturer = mod.get("manufacturer")
+                panel_wattage = mod.get("wattage")
             layout_arrays.append({
                 "panel_count": count,
-                "azimuth": azimuth,
-                "pitch": pitch,
+                "azimuth": arr.get("azimuth"),
+                "pitch": arr.get("tilt"),
                 "orientation": arr.get("orientation"),
-                "roof_face": arr.get("roof_face_id") or arr.get("roof_face")
+                "roof_face": arr.get("roofFaceId")
             })
 
-        # Inverter info
-        inverters_raw = design_data.get("inverters") or design_data.get("mlpe_config") or []
-        if isinstance(inverters_raw, str):
-            try:
-                inverters_raw = json2.loads(inverters_raw)
-            except:
-                inverters_raw = []
+        # Fallback: try REST design data for arrays
+        if not layout_arrays and design_rest:
+            arrays_raw = design_rest.get("arrays") or design_rest.get("module_arrays") or "[]"
+            if isinstance(arrays_raw, str):
+                try:
+                    arrays_parsed = json2.loads(arrays_raw)
+                except:
+                    arrays_parsed = []
+            else:
+                arrays_parsed = arrays_raw if isinstance(arrays_raw, list) else []
+            for arr in arrays_parsed:
+                count = arr.get("module_count") or arr.get("num_modules") or 0
+                total_panels += count
+                layout_arrays.append({
+                    "panel_count": count,
+                    "azimuth": arr.get("azimuth"),
+                    "pitch": arr.get("pitch") or arr.get("tilt"),
+                    "orientation": arr.get("orientation"),
+                    "roof_face": arr.get("roof_face_id")
+                })
+
+        # ── PARSE INVERTERS ───────────────────────────────────
         inverters = []
-        for inv in (inverters_raw if isinstance(inverters_raw, list) else []):
-            inverters.append({
-                "manufacturer": inv.get("manufacturer"),
-                "model": inv.get("model") or inv.get("name"),
-                "count": inv.get("count") or inv.get("quantity") or 1,
-                "type": inv.get("type") or inv.get("inverter_type"),
-                "power_rating": inv.get("power_rating") or inv.get("rated_power")
-            })
+        components = gql_data.get("components") or []
+        for comp in components:
+            ctype = (comp.get("type") or "").lower()
+            if "inverter" in ctype or "mlpe" in ctype or "optimizer" in ctype:
+                attrs = comp.get("attributes") or {}
+                if isinstance(attrs, str):
+                    try:
+                        attrs = json2.loads(attrs)
+                    except:
+                        attrs = {}
+                inverters.append({
+                    "manufacturer": comp.get("manufacturer"),
+                    "model": comp.get("model"),
+                    "count": comp.get("quantity") or 1,
+                    "type": comp.get("type"),
+                    "power_rating": attrs.get("power_rating") or attrs.get("rated_power")
+                })
 
-        # Production data
-        production_kwh = (
-            design_data.get("annual_production_kwh")
-            or design_data.get("production_kwh")
-            or design_data.get("estimated_production_kwh")
-            or sold_design.get("production_kwh")
-        )
-        system_size_kw = (
-            design_data.get("system_size_kw")
-            or design_data.get("dc_system_size_kw")
-            or sold_design.get("system_size_kw")
-        )
+        # Fallback: REST design inverter data
+        if not inverters and design_rest:
+            inv_raw = design_rest.get("inverters") or design_rest.get("mlpe_config") or []
+            if isinstance(inv_raw, str):
+                try:
+                    inv_raw = json2.loads(inv_raw)
+                except:
+                    inv_raw = []
+            for inv in (inv_raw if isinstance(inv_raw, list) else []):
+                inverters.append({
+                    "manufacturer": inv.get("manufacturer"),
+                    "model": inv.get("model") or inv.get("name"),
+                    "count": inv.get("count") or inv.get("quantity") or 1,
+                    "type": inv.get("type") or inv.get("inverter_type"),
+                    "power_rating": inv.get("power_rating")
+                })
 
-        # Monthly production if available
-        monthly_production = design_data.get("monthly_production") or []
-
-        # Lidar / irradiance data
-        lidar_source = design_data.get("lidar_source") or design_data.get("imagery_source")
-        shade_report = design_data.get("shade_report") or {}
-        tsrf = design_data.get("tsrf") or shade_report.get("tsrf")
-        tof = design_data.get("tof") or shade_report.get("tof")
-        annual_irradiance = design_data.get("annual_irradiance") or shade_report.get("annual_irradiance")
-
-        # Roof measurements from roof_summary
+        # ── PARSE ROOF ────────────────────────────────────────
         roof = {}
-        if roof_data:
+        roof_gql = gql_data.get("roofSummary") or {}
+        if roof_gql:
+            edges = roof_gql.get("edges") or {}
             roof = {
-                "total_area_sqft": roof_data.get("area"),
-                "modules_area_sqft": roof_data.get("modules_area"),
-                "pitch": roof_data.get("pitch"),
-                "edges": roof_data.get("edges_length") or {},
+                "total_area_sqft": roof_gql.get("totalArea"),
+                "modules_area_sqft": roof_gql.get("modulesArea"),
+                "pitch": roof_gql.get("averagePitch"),
+                "edges": {
+                    "eave": edges.get("eave"),
+                    "ridge": edges.get("ridge"),
+                    "hip": edges.get("hip"),
+                    "rake": edges.get("rake"),
+                    "valley": edges.get("valley")
+                },
                 "faces": []
             }
-            for face in (roof_data.get("faces") or []):
+            for face in (roof_gql.get("faces") or []):
                 roof["faces"].append({
                     "area_sqft": face.get("area"),
                     "pitch": face.get("pitch"),
                     "azimuth": face.get("azimuth"),
-                    "module_count": face.get("module_count") or face.get("modules_count")
+                    "module_count": face.get("moduleCount")
                 })
+
+        # ── PARSE LIDAR / SHADE ───────────────────────────────
+        lidar_source = gql_data.get("lidarSource") or design_rest.get("lidar_source")
+        irr = gql_data.get("irradianceAnalysis") or {}
+        tsrf = irr.get("tsrf")
+        tof = irr.get("tof")
+        annual_irradiance = irr.get("annualIrradiance")
 
         # ── BUILD DESIGN HISTORY ──────────────────────────────
         design_list = []
-        for d in all_designs:
-            design_list.append({
-                "name": d.get("name") or d.get("id"),
+        for d in designs_list:
+            did = d.get("id")
+            dname = d.get("name", "?")
+            system_stc_d = d.get("system_size_stc")
+
+            design_info = {
+                "name": dname,
                 "milestone": d.get("milestone"),
-                "production_kwh": d.get("production_kwh"),
-                "system_size_kw": d.get("system_size_kw"),
-                "simulation_valid": d.get("simulation_valid", True),
-                "is_sold": d.get("id") == design_id
-            })
+                "system_size_kw": round(system_stc_d / 1000, 2) if system_stc_d else None,
+                "production_kwh": None,
+                "simulation_valid": None,
+                "is_sold": did == sold_id
+            }
+
+            # Get production for each design via simple GraphQL
+            if did:
+                try:
+                    gql_r = session.post(
+                        "https://app.aurorasolar.com/graphql",
+                        headers=api_headers,
+                        json={"query": '{ designById(id: "' + did + '") { masterPerformanceSimulation { acPowerAnnual valid } } }'}
+                    )
+                    gql_d = gql_r.json()
+                    s = gql_d.get("data", {}).get("designById", {}).get("masterPerformanceSimulation", {})
+                    if s and s.get("acPowerAnnual"):
+                        design_info["production_kwh"] = round(s["acPowerAnnual"] / 1000, 1)
+                        design_info["simulation_valid"] = s.get("valid", False)
+                except:
+                    pass
+
+            design_list.append(design_info)
 
         # ── RETURN RESULT ─────────────────────────────────────
         result = {
             "status": "ok",
-            "aurora_url": aurora_url,
+            "aurora_url": f"https://v2.aurorasolar.com/projects/{project_id}",
             "project_name": project.get("name"),
+            "customer": f"{project.get('customer_first_name', '')} {project.get('customer_last_name', '')}".strip(),
             "current_design": sold_design.get("name") or "Sold Design",
             "milestone": sold_design.get("milestone") or "unknown",
 
