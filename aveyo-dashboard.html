@@ -2219,7 +2219,7 @@ function setWidgetNum(i,n){
   cSet(WIDGETS[i][1]+'_'+WIDGETS[i][2],n);
 }
 function updateCacheLabel(){
-  const ts=Object.values(CACHE).map(c=>c.ts);
+  const ts=Object.values(loadCache()).map(c=>c.ts);
   if(!ts.length){document.getElementById('cache-label').textContent='';return;}
   const ago=Math.round((Date.now()-Math.min(...ts))/60000);
   document.getElementById('cache-label').textContent=ago<1?'just loaded':`cached ${ago}m ago`;
@@ -5033,6 +5033,23 @@ function openSOWDetail(itemId){
   document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
 }
 
+// ── SOW DROPDOWN BUILDER (global) ────────────────────────
+const SOW_DD_OPTS = {
+  systemSizeMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+  contractPriceMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+  designMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
+  roofReview:[{id:1,t:'Roof Work Needed'},{id:2,t:'Roof is Approved'}],
+  electricalWork:[{id:2,t:'Not Needed'},{id:1,t:'Yes'},{id:3,t:'200 AMP'},{id:4,t:'400 AMP'},{id:5,t:'Derate'},{id:6,t:'Relocation'},{id:7,t:'Line Side Tap'},{id:8,t:'Battery System'},{id:9,t:'DMS'},{id:10,t:'Other'}],
+  structuralUpgrade:[{id:1,t:'Yes'},{id:2,t:'No'}],
+  repScopeApproval:[{id:1,t:'Ready to Send'},{id:2,t:'Sent for Approval'},{id:3,t:'Approved'},{id:4,t:'Rejected'},{id:5,t:'Resolving Issues'}],
+  customerSOWStatus:[{id:1,t:'New'},{id:5,t:'Updated - Trigger Processing'},{id:6,t:'Not Sent'},{id:2,t:'Sent to Customer'},{id:7,t:'Approved'},{id:8,t:'Rejected'},{id:3,t:'Comment Received'},{id:4,t:'Comment Handled'}],
+};
+function sowDD(key, fid, val, itemId){
+  const opts = SOW_DD_OPTS[key]||[];
+  const o = opts.map(o=>'<option value="'+o.id+'" '+(val===o.t?'selected':'')+'>'+x(o.t)+'</option>').join('');
+  return '<select class="sow-dropdown" data-sow-field="'+fid+'" data-sow-item="'+itemId+'" style="max-width:200px"><option value="">— Not set —</option>'+o+'</select>';
+}
+
 // ── SOW DETAIL ───────────────────────────────────────────
 function buildSOWDetail(item){
   const fields = item.fields||[];
@@ -5080,20 +5097,8 @@ function buildSOWDetail(item){
     return id ? `<a href="https://drive.google.com/drive/folders/${id}" target="_blank" class="proj-nav-link" style="font-size:10px">${x(label)}</a>` : '';
   }).filter(Boolean).join('');
 
-  function sowDD(key, fid, val){
-    const opts = {
-      systemSizeMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
-      contractPriceMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
-      designMatches:[{id:1,t:'Yes'},{id:2,t:'No'}],
-      roofReview:[{id:1,t:'Roof Work Needed'},{id:2,t:'Roof is Approved'}],
-      electricalWork:[{id:2,t:'Not Needed'},{id:1,t:'Yes'},{id:3,t:'200 AMP'},{id:4,t:'400 AMP'},{id:5,t:'Derate'},{id:6,t:'Relocation'},{id:7,t:'Line Side Tap'},{id:8,t:'Battery System'},{id:9,t:'DMS'},{id:10,t:'Other'}],
-      structuralUpgrade:[{id:1,t:'Yes'},{id:2,t:'No'}],
-      repScopeApproval:[{id:1,t:'Ready to Send'},{id:2,t:'Sent for Approval'},{id:3,t:'Approved'},{id:4,t:'Rejected'},{id:5,t:'Resolving Issues'}],
-      customerSOWStatus:[{id:1,t:'New'},{id:5,t:'Updated - Trigger Processing'},{id:6,t:'Not Sent'},{id:2,t:'Sent to Customer'},{id:7,t:'Approved'},{id:8,t:'Rejected'},{id:3,t:'Comment Received'},{id:4,t:'Comment Handled'}],
-    }[key]||[];
-    const o = opts.map(o=>`<option value="${o.id}" ${val===o.t?'selected':''}>${x(o.t)}</option>`).join('');
-    return `<select class="sow-dropdown" data-sow-field="${fid}" data-sow-item="${iid}" style="max-width:200px"><option value="">— Not set —</option>${o}</select>`;
-  }
+  // sowDD defined below as global function, called with iid
+
 
   function vc(val,good,warn){
     if(!val) return '';
@@ -5121,7 +5126,7 @@ function buildSOWDetail(item){
           <span style="font-size:12px;font-weight:600;color:var(--text)">${x(r.label)}</span>
         </div>
         ${r.hint?`<div style="font-size:11px;color:var(--text3);margin:0 0 4px 22px">${x(r.hint)}</div>`:''}
-        <div style="margin-left:22px">${sowDD(r.key,r.fid,r.val)}</div>
+        <div style="margin-left:22px">${sowDD(r.key,r.fid,r.val,iid)}</div>
       </div>
     </div>`;
   }).join('');
@@ -5363,7 +5368,7 @@ async function loadPalmettoComparison(iid, fields){
   surveyDiv.innerHTML = '<div class="sow-section-hdr">Site Survey Review <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.3)">saves to Podio</span></div>'+
     '<div style="padding:10px 12px;border-left:2px solid rgba(255,255,255,.08);margin-bottom:4px;background:rgba(255,255,255,.02)">'+
       '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px">Roof Review</div>'+
-      sowDD('roofReview',SOW_FIELD.roofReview,roofReview)+
+      sowDD('roofReview',SOW_FIELD.roofReview,roofReview,iid)+
     '</div>'+
     '<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;flex-shrink:0;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block" alt=""></div><span style="font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.2em;text-transform:uppercase">Loading site survey photos...</span></div>';
   layoutDiv.after(surveyDiv);
@@ -6301,7 +6306,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=140').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=141').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
