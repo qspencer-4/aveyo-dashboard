@@ -2992,12 +2992,11 @@ async function openWidgetList(wi){
   const[label,appId,viewId]=WIDGETS[wi];
   WLIST_LABEL=label;
   CURRENT_WI=wi;
-  REVIEW_FILTER='all';
+  // Default the review-needed widget to the 7+ days filter so it matches the home tile count
+  REVIEW_FILTER=wi===2?'7':'all';
   // Show day filter chips only for Project Review Needed widget
   const filterRow=document.getElementById('review-filter-row');
   filterRow.style.display=wi===2?'flex':'none';
-  // Reset chips
-  document.querySelectorAll('[data-rfilter]').forEach(c=>c.classList.toggle('active',c.dataset.rfilter==='all'));
   document.getElementById('wl-title').textContent=label;
   document.getElementById('wl-count').textContent='';
   document.getElementById('wl-list').innerHTML='';
@@ -3012,12 +3011,16 @@ async function openWidgetList(wi){
       const fetched=await fetchAllItems(appId,viewId);
       WLIST_ITEMS=fetched.map(parseItem);
     }
-    document.getElementById('wl-count').textContent=WLIST_ITEMS.length+' project'+(WLIST_ITEMS.length!==1?'s':'');
-    if(wi===2) buildReviewFilterChips();
-    const composeType=COMPOSE_WIDGET[wi]||null;
-    document.getElementById('wl-list').innerHTML=WLIST_ITEMS.length
-      ?WLIST_ITEMS.map(item=>cardHTML(item,composeType)).join('')
-      :'<div class="empty">No projects in this view.</div>';
+    if(wi===2){
+      buildReviewFilterChips();
+      applyReviewFilter();
+    }else{
+      document.getElementById('wl-count').textContent=WLIST_ITEMS.length+' project'+(WLIST_ITEMS.length!==1?'s':'');
+      const composeType=COMPOSE_WIDGET[wi]||null;
+      document.getElementById('wl-list').innerHTML=WLIST_ITEMS.length
+        ?WLIST_ITEMS.map(item=>cardHTML(item,composeType)).join('')
+        :'<div class="empty">No projects in this view.</div>';
+    }
   }catch(e){
     document.getElementById('wl-list').innerHTML=`<div class="empty">${e.message}</div>`;
   }
