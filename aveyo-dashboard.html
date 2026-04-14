@@ -1864,6 +1864,7 @@ async function doSignIn(){
     TOKEN=d.access_token;saveToken(TOKEN);
     document.getElementById('bnav').style.display='flex';
     setActiveNav('home');showView('home');loadHome();
+    fetchProjectsSilent();
   }catch(e){msg.className='msg msg-error';msg.textContent=e.message;}
   btn.disabled=false;
 }
@@ -3030,20 +3031,53 @@ async function openWidgetList(wi){
 }
 
 // ── PROJECTS TAB ─────────────────────────────────────────
+async function fetchProjectsSilent(){
+  if(DEMO_MODE || !TOKEN) return false;
+  try{
+    let all=[],offset=0,total=null;
+    while(true){
+      const d=await podioPost(`https://api.podio.com/item/app/${PODIO.appId}/filter/${PODIO.viewId}/`,{limit:100,offset,sort_by:'last_edit_on',sort_desc:true});
+      if(d.filtered!==undefined&&total===null)total=d.filtered;
+      else if(d.total!==undefined&&total===null)total=d.total;
+      all=all.concat(d.items||[]);
+      if((d.items||[]).length<100||(total!==null&&all.length>=total))break;
+      offset+=100;
+    }
+    ALL_ITEMS=all.map(parseItem);
+    const active=document.querySelector('.view.active');
+    if(active && active.id==='view-projects'){
+      renderProjStats();renderChips();renderCards();
+    }
+    updateActionBadge();
+    renderActionWidget();
+    return true;
+  }catch(e){ return false; }
+}
+
 async function loadProjects(){
   showView('projects');setActiveNav('projects');
+  if(DEMO_MODE){
+    ALL_ITEMS=[...DEMO_ITEMS];
+    document.getElementById('cards-loading').style.display='none';
+    document.getElementById('progress-bar').style.width='100%';
+    renderProjStats();renderChips();renderCards();
+    updateActionBadge();
+    setTimeout(renderActionWidget, 200);
+    return;
+  }
+  // If preloaded data is already here, render instantly and refresh in background
+  if(ALL_ITEMS && ALL_ITEMS.length){
+    document.getElementById('cards-loading').style.display='none';
+    document.getElementById('progress-bar').style.width='100%';
+    renderProjStats();renderChips();renderCards();
+    updateActionBadge();
+    setTimeout(renderActionWidget, 200);
+    fetchProjectsSilent();
+    return;
+  }
   document.getElementById('cards-loading').style.display='block';
   document.getElementById('cards-list').innerHTML='';
   document.getElementById('progress-bar').style.width='5%';
-  if(DEMO_MODE){
-    ALL_ITEMS=[...DEMO_ITEMS];
-    document.getElementById('progress-bar').style.width='100%';
-    renderProjStats();renderChips();renderCards();
-  updateActionBadge();
-  setTimeout(renderActionWidget, 200);
-    document.getElementById('cards-loading').style.display='none';
-    return;
-  }
   try{
     let all=[],offset=0,total=null;
     while(true){
@@ -3059,8 +3093,8 @@ async function loadProjects(){
     document.getElementById('progress-bar').style.width='100%';
     ALL_ITEMS=all.map(parseItem);
     renderProjStats();renderChips();renderCards();
-  updateActionBadge();
-  setTimeout(renderActionWidget, 200);
+    updateActionBadge();
+    setTimeout(renderActionWidget, 200);
   }catch(e){
     document.getElementById('cards-list').innerHTML=`<div class="empty">${e.message}</div>`;
   }
@@ -6502,28 +6536,19 @@ function hideSplitView(){
 
 // ── AUTO-REFRESH POLLING ──────────────────────────────────
 let POLL_INTERVAL = null;
-const POLL_EVERY_MS = 60000; // 60 seconds
+const POLL_EVERY_MS = 90000; // 90 seconds
 
 function startPolling(){
   stopPolling();
   POLL_INTERVAL = setInterval(async ()=>{
+    if(document.visibilityState !== 'visible') return;
+    if(DEMO_MODE || !TOKEN) return;
     const active = document.querySelector('.view.active');
-    if(!active || DEMO_MODE) return;
+    if(!active) return;
     const id = active.id;
-    if(id === 'view-projects'){
-      const cached = localStorage.getItem('aveyo_items');
-      if(cached){
-        // Silent background refresh
-        try{
-          const token = await ensureToken();
-          if(!token) return;
-          const all = await fetchAllItems(29839792, 61731109);
-          ALL_ITEMS = all.map(parseItem);
-          renderProjects();
-          const overdue = ALL_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>7).length;
-          localStorage.setItem('aveyo_items', JSON.stringify({ts:Date.now(),data:ALL_ITEMS.map(i=>({...i,raw:undefined}))}));
-        }catch(e){}
-      }
+    if(id === 'view-projects' || id === 'view-home'){
+      // Silent background refresh of projects cache
+      fetchProjectsSilent();
     } else if(id === 'view-detail'){
       // Refresh current project detail silently
       const itemId = CURRENT_ITEM?.id;
@@ -6559,9 +6584,15 @@ document.getElementById('auth-pass').value=PODIO.pass;
 if(TOKEN){
   document.getElementById('bnav').style.display='flex';
   setActiveNav('home');loadHome();
+  fetchProjectsSilent();
 }else{
   showView('auth');
 }
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && TOKEN && !DEMO_MODE){
+    fetchProjectsSilent();
+  }
+});
 </script>
 <script>
 if('serviceWorker' in navigator){
