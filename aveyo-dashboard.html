@@ -1914,7 +1914,7 @@ const DEMO_ITEMS = [
 const DEMO_WIDGETS=[3,1,2,5,1,0,1,0,0,0,4,1,0,2,1,1,2,3,1,1];
 
 // ── CACHE ─────────────────────────────────────────────────
-const CACHE_KEY='aveyo_cache_v30';
+const CACHE_KEY='aveyo_cache_v31';
 function loadCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');}catch(e){return{};}}
 function saveCache(c){try{localStorage.setItem(CACHE_KEY,JSON.stringify(c));}catch(e){}}
 function clearCache(){try{localStorage.removeItem(CACHE_KEY);}catch(e){}}
@@ -2045,7 +2045,7 @@ function buildHomeDashboard(){
 
   function wNum(i){
     const v = cached[i];
-    return v!==undefined ? String(v) : '0';
+    return v!==undefined ? String(v) : '';
   }
   function wColor(i){
     const v = cached[i]; if(v===undefined||v===null) return 'rgba(255,255,255,.5)';
@@ -2231,13 +2231,13 @@ function buildHomeDashboard(){
       for(let i=0;i<WIDGETS.length;i++){
         const [,appId,viewId,warn,crit]=WIDGETS[i];
         if(cGet(appId+'_'+viewId)!==null) continue;
-        if(rateLimited){ setWidgetNum(i,0); continue; }
+        if(rateLimited){ continue; }
         try{
           const{n}=await fetchCount(appId,viewId);
           setWidgetNum(i,n);
         }catch(e){
-          if(e.rateLimit){ rateLimited=true; setWidgetNum(i,0); }
-          else{ setWidgetNum(i,0); }
+          if(e.rateLimit){ rateLimited=true; }
+          // On error: leave the previous widget value / placeholder alone, don't cache a fake 0
         }
         await delay(350);
       }
@@ -2281,19 +2281,19 @@ async function loadHome(){
     const[,appId,viewId,w,d]=WIDGETS[i];
     const cached=cGet(appId+'_'+viewId);
     if(cached!==null){setWidgetNum(i,cached);continue;}
-    if(rateLimited){setWidgetNum(i,0);continue;}
+    if(rateLimited){continue;}
     try{
       const{n}=await fetchCount(appId,viewId);
       setWidgetNum(i,n);
     }catch(e){
       if(e.rateLimit){
         rateLimited=true;
-        setWidgetNum(i,0);
         const warn=document.createElement('div');
         warn.className='rate-msg';
         warn.textContent='Podio rate limit reached. Wait ~1 hour then tap Refresh.';
         document.getElementById('home-content').prepend(warn);
-      }else{setWidgetNum(i,0);}
+      }
+      // On error: leave widget as-is, don't cache a fake 0
     }
     await delay(350);
   }
