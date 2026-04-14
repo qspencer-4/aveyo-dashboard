@@ -3449,7 +3449,10 @@ function openDetail(itemId){
     if(q) items=items.filter(i=>[i.name,i.address,i.milestone,i.status,i.notes,i.num].join(' ').toLowerCase().includes(q));
     CURRENT_LIST=[...items];
   } else if(WLIST_ITEMS.length){
-    CURRENT_LIST=[...WLIST_ITEMS];
+    const filtered = (typeof REVIEW_FILTER!=='undefined' && REVIEW_FILTER!=='all')
+      ? WLIST_ITEMS.filter(i=>i.daysSince!==null&&i.daysSince>=parseInt(REVIEW_FILTER))
+      : WLIST_ITEMS;
+    CURRENT_LIST=[...filtered];
   } else {
     CURRENT_LIST=[...ALL_ITEMS];
   }
