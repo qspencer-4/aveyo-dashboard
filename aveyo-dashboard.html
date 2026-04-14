@@ -1944,7 +1944,7 @@ async function fetchCount(appId,viewId){
   const key=appId+'_'+viewId;
   const cached=cGet(key);if(cached!==null)return{n:cached,fresh:false};
   const d=await podioPost(`https://api.podio.com/item/app/${appId}/filter/${viewId}/`,{limit:1,offset:0});
-  const n=d.filtered!==undefined?d.filtered:(d.total!==undefined?d.total:'—');
+  const n=d.filtered!==undefined?d.filtered:(d.total!==undefined?d.total:0);
   cSet(key,n);return{n,fresh:true};
 }
 async function fetchAllItems(appId,viewId){
@@ -1961,7 +1961,7 @@ async function fetchAllItems(appId,viewId){
 }
 
 // ── COLOR HELPERS ────────────────────────────────────────
-function numColor(n,w,d){if(n==='—'||n===undefined)return 'def';if(n>=d)return 'red';if(n>=w)return 'amber';if(n===0)return 'green';return 'blue';}
+function numColor(n,w,d){if(n===undefined||n===null)return 'def';if(n>=d)return 'red';if(n>=w)return 'amber';if(n===0)return 'green';return 'blue';}
 
 // ── HOME DASHBOARD ───────────────────────────────────────
 function buildHomeShell(){
@@ -2007,7 +2007,7 @@ function buildHomeDashboard(){
 
   function wNum(i){
     const v = cached[i];
-    return v!==undefined ? String(v) : '—';
+    return v!==undefined ? String(v) : '0';
   }
   function wColor(i){
     const v = cached[i]; if(v===undefined||v===null) return 'rgba(255,255,255,.5)';
@@ -2193,13 +2193,13 @@ function buildHomeDashboard(){
       for(let i=0;i<WIDGETS.length;i++){
         const [,appId,viewId,warn,crit]=WIDGETS[i];
         if(cGet(appId+'_'+viewId)!==null) continue;
-        if(rateLimited){ setWidgetNum(i,'—'); continue; }
+        if(rateLimited){ setWidgetNum(i,0); continue; }
         try{
           const{n}=await fetchCount(appId,viewId);
           setWidgetNum(i,n);
         }catch(e){
-          if(e.rateLimit){ rateLimited=true; setWidgetNum(i,'—'); }
-          else{ setWidgetNum(i,'—'); }
+          if(e.rateLimit){ rateLimited=true; setWidgetNum(i,0); }
+          else{ setWidgetNum(i,0); }
         }
         await delay(350);
       }
@@ -2243,19 +2243,19 @@ async function loadHome(){
     const[,appId,viewId,w,d]=WIDGETS[i];
     const cached=cGet(appId+'_'+viewId);
     if(cached!==null){setWidgetNum(i,cached);continue;}
-    if(rateLimited){setWidgetNum(i,'—');continue;}
+    if(rateLimited){setWidgetNum(i,0);continue;}
     try{
       const{n}=await fetchCount(appId,viewId);
       setWidgetNum(i,n);
     }catch(e){
       if(e.rateLimit){
         rateLimited=true;
-        setWidgetNum(i,'—');
+        setWidgetNum(i,0);
         const warn=document.createElement('div');
         warn.className='rate-msg';
         warn.textContent='Podio rate limit reached. Wait ~1 hour then tap Refresh.';
         document.getElementById('home-content').prepend(warn);
-      }else{setWidgetNum(i,'—');}
+      }else{setWidgetNum(i,0);}
     }
     await delay(350);
   }
