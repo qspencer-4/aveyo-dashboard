@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aveyo Dashboard — Chart Mockups</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --fg:#fff;
+    --dim:rgba(255,255,255,.5);
+    --dimmer:rgba(255,255,255,.28);
+    --line:rgba(255,255,255,.08);
+    --amber:#C9A96E;
+    --red:#C97850;
+    --blue:#6E9CC9;
+    --green:#6EC998;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:40px 24px 120px;max-width:1400px;margin:0 auto}
+  h1{font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin:0 0 4px;font-weight:500}
+  .sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer);margin-bottom:60px}
+  .section{margin-bottom:80px;border-top:1px solid var(--line);padding-top:32px}
+  .label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  .title{font-size:22px;font-weight:300;margin:0 0 6px;letter-spacing:.02em}
+  .desc{font-size:13px;color:var(--dim);margin-bottom:28px;max-width:680px;line-height:1.55}
+  .chart-wrap{position:relative;height:320px}
+  .chart-wrap.tall{height:420px}
+  .chart-wrap.short{height:220px}
+
+  /* ── Pure-CSS horizontal funnel (no lib) ── */
+  .funnel{display:flex;flex-direction:column;gap:4px}
+  .stage{display:grid;grid-template-columns:200px 1fr 60px;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .stage-name{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+  .stage-bar{height:6px;background:rgba(255,255,255,.06);position:relative;border-radius:2px;overflow:hidden}
+  .stage-fill{position:absolute;left:0;top:0;bottom:0;background:var(--fg);opacity:.75;transition:width .8s ease}
+  .stage-count{font-family:"SF Mono",Menlo,monospace;font-size:18px;font-weight:300;text-align:right}
+  .stage.hot .stage-fill{background:var(--amber)}
+  .stage.critical .stage-fill{background:var(--red)}
+
+  /* ── Heatmap grid ── */
+  .heatmap{display:grid;grid-template-columns:140px repeat(14,1fr);gap:3px;font-size:10px}
+  .heat-head{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);text-align:center;padding:4px 0}
+  .heat-row-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:8px 8px 8px 0;text-align:right}
+  .heat-cell{aspect-ratio:1;background:var(--line);border-radius:2px}
+
+  .back{position:fixed;top:20px;left:20px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--line);padding:10px 14px;background:var(--bg);z-index:10}
+  .back:hover{color:var(--fg);border-color:var(--dim)}
+</style>
+</head>
+<body>
+  <a class="back" href="aveyo-dashboard.html">&larr; Back to Dashboard</a>
+  <h1>Aveyo Dashboard — Chart Mockups</h1>
+  <div class="sub">Bar graph possibilities · Demo data</div>
+
+  <!-- 1 -->
+  <section class="section">
+    <div class="label">Chart 1 · Chart.js horizontal</div>
+    <h2 class="title">Action Queue — Horizontal Bars</h2>
+    <p class="desc">Every widget from your current home page, rendered as a horizontal bar chart sorted by count. Color-coded by your existing warn/critical thresholds. Tap a bar to drill into that list in Podio. Replaces the whole widget grid with one clean visual.</p>
+    <div class="chart-wrap tall"><canvas id="c1"></canvas></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="section">
+    <div class="label">Chart 2 · Pure CSS</div>
+    <h2 class="title">Pipeline Funnel — Relative Bars</h2>
+    <p class="desc">Zero-dependency version of the same idea, using your existing BF2015 styling. Lightweight, no canvas, animates smoothly, works offline in the PWA. Each bar's length is relative to the largest stage.</p>
+    <div class="funnel">
+      <div class="stage"><div class="stage-name">Pipeline</div><div class="stage-bar"><div class="stage-fill" style="width:100%"></div></div><div class="stage-count">142</div></div>
+      <div class="stage hot"><div class="stage-name">Scope of Work</div><div class="stage-bar"><div class="stage-fill" style="width:68%"></div></div><div class="stage-count">96</div></div>
+      <div class="stage"><div class="stage-name">Pre-Install</div><div class="stage-bar"><div class="stage-fill" style="width:41%"></div></div><div class="stage-count">58</div></div>
+      <div class="stage"><div class="stage-name">Install</div><div class="stage-bar"><div class="stage-fill" style="width:30%"></div></div><div class="stage-count">43</div></div>
+      <div class="stage critical"><div class="stage-name">Change Orders</div><div class="stage-bar"><div class="stage-fill" style="width:16%"></div></div><div class="stage-count">22</div></div>
+      <div class="stage"><div class="stage-name">Roof Work</div><div class="stage-bar"><div class="stage-fill" style="width:11%"></div></div><div class="stage-count">16</div></div>
+      <div class="stage"><div class="stage-name">Funding M2</div><div class="stage-bar"><div class="stage-fill" style="width:5%"></div></div><div class="stage-count">7</div></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="section">
+    <div class="label">Chart 3 · Chart.js stacked</div>
+    <h2 class="title">Pipeline by Stage — Stacked</h2>
+    <p class="desc">One bar per Podio app, broken down by sub-stage. Quick read on <em>where the work lives inside each app.</em> Same data you already have, segmented by the `milestone` field.</p>
+    <div class="chart-wrap"><canvas id="c3"></canvas></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="section">
+    <div class="label">Chart 4 · Chart.js trend</div>
+    <h2 class="title">Reviews Needed — 14 Day Trend</h2>
+    <p class="desc">Bars showing daily "review needed" count over the last 14 days. Requires a small daily snapshot job on the API (Podio doesn't keep history). Trend bars let you see "are we keeping up or falling behind" at a glance — the thing widgets can't tell you.</p>
+    <div class="chart-wrap"><canvas id="c4"></canvas></div>
+  </section>
+
+  <!-- 5 -->
+  <section class="section">
+    <div class="label">Chart 5 · Chart.js grouped</div>
+    <h2 class="title">SOW Funnel — Grouped</h2>
+    <p class="desc">Grouped bars showing SOW app sub-views side by side: this week vs last week. Great for weekly reviews. Also requires the daily snapshot job.</p>
+    <div class="chart-wrap"><canvas id="c5"></canvas></div>
+  </section>
+
+  <!-- 6 -->
+  <section class="section">
+    <div class="label">Chart 6 · Pure CSS</div>
+    <h2 class="title">Activity Heatmap — 14 Days × Stage</h2>
+    <p class="desc">Each cell = one day × one stage. Darker = more activity. Shows you <em>when things happened</em>, not just totals. Built with a CSS grid, no library needed. Feeds naturally from the realtime webhook stream.</p>
+    <div class="heatmap" id="heatmap"></div>
+  </section>
+
+<script>
+Chart.defaults.color='rgba(255,255,255,.55)';
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,Inter,sans-serif';
+Chart.defaults.font.size=11;
+Chart.defaults.borderColor='rgba(255,255,255,.06)';
+
+const AMBER='#C9A96E',RED='#C97850',BLUE='#6E9CC9',GREEN='#6EC998',FG='rgba(255,255,255,.85)';
+
+// ── Chart 1: Horizontal action queue ──
+const c1Data=[
+  ['Pipeline Review Needed',14,RED],
+  ['Open Support Tickets',8,AMBER],
+  ['Rep Update Needed',7,AMBER],
+  ['SOW Rejections',5,AMBER],
+  ['Ready to Send Cust SOW',4,FG],
+  ['Ready for Pre-Install',3,FG],
+  ['Design Change Orders',3,FG],
+  ['Roof Review Needed',2,FG],
+  ['Ready for SOW',2,FG],
+  ['Projects w/ No Redlines',1,FG],
+].sort((a,b)=>b[1]-a[1]);
+
+new Chart(document.getElementById('c1'),{
+  type:'bar',
+  data:{
+    labels:c1Data.map(r=>r[0]),
+    datasets:[{
+      data:c1Data.map(r=>r[1]),
+      backgroundColor:c1Data.map(r=>r[2]),
+      borderRadius:2,
+      barThickness:18,
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#000',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)'}},
+      y:{grid:{display:false},ticks:{color:'rgba(255,255,255,.6)',font:{size:10}}}
+    }
+  }
+});
+
+// ── Chart 3: Stacked by sub-stage ──
+new Chart(document.getElementById('c3'),{
+  type:'bar',
+  data:{
+    labels:['Pipeline','Scope of Work','Pre-Install','Change Orders','Roof Work','Tickets'],
+    datasets:[
+      {label:'Waiting',data:[42,28,18,8,4,3],backgroundColor:'rgba(255,255,255,.25)',borderRadius:2},
+      {label:'In Review',data:[31,22,14,6,3,2],backgroundColor:BLUE,borderRadius:2},
+      {label:'Needs Action',data:[38,24,12,5,6,2],backgroundColor:AMBER,borderRadius:2},
+      {label:'Overdue',data:[14,8,4,3,2,1],backgroundColor:RED,borderRadius:2},
+    ]
+  },
+  options:{
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,padding:16,font:{size:10,letterSpacing:'.1em'}}}},
+    scales:{
+      x:{stacked:true,grid:{display:false},ticks:{color:'rgba(255,255,255,.6)',font:{size:10}}},
+      y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)'}}
+    }
+  }
+});
+
+// ── Chart 4: 14 day trend ──
+const days=[];const today=new Date();
+for(let i=13;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days.push(d.toLocaleDateString('en',{month:'short',day:'numeric'}));}
+const trendVals=[8,11,9,14,12,15,18,16,13,17,19,14,11,14];
+new Chart(document.getElementById('c4'),{
+  type:'bar',
+  data:{
+    labels:days,
+    datasets:[{
+      data:trendVals,
+      backgroundColor:trendVals.map(v=>v>=15?RED:v>=10?AMBER:FG),
+      borderRadius:2,
+      barThickness:22,
+    }]
+  },
+  options:{
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.4)',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)'}}
+    }
+  }
+});
+
+// ── Chart 5: Grouped weekly comparison ──
+new Chart(document.getElementById('c5'),{
+  type:'bar',
+  data:{
+    labels:['Ready for SOW','SOW Rejections','Rep SOW Pending','Cust SOW Sent','No Redlines','Roof Review'],
+    datasets:[
+      {label:'Last Week',data:[3,6,4,9,2,3],backgroundColor:'rgba(255,255,255,.25)',borderRadius:2},
+      {label:'This Week',data:[2,5,7,11,1,2],backgroundColor:AMBER,borderRadius:2},
+    ]
+  },
+  options:{
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,padding:16,font:{size:10}}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.55)',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)'}}
+    }
+  }
+});
+
+// ── Heatmap (CSS grid) ──
+const stages=['Pipeline','SOW','Pre-Install','Change Orders','Tickets','Roof Work'];
+const hm=document.getElementById('heatmap');
+hm.innerHTML='<div></div>'+days.map(d=>`<div class="heat-head">${d.split(' ')[1]}</div>`).join('');
+stages.forEach(s=>{
+  hm.innerHTML+=`<div class="heat-row-label">${s}</div>`;
+  for(let i=0;i<14;i++){
+    const v=Math.random();
+    const alpha=v<.2?0.05:v<.4?0.18:v<.6?0.35:v<.8?0.55:0.85;
+    const color=v>.75?`rgba(201,168,110,${alpha})`:`rgba(255,255,255,${alpha})`;
+    hm.innerHTML+=`<div class="heat-cell" style="background:${color}"></div>`;
+  }
+});
+</script>
+</body>
+</html>
