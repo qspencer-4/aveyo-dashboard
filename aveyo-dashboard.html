@@ -1865,6 +1865,7 @@ async function doSignIn(){
     document.getElementById('bnav').style.display='flex';
     setActiveNav('home');showView('home');loadHome();
     fetchProjectsSilent();
+    initPodioStream();
   }catch(e){msg.className='msg msg-error';msg.textContent=e.message;}
   btn.disabled=false;
 }
@@ -1929,6 +1930,43 @@ function cSet(k,v){
     c[k]={v,ts:Date.now()};
     saveCache(c);
   }catch(e){}
+}
+function cDel(k){
+  try{const c=loadCache();delete c[k];saveCache(c);}catch(e){}
+}
+
+// ── REALTIME SSE (Podio webhooks → server → this client) ──
+let PODIO_ES=null;
+function initPodioStream(){
+  if(PODIO_ES||typeof EventSource==='undefined')return;
+  try{
+    PODIO_ES=new EventSource('https://aveyo.aiwhileyousleeping.com/podio/stream');
+    PODIO_ES.onmessage=(e)=>{
+      try{
+        const evt=JSON.parse(e.data);
+        if(!evt||!evt.app_id)return;
+        const appId=String(evt.app_id);
+        // Invalidate widget counts for this app
+        WIDGETS.forEach(([,a,v],i)=>{
+          if(String(a)===appId){cDel(a+'_'+v);refreshWidget(i);}
+        });
+        // Refresh active list views if they belong to this app
+        if(typeof refreshIfActiveApp==='function')refreshIfActiveApp(appId);
+      }catch(err){console.warn('SSE parse',err);}
+    };
+    PODIO_ES.onerror=()=>{/* browser auto-reconnects */};
+  }catch(err){console.warn('SSE init failed',err);}
+}
+async function refreshWidget(i){
+  if(DEMO_MODE)return;
+  const[,appId,viewId]=WIDGETS[i];
+  try{const{n}=await fetchCount(appId,viewId);setWidgetNum(i,n);updateCacheLabel();updateNavBadges&&updateNavBadges();}
+  catch(e){}
+}
+function refreshIfActiveApp(appId){
+  // If the Projects/Tickets tab is mounted and showing this app, force a reload
+  if(String(appId)==='29839792'&&typeof reloadProjects==='function'){ALL_ITEMS=[];reloadProjects&&reloadProjects();}
+  if(String(appId)==='29840119'){TICKETS_ITEMS=[];if(typeof loadTickets==='function'&&document.getElementById('view-tickets')&&!document.getElementById('view-tickets').hidden)loadTickets();}
 }
 
 // ── API HELPERS ──────────────────────────────────────────
@@ -6585,6 +6623,7 @@ if(TOKEN){
   document.getElementById('bnav').style.display='flex';
   setActiveNav('home');loadHome();
   fetchProjectsSilent();
+  initPodioStream();
 }else{
   showView('auth');
 }
