@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aveyo Dashboard — Charts v2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --fg:#fff;
+    --dim:rgba(255,255,255,.55);
+    --dimmer:rgba(255,255,255,.28);
+    --faint:rgba(255,255,255,.12);
+    --line:rgba(255,255,255,.08);
+    --amber:#C9A96E;
+    --red:#C97850;
+    --blue:#6E9CC9;
+    --green:#6EC998;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;font-weight:300}
+  body{padding:48px 32px 160px;max-width:1320px;margin:0 auto}
+  .mono{font-family:"SF Mono",Menlo,monospace}
+
+  /* ── Header ── */
+  .head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:40px}
+  .brand{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim)}
+  .tagline{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer)}
+  .nav{display:flex;gap:28px}
+  .nav span{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer);cursor:pointer}
+  .nav span.active{color:var(--fg);border-bottom:1px solid var(--amber);padding-bottom:6px}
+
+  /* ── KPI row (shadcn/tremor fusion) ── */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:56px}
+  .kpi{padding:24px 28px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:10px;position:relative;cursor:pointer;transition:background .2s}
+  .kpi:last-child{border-right:none}
+  .kpi:hover{background:rgba(255,255,255,.02)}
+  .kpi-label{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--dimmer)}
+  .kpi-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .kpi-num{font-size:44px;font-weight:200;line-height:1;letter-spacing:-.01em}
+  .kpi-num.amber{color:var(--amber)}
+  .kpi-num.red{color:var(--red)}
+  .kpi-delta{font-size:10px;letter-spacing:.08em;color:var(--dim);font-family:"SF Mono",Menlo,monospace}
+  .kpi-delta.up{color:var(--red)}
+  .kpi-delta.down{color:var(--green)}
+  .kpi-spark{height:28px;margin-top:4px}
+
+  /* ── Section shell ── */
+  .section{margin-bottom:72px}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .section-title{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--fg);font-weight:400}
+  .section-sub{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+  .section-tabs{display:flex;gap:18px}
+  .section-tab{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);cursor:pointer}
+  .section-tab.active{color:var(--amber)}
+
+  /* ── Action queue (horizontal bars, rows not boxes) ── */
+  .queue{display:flex;flex-direction:column}
+  .q-row{display:grid;grid-template-columns:220px 1fr 80px 16px;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
+  .q-row:hover{background:rgba(255,255,255,.02)}
+  .q-label{font-size:12px;letter-spacing:.04em}
+  .q-bar-wrap{height:4px;background:rgba(255,255,255,.04);position:relative;border-radius:1px;overflow:hidden}
+  .q-bar{position:absolute;left:0;top:0;bottom:0;background:var(--fg);opacity:.7;transition:width 1s ease}
+  .q-bar.amber{background:var(--amber);opacity:.9}
+  .q-bar.red{background:var(--red);opacity:.95}
+  .q-count{font-family:"SF Mono",Menlo,monospace;font-size:16px;font-weight:300;text-align:right}
+  .q-count.amber{color:var(--amber)}
+  .q-count.red{color:var(--red)}
+  .q-arrow{color:var(--dimmer);font-size:12px;text-align:center}
+
+  /* ── Two column layout ── */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:72px}
+
+  /* ── Monthly bars ── */
+  .chart-wrap{height:260px;position:relative}
+
+  /* ── Grouped stats (mantine-inspired but dark) ── */
+  .grouped{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .g-cell{padding:20px 24px;border-right:1px solid var(--line)}
+  .g-cell:last-child{border-right:none}
+  .g-cell-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px}
+  .g-cell-num{font-size:32px;font-weight:200;letter-spacing:-.01em}
+  .g-cell-meta{font-size:10px;color:var(--dim);margin-top:4px;font-family:"SF Mono",Menlo,monospace}
+
+  /* ── Activity feed ── */
+  .feed{display:flex;flex-direction:column}
+  .feed-row{display:grid;grid-template-columns:70px 1fr auto;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
+  .feed-time{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);font-family:"SF Mono",Menlo,monospace}
+  .feed-text{font-size:12px;color:var(--fg)}
+  .feed-text b{font-weight:500}
+  .feed-tag{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);border:1px solid var(--faint);padding:3px 7px}
+  .feed-tag.amber{color:var(--amber);border-color:rgba(201,168,110,.4)}
+  .feed-tag.red{color:var(--red);border-color:rgba(201,120,80,.4)}
+  .pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-right:8px;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+  /* ── Back link ── */
+  .back{position:fixed;top:20px;left:20px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--line);padding:10px 14px;background:var(--bg);z-index:10}
+  .back:hover{color:var(--fg);border-color:var(--dim)}
+
+  @media(max-width:900px){
+    .kpi-row{grid-template-columns:1fr 1fr}
+    .kpi:nth-child(2){border-right:none}
+    .split{grid-template-columns:1fr;gap:56px}
+    .grouped{grid-template-columns:1fr}
+    .g-cell{border-right:none;border-bottom:1px solid var(--line)}
+    .q-row{grid-template-columns:140px 1fr 50px 14px}
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="aveyo-dashboard.html">&larr; Back</a>
+
+  <div class="head">
+    <div>
+      <div class="brand">AVEYO · Q. SPENCER</div>
+      <div class="tagline" style="margin-top:6px">Tuesday, April 14</div>
+    </div>
+    <div class="nav">
+      <span class="active">Home</span>
+      <span>Projects</span>
+      <span>SOW</span>
+      <span>Tickets</span>
+      <span>Responsibility</span>
+    </div>
+  </div>
+
+  <!-- KPI ROW — shadcn/tremor fusion -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total Projects</div>
+      <div class="kpi-row-top">
+        <div class="kpi-num">142</div>
+      </div>
+      <div class="kpi-delta up">&uarr; 3 this week</div>
+      <div class="kpi-spark"><canvas id="sp1"></canvas></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Review Needed</div>
+      <div class="kpi-row-top">
+        <div class="kpi-num amber">14</div>
+      </div>
+      <div class="kpi-delta up">&uarr; 5 since yesterday</div>
+      <div class="kpi-spark"><canvas id="sp2"></canvas></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Overdue &gt; 7 Days</div>
+      <div class="kpi-row-top">
+        <div class="kpi-num red">6</div>
+      </div>
+      <div class="kpi-delta">unchanged</div>
+      <div class="kpi-spark"><canvas id="sp3"></canvas></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Open Tickets</div>
+      <div class="kpi-row-top">
+        <div class="kpi-num">8</div>
+      </div>
+      <div class="kpi-delta down">&darr; 2 today</div>
+      <div class="kpi-spark"><canvas id="sp4"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ACTION QUEUE -->
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <div class="section-title">Action Queue</div>
+        <div class="section-sub" style="margin-top:6px">Sorted by urgency · Tap to drill into Podio</div>
+      </div>
+      <div class="section-tabs">
+        <span class="section-tab active">All</span>
+        <span class="section-tab">Mine</span>
+        <span class="section-tab">Team</span>
+      </div>
+    </div>
+    <div class="queue" id="queue"></div>
+  </div>
+
+  <!-- SPLIT: Monthly + Grouped -->
+  <div class="split">
+    <div>
+      <div class="section-head">
+        <div>
+          <div class="section-title">Completions · 14 Days</div>
+          <div class="section-sub" style="margin-top:6px">Projects closed per day</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="monthly"></canvas></div>
+    </div>
+    <div>
+      <div class="section-head">
+        <div>
+          <div class="section-title">This Week</div>
+          <div class="section-sub" style="margin-top:6px">vs. last week</div>
+        </div>
+      </div>
+      <div class="grouped">
+        <div class="g-cell">
+          <div class="g-cell-label">Closed</div>
+          <div class="g-cell-num">12</div>
+          <div class="g-cell-meta">&uarr; 3 vs last wk</div>
+        </div>
+        <div class="g-cell">
+          <div class="g-cell-label">Opened</div>
+          <div class="g-cell-num">18</div>
+          <div class="g-cell-meta">&darr; 2 vs last wk</div>
+        </div>
+        <div class="g-cell">
+          <div class="g-cell-label">Net</div>
+          <div class="g-cell-num amber" style="color:var(--amber)">+6</div>
+          <div class="g-cell-meta">pipeline growing</div>
+        </div>
+      </div>
+      <div style="margin-top:40px">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Stage Breakdown</div>
+            <div class="section-sub" style="margin-top:6px">Where all 142 projects live</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:200px"><canvas id="stacked"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE ACTIVITY -->
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <div class="section-title"><span class="pulse"></span>Live Activity</div>
+        <div class="section-sub" style="margin-top:6px">Podio webhook feed · updates in realtime</div>
+      </div>
+    </div>
+    <div class="feed">
+      <div class="feed-row"><div class="feed-time">00:02 AGO</div><div class="feed-text"><b>Miller, J.</b> &mdash; SOW approved by customer</div><div class="feed-tag">SOW</div></div>
+      <div class="feed-row"><div class="feed-time">00:14 AGO</div><div class="feed-text"><b>Hernandez, R.</b> &mdash; Pre-install ticket opened</div><div class="feed-tag red">TICKET</div></div>
+      <div class="feed-row"><div class="feed-time">00:31 AGO</div><div class="feed-text"><b>Chen, A.</b> &mdash; Rep comment added</div><div class="feed-tag">REP</div></div>
+      <div class="feed-row"><div class="feed-time">01:05 AGO</div><div class="feed-text"><b>Williams, K.</b> &mdash; Moved to install queue</div><div class="feed-tag amber">STAGE</div></div>
+      <div class="feed-row"><div class="feed-time">02:12 AGO</div><div class="feed-text"><b>Garcia, M.</b> &mdash; Design change order filed</div><div class="feed-tag red">CO</div></div>
+      <div class="feed-row"><div class="feed-time">03:40 AGO</div><div class="feed-text"><b>Thompson, B.</b> &mdash; M1 funding approved</div><div class="feed-tag">FUND</div></div>
+    </div>
+  </div>
+
+<script>
+Chart.defaults.color='rgba(255,255,255,.55)';
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,Inter,sans-serif';
+Chart.defaults.font.size=10;
+Chart.defaults.borderColor='rgba(255,255,255,.06)';
+
+const AMBER='#C9A96E',RED='#C97850',BLUE='#6E9CC9',GREEN='#6EC998',FG='rgba(255,255,255,.85)';
+
+// ── Sparklines (KPI row) ──
+function spark(id, data, color){
+  new Chart(document.getElementById(id),{
+    type:'bar',
+    data:{labels:data.map((_,i)=>i),datasets:[{data,backgroundColor:color,borderRadius:1,barPercentage:.9}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      scales:{x:{display:false},y:{display:false,beginAtZero:true}},
+      animation:{duration:900}
+    }
+  });
+}
+spark('sp1',[138,139,139,140,140,141,142],FG);
+spark('sp2',[8,9,11,10,12,13,14],AMBER);
+spark('sp3',[6,6,6,6,6,6,6],RED);
+spark('sp4',[12,11,11,10,9,9,8],GREEN);
+
+// ── Action queue ──
+const queue=[
+  ['Pipeline Review Needed',14,40,'red'],
+  ['Open Support Tickets',8,23,'amber'],
+  ['Rep Update Needed',7,20,'amber'],
+  ['SOW Rejections',5,14,'amber'],
+  ['Ready to Send Cust SOW',4,11,''],
+  ['Ready for Pre-Install',3,9,''],
+  ['Design Change Orders',3,9,''],
+  ['Roof Review Needed',2,6,''],
+  ['Ready for SOW',2,6,''],
+  ['Projects w/ No Redlines',1,3,''],
+];
+const maxQ=Math.max(...queue.map(r=>r[1]));
+document.getElementById('queue').innerHTML=queue.map(([label,n,pct,cls])=>`
+  <div class="q-row">
+    <div class="q-label">${label}</div>
+    <div class="q-bar-wrap"><div class="q-bar ${cls}" style="width:${(n/maxQ)*100}%"></div></div>
+    <div class="q-count ${cls}">${n}</div>
+    <div class="q-arrow">&rsaquo;</div>
+  </div>
+`).join('');
+
+// ── Monthly bars ──
+const days=[];const today=new Date();
+for(let i=13;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days.push(d.getDate());}
+const monthlyVals=[3,5,4,7,6,8,9,5,7,8,10,6,4,7];
+new Chart(document.getElementById('monthly'),{
+  type:'bar',
+  data:{
+    labels:days,
+    datasets:[{
+      data:monthlyVals,
+      backgroundColor:monthlyVals.map((v,i)=>i===monthlyVals.length-1?AMBER:FG),
+      borderRadius:1,
+      barPercentage:.75,
+    }]
+  },
+  options:{
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#000',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.4)',font:{size:9}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)',stepSize:2}}
+    }
+  }
+});
+
+// ── Stacked ──
+new Chart(document.getElementById('stacked'),{
+  type:'bar',
+  data:{
+    labels:['Pipeline','SOW','Pre-Install','Change','Roof'],
+    datasets:[
+      {label:'Active',data:[42,28,18,8,4],backgroundColor:'rgba(255,255,255,.3)',borderRadius:1},
+      {label:'Review',data:[31,22,14,6,3],backgroundColor:BLUE,borderRadius:1},
+      {label:'Action',data:[38,24,12,5,6],backgroundColor:AMBER,borderRadius:1},
+      {label:'Overdue',data:[14,8,4,3,2],backgroundColor:RED,borderRadius:1},
+    ]
+  },
+  options:{
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:8,boxHeight:8,padding:12,font:{size:9}}}},
+    scales:{
+      x:{stacked:true,grid:{display:false},ticks:{color:'rgba(255,255,255,.55)',font:{size:9}}},
+      y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.35)',font:{size:9}}}
+    }
+  }
+});
+</script>
+</body>
+</html>
