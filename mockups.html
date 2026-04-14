@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aveyo Dashboard — Home Mockups</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --fg:#fff;
+    --dim:rgba(255,255,255,.5);
+    --dimmer:rgba(255,255,255,.28);
+    --line:rgba(255,255,255,.08);
+    --amber:#C9A96E;
+    --red:#C97850;
+    --blue:#6E9CC9;
+    --green:#6EC998;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:40px 24px 120px;max-width:1400px;margin:0 auto}
+  h1{font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin:0 0 4px;font-weight:500}
+  .sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer);margin-bottom:60px}
+  .section{margin-bottom:80px;border-top:1px solid var(--line);padding-top:32px}
+  .label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  .title{font-size:22px;font-weight:300;margin:0 0 6px;letter-spacing:.02em}
+  .desc{font-size:13px;color:var(--dim);margin-bottom:28px;max-width:680px;line-height:1.55}
+
+  /* ── OPTION A: Priority Feed ── */
+  .feed{display:flex;flex-direction:column;gap:1px;background:var(--line)}
+  .feed-row{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:20px;padding:16px 20px;background:var(--bg)}
+  .feed-row:hover{background:rgba(255,255,255,.02)}
+  .feed-num{font-family:"SF Mono",Menlo,monospace;font-size:28px;font-weight:200;text-align:right}
+  .feed-num.amber{color:var(--amber)}
+  .feed-num.red{color:var(--red)}
+  .feed-num.dim{color:var(--dimmer)}
+  .feed-title{font-size:13px;letter-spacing:.02em}
+  .feed-sub{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);margin-top:2px}
+  .feed-arrow{color:var(--dimmer);font-size:14px}
+
+  /* ── OPTION B: Pipeline Funnel ── */
+  .funnel{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+  .stage{display:grid;grid-template-columns:180px 1fr 60px;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stage-name{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+  .stage-bar{height:4px;background:rgba(255,255,255,.06);position:relative;border-radius:2px;overflow:hidden}
+  .stage-fill{position:absolute;left:0;top:0;bottom:0;background:var(--fg);opacity:.7}
+  .stage-count{font-family:"SF Mono",Menlo,monospace;font-size:18px;font-weight:300;text-align:right}
+  .stage.hot .stage-fill{background:var(--amber)}
+  .stage.critical .stage-fill{background:var(--red)}
+
+  /* ── OPTION C: Command Strip ── */
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-bottom:32px}
+  .strip-cell{background:var(--bg);padding:24px 20px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+  .strip-cell:hover{background:rgba(255,255,255,.02)}
+  .strip-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer)}
+  .strip-num{font-family:"SF Mono",Menlo,monospace;font-size:40px;font-weight:200;line-height:1}
+  .strip-delta{font-size:10px;color:var(--dim);letter-spacing:.08em}
+  .strip-delta.up{color:var(--red)}
+  .strip-delta.down{color:var(--green)}
+  .strip-cell.hot .strip-num{color:var(--amber)}
+  .strip-cell.critical .strip-num{color:var(--red)}
+
+  .activity{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+  .act-row{display:grid;grid-template-columns:90px 1fr auto;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+  .act-time{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);font-family:"SF Mono",Menlo,monospace}
+  .act-text{font-size:12px;color:var(--fg)}
+  .act-text b{font-weight:500}
+  .act-tag{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);padding:3px 8px;border-radius:2px}
+  .act-tag.red{color:var(--red);border-color:var(--red)}
+
+  /* ── OPTION D: Single Focus ── */
+  .focus{padding:40px 0 0}
+  .focus-kicker{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+  .focus-hero{font-size:56px;font-weight:200;line-height:1.05;margin:0 0 8px;letter-spacing:-.01em}
+  .focus-sub{font-size:14px;color:var(--dim);margin-bottom:36px;max-width:540px;line-height:1.5}
+  .focus-actions{display:flex;gap:40px;margin-bottom:48px}
+  .focus-action{border-left:1px solid var(--line);padding:4px 0 4px 16px}
+  .focus-action-num{font-family:"SF Mono",Menlo,monospace;font-size:24px;font-weight:300}
+  .focus-action-num.amber{color:var(--amber)}
+  .focus-action-num.red{color:var(--red)}
+  .focus-action-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin-top:4px}
+  .focus-list{border-top:1px solid var(--line)}
+  .focus-item{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
+  .focus-item-name{font-size:13px}
+  .focus-item-meta{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);margin-top:3px}
+  .focus-item-age{font-family:"SF Mono",Menlo,monospace;font-size:11px;color:var(--amber)}
+  .focus-item-age.red{color:var(--red)}
+
+  .back{position:fixed;top:20px;left:20px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--line);padding:10px 14px}
+  .back:hover{color:var(--fg);border-color:var(--dim)}
+</style>
+</head>
+<body>
+  <a class="back" href="aveyo-dashboard.html">&larr; Back to Dashboard</a>
+  <h1>Aveyo Dashboard — Home Options</h1>
+  <div class="sub">Four directions for replacing the widget grid · Demo data</div>
+
+  <!-- OPTION A -->
+  <section class="section">
+    <div class="label">Option A</div>
+    <h2 class="title">Priority Feed</h2>
+    <p class="desc">One ranked list of "things that need you", sorted by urgency. No big number tiles — each row is a single actionable line: count, label, tap to drill in. Cuts the home screen to one column of text. Fastest scan, least visual noise.</p>
+    <div class="feed">
+      <div class="feed-row"><div class="feed-num red">14</div><div><div class="feed-title">Projects Review Needed</div><div class="feed-sub">Pipeline · overdue &gt; 7d</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num amber">8</div><div><div class="feed-title">Open Support Tickets</div><div class="feed-sub">3 urgent</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num amber">5</div><div><div class="feed-title">Rep Update Needed</div><div class="feed-sub">Communication</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num amber">4</div><div><div class="feed-title">SOW Rejections</div><div class="feed-sub">Scope of work</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num">3</div><div><div class="feed-title">Ready for Pre-Install</div><div class="feed-sub">Pre-install queue</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num">2</div><div><div class="feed-title">Roof Review Needed</div><div class="feed-sub">Roof work</div></div><div class="feed-arrow">&rsaquo;</div></div>
+      <div class="feed-row"><div class="feed-num dim">0</div><div><div class="feed-title">Design Change Orders</div><div class="feed-sub">Change orders</div></div><div class="feed-arrow">&rsaquo;</div></div>
+    </div>
+  </section>
+
+  <!-- OPTION B -->
+  <section class="section">
+    <div class="label">Option B</div>
+    <h2 class="title">Pipeline Funnel</h2>
+    <p class="desc">Visualizes where all your projects sit right now as a top-down funnel. Each stage is a labeled horizontal bar whose length is relative to the biggest stage. Good for "am I top-heavy?" at a glance. Same underlying counts, different mental model — you see flow, not tasks.</p>
+    <div class="funnel">
+      <div class="stage"><div class="stage-name">Pipeline</div><div class="stage-bar"><div class="stage-fill" style="width:100%"></div></div><div class="stage-count">142</div></div>
+      <div class="stage hot"><div class="stage-name">Scope of Work</div><div class="stage-bar"><div class="stage-fill" style="width:68%"></div></div><div class="stage-count">96</div></div>
+      <div class="stage"><div class="stage-name">Pre-Install</div><div class="stage-bar"><div class="stage-fill" style="width:41%"></div></div><div class="stage-count">58</div></div>
+      <div class="stage"><div class="stage-name">Install</div><div class="stage-bar"><div class="stage-fill" style="width:30%"></div></div><div class="stage-count">43</div></div>
+      <div class="stage critical"><div class="stage-name">Change Orders</div><div class="stage-bar"><div class="stage-fill" style="width:16%"></div></div><div class="stage-count">22</div></div>
+      <div class="stage"><div class="stage-name">Roof Work</div><div class="stage-bar"><div class="stage-fill" style="width:11%"></div></div><div class="stage-count">16</div></div>
+      <div class="stage"><div class="stage-name">Funding M2</div><div class="stage-bar"><div class="stage-fill" style="width:5%"></div></div><div class="stage-count">7</div></div>
+    </div>
+  </section>
+
+  <!-- OPTION C -->
+  <section class="section">
+    <div class="label">Option C</div>
+    <h2 class="title">Command Strip + Activity</h2>
+    <p class="desc">Four KPIs only — the things you'd actually want on a morning glance — paired with a live activity feed powered by the realtime Podio webhooks we just wired up. Top strip is static. The feed scrolls as Podio events fire.</p>
+    <div class="strip">
+      <div class="strip-cell"><div class="strip-label">Total Projects</div><div class="strip-num">142</div><div class="strip-delta up">&uarr; 3 this week</div></div>
+      <div class="strip-cell hot"><div class="strip-label">Needs Review</div><div class="strip-num">14</div><div class="strip-delta up">&uarr; 5 since yesterday</div></div>
+      <div class="strip-cell critical"><div class="strip-label">Overdue &gt; 7d</div><div class="strip-num">6</div><div class="strip-delta">unchanged</div></div>
+      <div class="strip-cell"><div class="strip-label">Open Tickets</div><div class="strip-num">8</div><div class="strip-delta down">&darr; 2 today</div></div>
+    </div>
+    <div class="activity">
+      <div class="act-row"><div class="act-time">00:02 AGO</div><div class="act-text"><b>Miller, J.</b> &mdash; SOW approved by customer</div><div class="act-tag">SOW</div></div>
+      <div class="act-row"><div class="act-time">00:14 AGO</div><div class="act-text"><b>Hernandez, R.</b> &mdash; Pre-install ticket opened</div><div class="act-tag red">TICKET</div></div>
+      <div class="act-row"><div class="act-time">00:31 AGO</div><div class="act-text"><b>Chen, A.</b> &mdash; Rep comment added</div><div class="act-tag">REP</div></div>
+      <div class="act-row"><div class="act-time">01:05 AGO</div><div class="act-text"><b>Williams, K.</b> &mdash; Moved to install queue</div><div class="act-tag">STAGE</div></div>
+      <div class="act-row"><div class="act-time">02:12 AGO</div><div class="act-text"><b>Garcia, M.</b> &mdash; Design change order filed</div><div class="act-tag red">CO</div></div>
+      <div class="act-row"><div class="act-time">03:40 AGO</div><div class="act-text"><b>Thompson, B.</b> &mdash; M1 funding approved</div><div class="act-tag">FUND</div></div>
+    </div>
+  </section>
+
+  <!-- OPTION D -->
+  <section class="section">
+    <div class="label">Option D</div>
+    <h2 class="title">Single Focus</h2>
+    <p class="desc">Opinionated — the home screen makes a choice for you. One hero answer: "here's the most urgent thing today." Secondary counts sit underneath. Below is the triage list of specific projects to deal with right now. Closest to how a morning standup feels.</p>
+    <div class="focus">
+      <div class="focus-kicker">Today's Focus</div>
+      <h1 class="focus-hero">6 projects are overdue.</h1>
+      <div class="focus-sub">Longest waiting: 18 days since last review. Two are in funding pending approval — those block revenue.</div>
+      <div class="focus-actions">
+        <div class="focus-action"><div class="focus-action-num red">6</div><div class="focus-action-label">Overdue</div></div>
+        <div class="focus-action"><div class="focus-action-num amber">14</div><div class="focus-action-label">Review Needed</div></div>
+        <div class="focus-action"><div class="focus-action-num amber">8</div><div class="focus-action-label">Tickets Open</div></div>
+        <div class="focus-action"><div class="focus-action-num">3</div><div class="focus-action-label">Ready for Install</div></div>
+      </div>
+      <div class="focus-list">
+        <div class="focus-item"><div><div class="focus-item-name">Thompson, Brian &mdash; 2840 Elm St</div><div class="focus-item-meta">SOW · pending customer sig</div></div><div class="focus-item-age red">18d</div></div>
+        <div class="focus-item"><div><div class="focus-item-name">Patel, Arun &mdash; 1104 Oak Ave</div><div class="focus-item-meta">Funding · M1 approved, M2 blocked</div></div><div class="focus-item-age red">14d</div></div>
+        <div class="focus-item"><div><div class="focus-item-name">Reyes, Carla &mdash; 702 Pine Rd</div><div class="focus-item-meta">Pre-install · roof review needed</div></div><div class="focus-item-age">11d</div></div>
+        <div class="focus-item"><div><div class="focus-item-name">Kowalski, Ed &mdash; 19 Birch Ln</div><div class="focus-item-meta">Change order · unassigned</div></div><div class="focus-item-age">9d</div></div>
+        <div class="focus-item"><div><div class="focus-item-name">Nguyen, Linh &mdash; 4400 Cedar Dr</div><div class="focus-item-meta">Rep update overdue</div></div><div class="focus-item-age">8d</div></div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
