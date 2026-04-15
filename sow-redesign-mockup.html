@@ -202,7 +202,15 @@
   .mobile{display:none}
   body.show-desktop .desktop{display:block}
   body.show-mobile .mobile{display:block}
-  .desktop-frame{max-width:1480px;margin:0 auto;padding:0 24px}
+  .desktop-frame{max-width:1680px;margin:0 auto;padding:0 24px}
+  .dsk-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start;margin-top:14px}
+  .dsk-main{min-width:0}
+  .dsk-side{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+  .dsk-side .comments-sec{flex:1;display:flex;flex-direction:column;min-height:0}
+  .dsk-side .comments-list{flex:1;max-height:none;min-height:0}
+  @media(max-width:1280px){
+    .dsk-body{grid-template-columns:minmax(0,1fr) 320px}
+  }
 
   .dsk-hdr{background:var(--bg0);border:1px solid var(--border2);margin-top:14px;padding:18px 22px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;position:sticky;top:0;z-index:50}
   .dsk-hdr-left .dsk-back{font-size:9px;color:var(--text3);letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px}
@@ -325,6 +333,10 @@
       <a href="#stage-5" data-stage="5"><span class="sn-num">05</span>Mobile Home</a>
       <a href="#stage-6" data-stage="6"><span class="sn-num">06</span>Final</a>
     </nav>
+
+    <!-- BODY: main + comments sidebar -->
+    <div class="dsk-body">
+    <div class="dsk-main">
 
     <!-- TOP TOOL RAIL — always-visible PM tools -->
     <div class="tool-rail">
@@ -629,62 +641,6 @@
         </div>
       </div>
 
-      <!-- PROJECT COMMENTS (full width, mirrors project review view) -->
-      <div class="sec full">
-        <div class="sec-hdr">
-          <div class="sec-num" style="color:var(--silver)">¶</div>
-          <div class="sec-title">Project Comments</div>
-          <div class="pill idle">12 Comments</div>
-        </div>
-        <div class="comments-list">
-          <div class="comment">
-            <div class="comment-avatar">QS</div>
-            <div class="comment-body">
-              <div class="comment-meta"><span class="comment-author">Quentin Spencer</span><span class="comment-time">2 hr ago</span></div>
-              <div class="comment-text">Pulled the planset and proposal — south array has 2 fewer panels on the planset. Need to reconcile with sales before pushing the SOW out. <span class="mention">@design</span> can you confirm the panel count change?</div>
-            </div>
-          </div>
-          <div class="comment">
-            <div class="comment-avatar">JD</div>
-            <div class="comment-body">
-              <div class="comment-meta"><span class="comment-author">Jess Daniels · Design</span><span class="comment-time">1 hr ago</span></div>
-              <div class="comment-text">Yes — we removed those after the site survey showed an HVAC vent we missed in the original aerial. Production drop should be ~8% based on the new layout.</div>
-            </div>
-          </div>
-          <div class="comment">
-            <div class="comment-avatar">MR</div>
-            <div class="comment-body">
-              <div class="comment-meta"><span class="comment-author">Mike Rivera · Site Survey</span><span class="comment-time">1 hr ago</span></div>
-              <div class="comment-text">Confirmed — vent is 18&quot; tall and would shade those two modules in the afternoon. Photos are in the survey folder, frames 7-9.</div>
-            </div>
-          </div>
-          <div class="comment">
-            <div class="comment-avatar">QS</div>
-            <div class="comment-body">
-              <div class="comment-meta"><span class="comment-author">Quentin Spencer</span><span class="comment-time">38 min ago</span></div>
-              <div class="comment-text">Got it. Will draft the change order from the SOW tab — production is at 14,180 kWh vs 15,420 sold, so −8% triggers the band. Will confirm before pushing to sales.</div>
-            </div>
-          </div>
-          <div class="comment">
-            <div class="comment-avatar">SM</div>
-            <div class="comment-body">
-              <div class="comment-meta"><span class="comment-author">Sara Mendez · PM Lead</span><span class="comment-time">12 min ago</span></div>
-              <div class="comment-text"><span class="mention">@quentin</span> sounds good. Make sure the battery ack form gets copied into Approved before you generate the SOW — flagged on a few projects last week.</div>
-            </div>
-          </div>
-        </div>
-        <div class="compose">
-          <textarea placeholder="Add a comment to this project... use @ to mention a teammate"></textarea>
-          <div class="compose-actions">
-            <div class="compose-hint">⌘ + Enter to post</div>
-            <div style="display:flex;gap:8px">
-              <button class="btn-tiny">@ Mention</button>
-              <button class="btn-tiny primary">Post Comment</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 6. FINAL -->
       <div class="sec" id="stage-6" data-section="6">
         <div class="sec-hdr">
@@ -707,6 +663,64 @@
       </div>
 
     </div>
+    </div><!-- /dsk-main -->
+
+    <!-- COMMENTS SIDEBAR -->
+    <aside class="dsk-side">
+      <div class="comments-sec">
+        <div class="sec-hdr">
+          <div class="sec-num" style="color:var(--silver)">¶</div>
+          <div class="sec-title">Project Comments</div>
+          <div class="pill idle">12</div>
+        </div>
+        <div class="comments-list">
+          <div class="comment">
+            <div class="comment-avatar">QS</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="comment-author">Quentin Spencer</span><span class="comment-time">2h</span></div>
+              <div class="comment-text">Pulled the planset and proposal — south array has 2 fewer panels on the planset. <span class="mention">@design</span> can you confirm the panel count change?</div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="comment-avatar">JD</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="comment-author">Jess Daniels</span><span class="comment-time">1h</span></div>
+              <div class="comment-text">Yes — removed after the site survey showed an HVAC vent we missed in the original aerial. ~8% production drop expected.</div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="comment-avatar">MR</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="comment-author">Mike Rivera</span><span class="comment-time">1h</span></div>
+              <div class="comment-text">Confirmed — vent is 18&quot; tall and shades those modules in the afternoon. Photos in survey folder, frames 7-9.</div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="comment-avatar">QS</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="comment-author">Quentin Spencer</span><span class="comment-time">38m</span></div>
+              <div class="comment-text">Got it. Drafting the change order from the SOW tab — −8% triggers the band. Will confirm before pushing to sales.</div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="comment-avatar">SM</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="comment-author">Sara Mendez</span><span class="comment-time">12m</span></div>
+              <div class="comment-text"><span class="mention">@quentin</span> remember to copy the battery ack to Approved before generating SOW — flagged on a few projects last week.</div>
+            </div>
+          </div>
+        </div>
+        <div class="compose">
+          <textarea placeholder="Add a comment... use @ to mention"></textarea>
+          <div class="compose-actions">
+            <div class="compose-hint">⌘+↩ to post</div>
+            <button class="btn-tiny primary">Post</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    </div><!-- /dsk-body -->
   </div>
 
   <div class="dsk-cta">
