@@ -200,16 +200,38 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <div class="sec" id="stage-2" data-section="2">
         <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title">Roof &amp; Structure</div><div class="pill review">PM Review</div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Structural Upgrade</div><div class="row-detail" id="pe-letter-detail">Loading PE letter…</div></div><div><button class="btn-tiny" id="pe-recheck">Re-check</button></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Roof Condition</div><div class="row-detail">Review site survey photos &amp; decide if install-ready</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Roof Condition</div><div class="row-detail">Review site survey photos to the right · decide if install-ready</div></div><div><button class="btn-tiny" id="survey-load">Load Photos</button></div></div>
+        <div id="survey-grid" style="display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)"></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copy the Site Survey Report PDF into the Approved folder (also handled in stage 6)</div></div></div>
       </div>
 
       <!-- STAGE 3: PRODUCTION -->
       <div class="sec" id="stage-3" data-section="3">
         <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title">Production Tolerance</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment + Lidar</div><div class="row-detail">Aurora &amp; planset reference same panel + inverter · Lidar enabled in Aurora</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Tilt Reconciliation</div><div class="row-detail">Plans · Aurora · Site Survey photos must agree (Site Survey is ground truth)</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Production within −5% / +10%</div><div class="row-detail">Re-simulate Aurora and compare to LightReach kWh</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment + Lidar</div><div class="row-detail" id="prod-equipment">Loading Aurora…</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Tilt Reconciliation</div><div class="row-detail" id="prod-tilts">Loading Aurora arrays…</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Production within −5% / +10%</div><div class="row-detail" id="prod-tolerance">Loading…</div></div></div>
+        <div id="prod-band" style="padding:16px 18px;border-top:1px solid var(--border);background:var(--bg);display:none">
+          <div style="display:flex;gap:24px;font-family:ui-monospace,Menlo,monospace;margin-bottom:24px">
+            <div><div style="font-size:8px;color:var(--text4);letter-spacing:.14em">SOLD (LR)</div><div id="band-sold" style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px">—</div></div>
+            <div><div style="font-size:8px;color:var(--text4);letter-spacing:.14em">NEW (AURORA)</div><div id="band-new" style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px">—</div></div>
+            <div><div style="font-size:8px;color:var(--text4);letter-spacing:.14em">DELTA</div><div id="band-delta" style="font-size:18px;font-weight:700;color:var(--silver);margin-top:2px">—</div></div>
+          </div>
+          <div style="position:relative;height:4px;background:var(--bg4);margin:24px 0 18px">
+            <div style="position:absolute;top:0;bottom:0;left:33%;right:33%;background:var(--blue-dim);border-top:1px solid var(--blue);border-bottom:1px solid var(--blue)"></div>
+            <div style="position:absolute;top:-3px;left:33%;width:1px;height:10px;background:var(--text3)"><span style="position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--text3);font-family:ui-monospace,Menlo,monospace">−5%</span></div>
+            <div style="position:absolute;top:-3px;left:67%;width:1px;height:10px;background:var(--text3)"><span style="position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--text3);font-family:ui-monospace,Menlo,monospace">+10%</span></div>
+            <div id="band-marker" style="position:absolute;top:-7px;width:2px;height:18px;background:var(--silver);left:50%"><span id="band-marker-lbl" style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--silver);font-weight:700;font-family:ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap">—</span></div>
+          </div>
+        </div>
+        <div id="prod-co-draft" style="display:none;margin:0 16px 16px;background:var(--bg0);border:1px dashed var(--silver);padding:14px">
+          <div style="font-size:9px;color:var(--silver);font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;font-family:ui-monospace,Menlo,monospace">⚠ Change Order Draft · Awaiting PM Confirmation · Not Sent</div>
+          <textarea id="co-draft-text" style="width:100%;background:var(--bg);color:var(--text2);border:1px solid var(--border);padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.6;min-height:90px;outline:none"></textarea>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+            <button class="btn-tiny" id="co-draft-reset">Reset</button>
+            <button class="btn-tiny primary" id="co-draft-send">Confirm &amp; Post to Project</button>
+          </div>
+        </div>
       </div>
 
       <!-- STAGE 4: ADDERS -->
@@ -300,6 +322,7 @@ async function loadProject(){
     loadPELetter();
     loadFiles();
     loadPlansetInfo();
+    loadAurora();
   }catch(e){
     document.querySelector('.dsk-main').insertAdjacentHTML('afterbegin', `<div class="error">Project load failed: ${x(e.message)}</div>`);
   }
@@ -557,6 +580,153 @@ function refreshOverall(){
   });
   $('#status-sections').textContent = `${done} / ${sections.length}`;
 }
+
+// ────── AURORA (Sold milestone design) ──────
+let AURORA = null;
+async function loadAurora(){
+  if(!PROJECT || !PROJECT.name) return;
+  $('#prod-equipment').textContent = 'Loading Aurora (10–30s)…';
+  $('#prod-tilts').textContent = 'Loading…';
+  $('#prod-tolerance').textContent = 'Loading…';
+  try{
+    const r = await fetch(`${API}/aurora-production`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ customer_name: PROJECT.name }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Aurora failed');
+    AURORA = d;
+    renderAurora(d);
+  }catch(e){
+    $('#prod-equipment').innerHTML = `<span class="silver">Aurora load failed: ${x(e.message)}</span>`;
+    $('#prod-tilts').textContent = '';
+    $('#prod-tolerance').textContent = '';
+    updateCrossMatchCell('Aurora·Sold', '—', false, false);
+  }
+}
+
+function renderAurora(a){
+  // Cross-match Aurora cell
+  const sz = a.system_size_kw;
+  const lr = PALMETTO ? PALMETTO.system_size_kw : null;
+  const matches = (sz && lr && Math.abs(parseFloat(sz)-parseFloat(lr)) < 0.05);
+  updateCrossMatchCell('Aurora·Sold', sz ? parseFloat(sz).toFixed(2)+' kW' : '—', matches, !!sz);
+
+  // Equipment row
+  const panels = a.layout_arrays ? a.layout_arrays.reduce((s,r)=>s+(r.panel_count||0),0) : null;
+  const lidar = a.lidar_source ? a.lidar_source : null;
+  const inv = (a.inverters||[]).map(i => `${i.count||1}× ${i.manufacturer||''} ${i.model||''}`.trim()).join(', ') || '—';
+  $('#prod-equipment').innerHTML = `Aurora panels: <b>${panels||'?'}</b> · Inverter: ${x(inv)} · Lidar: <b>${lidar ? lidar : '<span class="silver">not enabled</span>'}</b>`;
+
+  // Tilt reconciliation — list each array's tilt
+  const arrays = a.layout_arrays || [];
+  if(arrays.length){
+    const tiltsTxt = arrays.map((arr,i) => `Array ${i+1}: <b>${arr.pitch||'?'}°</b>${arr.azimuth!=null?` @ ${Math.round(arr.azimuth)}°`:''}`).join(' · ');
+    $('#prod-tilts').innerHTML = `${tiltsTxt}<br/><span class="silver">Compare against Site Survey Report photos · Aurora must match Site Survey</span>`;
+  } else {
+    $('#prod-tilts').innerHTML = '<span class="silver">No array data from Aurora</span>';
+  }
+
+  // Production tolerance
+  const newKwh = a.production_kwh ? parseFloat(a.production_kwh) : null;
+  const soldKwh = PALMETTO ? PALMETTO.production_kwh : null;
+  if(!newKwh || !soldKwh){
+    $('#prod-tolerance').innerHTML = '<span class="silver">Need both Aurora and LightReach production to compare</span>';
+    return;
+  }
+  const delta = newKwh - soldKwh;
+  const pct = (delta / soldKwh) * 100;
+  const inBand = pct >= -5 && pct <= 10;
+  const verb = pct < 0 ? 'decrease' : 'increase';
+  $('#prod-tolerance').innerHTML = `Sold: <b>${soldKwh.toLocaleString()} kWh</b> · New: <b>${newKwh.toLocaleString()} kWh</b> · Delta: <b class="${inBand?'ok':'silver'}">${pct.toFixed(1)}%</b> ${inBand ? '— <span class="ok">within tolerance</span>' : '— <span class="silver">out of band</span>'}`;
+
+  // Render the band visualization
+  $('#prod-band').style.display = 'block';
+  $('#band-sold').textContent = soldKwh.toLocaleString() + ' kWh';
+  $('#band-new').textContent = newKwh.toLocaleString() + ' kWh';
+  $('#band-delta').textContent = pct.toFixed(1) + '%';
+  $('#band-delta').style.color = inBand ? 'var(--blue)' : 'var(--silver)';
+
+  // Position marker: -5%=33%, 0%=44.4%, +10%=67%; clamp
+  let leftPct;
+  if(pct <= -5) leftPct = Math.max(2, 33 + (pct + 5) * 2);
+  else if(pct >= 10) leftPct = Math.min(98, 67 + (pct - 10) * 2);
+  else leftPct = 33 + ((pct + 5) / 15) * 34;
+  $('#band-marker').style.left = leftPct + '%';
+  $('#band-marker').style.background = inBand ? 'var(--blue)' : 'var(--silver)';
+  $('#band-marker-lbl').textContent = pct.toFixed(1) + '%';
+  $('#band-marker-lbl').style.color = inBand ? 'var(--blue)' : 'var(--silver)';
+
+  // Change order draft
+  if(!inBand){
+    const absD = Math.round(Math.abs(delta));
+    const absP = Math.round(Math.abs(pct));
+    const draft = `@sales Updated production is ${newKwh.toLocaleString()}kwh and the sold production is ${soldKwh.toLocaleString()}kwh which is a ${absD.toLocaleString()}kwh ${verb}, so production ${verb}d by ${absP}%, and this will require a change order. Please review and let us know if anything is needed. Thank you!`;
+    $('#prod-co-draft').style.display = 'block';
+    $('#co-draft-text').value = draft;
+    $('#co-draft-text').dataset.original = draft;
+  } else {
+    $('#prod-co-draft').style.display = 'none';
+  }
+}
+
+$('#co-draft-reset').addEventListener('click', () => {
+  const ta = $('#co-draft-text');
+  ta.value = ta.dataset.original || '';
+});
+$('#co-draft-send').addEventListener('click', async () => {
+  if(!PROJECT) return;
+  const text = ($('#co-draft-text').value || '').trim();
+  if(!text){ alert('Draft is empty'); return; }
+  if(!confirm('Post this change order draft as a comment to the project?')) return;
+  const btn = $('#co-draft-send');
+  btn.disabled = true; btn.textContent = 'Posting…';
+  try{
+    const r = await fetch(`${API}/sow/v2/comments/${PROJECT.project_item_id}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ value: text }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    btn.textContent = '✓ Posted';
+    loadComments(PROJECT.project_item_id);
+    setTimeout(() => { $('#prod-co-draft').style.display = 'none'; }, 1500);
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Retry';
+    alert('Post failed: ' + e.message);
+  }
+});
+
+// ────── SITE SURVEY PHOTOS ──────
+async function loadSurvey(){
+  $('#survey-grid').style.display = 'block';
+  $('#survey-grid').innerHTML = '<div class="loading" style="padding:14px">Extracting site survey pages…</div>';
+  try{
+    const r = await fetch(`${API}/sow-survey-review`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID) }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    const pages = (d.pages || []).slice(0, 16);
+    if(!pages.length){ $('#survey-grid').innerHTML = '<div class="error">No survey pages</div>'; return; }
+    const html = `
+      <div style="font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px">${x(d.file_name)} · ${d.total_pages} pages · showing first ${pages.length}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border2)">
+        ${pages.map(p => `<div style="background:var(--bg);position:relative">
+          <img src="data:image/png;base64,${p.thumb}" style="width:100%;display:block"/>
+          <div style="position:absolute;top:4px;left:4px;font-size:8px;color:var(--blue);background:rgba(0,0,0,.6);padding:2px 6px;letter-spacing:.1em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace">${p.type}</div>
+        </div>`).join('')}
+      </div>`;
+    $('#survey-grid').innerHTML = html;
+  }catch(e){
+    $('#survey-grid').innerHTML = `<div class="error">${x(e.message)}</div>`;
+  }
+}
+$('#survey-load').addEventListener('click', loadSurvey);
 
 // ────── PLANSET ──────
 let PLANSET = null;
