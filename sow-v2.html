@@ -188,9 +188,9 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <!-- STAGE 2: ROOF & STRUCTURE -->
       <div class="sec" id="stage-2" data-section="2">
         <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title">Roof &amp; Structure</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Structural Upgrade</div><div class="row-detail">Read PE letter — &quot;structure is adequate&quot; means no upgrade adder needed</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Structural Upgrade</div><div class="row-detail" id="pe-letter-detail">Loading PE letter…</div></div><div><button class="btn-tiny" id="pe-recheck">Re-check</button></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Roof Condition</div><div class="row-detail">Review site survey photos &amp; decide if install-ready</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copy the Site Survey Report PDF into the Approved folder</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copy the Site Survey Report PDF into the Approved folder (also handled in stage 6)</div></div></div>
       </div>
 
       <!-- STAGE 3: PRODUCTION -->
@@ -226,9 +226,10 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <div class="sec" id="stage-6" data-section="6">
         <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title">Screenshots &amp; File Copies</div><div class="pill review">PM Review</div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Labeled Site Plan</div><div class="row-detail">Use the screenshot tool to label equipment + trenching</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copied during stage 02</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Proposal → Approved</div><div class="row-detail">Copy LightReach proposal PDF</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Battery Acknowledgement → Approved</div><div class="row-detail">Copy battery ack form (tells you the battery adder)</div></div></div>
+        <div id="files-block" style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)">
+          <div style="font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px">Project Files · Click to Copy into Approved Folder</div>
+          <div id="files-list"><div class="loading" style="padding:14px">Loading files…</div></div>
+        </div>
       </div>
 
     </div>
@@ -285,6 +286,8 @@ async function loadProject(){
     renderProjNav(d);
     loadComments(d.project_item_id);
     if(d.finance_id) loadPalmetto(d.finance_id);
+    loadPELetter();
+    loadFiles();
   }catch(e){
     document.querySelector('.dsk-main').insertAdjacentHTML('afterbegin', `<div class="error">Project load failed: ${x(e.message)}</div>`);
   }
@@ -316,19 +319,38 @@ async function loadPalmetto(financeId){
 }
 
 function renderCrossMatch(p){
-  // System size 4-source grid
   const lr = p.system_size_kw;
+  const podio = PROJECT && PROJECT.podio_system_size_kw ? parseFloat(PROJECT.podio_system_size_kw) : null;
+  const sizesMatch = (podio && lr) ? Math.abs(podio - lr) < 0.05 : false;
+
   const grid = $('#cm-size-grid');
   const cells = [
-    { lbl:'Podio',      val:'—' },
-    { lbl:'Planset',    val:'—' },
-    { lbl:'LightReach', val: lr ? lr+' kW' : '—' },
-    { lbl:'Aurora·Sold',val:'—' },
+    { lbl:'Podio',      val: podio ? podio.toFixed(2)+' kW' : '—', match: sizesMatch },
+    { lbl:'Planset',    val:'—', match:false },
+    { lbl:'LightReach', val: lr ? lr.toFixed(2)+' kW' : '—', match: !!lr },
+    { lbl:'Aurora·Sold',val:'—', match:false },
   ];
-  grid.innerHTML = cells.map(c => `<div class="src-cell ${c.val==='—'?'empty':'match'}"><div class="src-lbl">${x(c.lbl)}</div><div class="src-val">${x(c.val)}</div></div>`).join('');
-  $('#cm-size').innerHTML = `LightReach reports <b>${lr} kW</b> · ${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}. Confirm Podio · Planset · Aurora (Sold) all agree.`;
+  grid.innerHTML = cells.map(c => `<div class="src-cell ${c.val==='—'?'empty':(c.match?'match':'diff')}"><div class="src-lbl">${x(c.lbl)}</div><div class="src-val">${x(c.val)}</div></div>`).join('');
 
-  $('#cm-price').innerHTML = `LightReach: <b>$${(p.total_system_cost||0).toLocaleString()}</b> · ${p.price_per_watt ? p.price_per_watt+' $/W' : ''} · ${x(p.product_name||'')}`;
+  let sizeMsg = `LightReach: <b>${lr} kW</b>`;
+  if(podio){
+    if(sizesMatch) sizeMsg += ` · Podio: <b>${podio.toFixed(2)} kW</b> <span class="ok">match</span>`;
+    else sizeMsg += ` · Podio: <span class="silver"><b>${podio.toFixed(2)} kW</b> mismatch</span>`;
+  }
+  sizeMsg += '. Confirm Planset and Aurora (Sold) also agree.';
+  $('#cm-size').innerHTML = sizeMsg;
+
+  // Contract price comparison (LightReach vs Podio)
+  const lrPrice = p.total_system_cost || 0;
+  const podioPrice = PROJECT && PROJECT.podio_contract_price ? parseFloat(PROJECT.podio_contract_price) : null;
+  const priceMatch = (podioPrice && lrPrice) ? Math.abs(podioPrice - lrPrice) < 1 : false;
+  let priceMsg = `LightReach: <b>$${lrPrice.toLocaleString()}</b>`;
+  if(podioPrice){
+    if(priceMatch) priceMsg += ` · Podio: <b>$${podioPrice.toLocaleString()}</b> <span class="ok">match</span>`;
+    else priceMsg += ` · Podio: <b>$${podioPrice.toLocaleString()}</b> <span class="silver">($${Math.abs(podioPrice-lrPrice).toFixed(0)} difference — LightReach is source of truth)</span>`;
+  }
+  priceMsg += `<br/>${p.price_per_watt ? p.price_per_watt+' $/W · ' : ''}${x(p.product_name||'')}`;
+  $('#cm-price').innerHTML = priceMsg;
 
   const inv = (p.inverters||[]).map(i => `${i.count}× ${i.manufacturer} ${i.model}`).join(', ') || 'None listed';
   $('#cm-equipment').innerHTML = `Panels: <b>${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}</b><br/>Inverter: ${x(inv)}`;
@@ -523,6 +545,94 @@ function refreshOverall(){
   });
   $('#status-sections').textContent = `${done} / ${sections.length}`;
 }
+
+// ────── PE LETTER ──────
+async function loadPELetter(){
+  try{
+    const r = await fetch(`${API}/sow/v2/pe-letter/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status !== 'ok'){ $('#pe-letter-detail').innerHTML = `<span class="silver">${x(d.message||'error')}</span>`; return; }
+    if(!d.found){
+      $('#pe-letter-detail').innerHTML = `<span class="silver">No PE letter found in Approved folder · PM should add one before SOW goes out</span>`;
+      return;
+    }
+    if(d.verdict === 'no_upgrade_needed'){
+      $('#pe-letter-detail').innerHTML = `<b>${x(d.file.name)}</b><br/><span class="ok">Found phrase${d.matched_phrases.length>1?'s':''}: "${x(d.matched_phrases.join('", "'))}" → no structural upgrade adder needed</span>`;
+    } else {
+      $('#pe-letter-detail').innerHTML = `<b>${x(d.file.name)}</b><br/><span class="silver">No "structure is adequate" phrase detected — PM should review the letter manually</span>`;
+    }
+  }catch(e){
+    $('#pe-letter-detail').innerHTML = `<span class="silver">PE check failed: ${x(e.message)}</span>`;
+  }
+}
+$('#pe-recheck').addEventListener('click', () => { $('#pe-letter-detail').textContent = 'Re-checking…'; loadPELetter(); });
+
+// ────── FILES ──────
+async function loadFiles(){
+  try{
+    const r = await fetch(`${API}/sow/v2/files/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+
+    const approvedNames = new Set((d.approved||[]).map(f => f.name));
+
+    // Pick interesting files: PDFs + categorize
+    const interesting = [];
+    for(const f of (d.customer_docs||[])){
+      if(f.mime !== 'application/pdf') continue;
+      const n = f.name.toLowerCase();
+      let cat = 'Customer Doc';
+      if(n.includes('proposal')) cat = 'Proposal';
+      else if(n.includes('battery') || n.includes('bess') || n.includes('storage')) cat = 'Battery Ack';
+      else if(n.includes('contract') || n.includes('agreement')) cat = 'Contract';
+      else if(n.includes('utility') || n.includes('bill')) cat = 'Utility Bill';
+      else if(n.includes('hoa')) cat = 'HOA';
+      interesting.push({ ...f, source:'Customer Docs', cat });
+    }
+    for(const f of (d.site_survey||[])){
+      if(f.mime !== 'application/pdf') continue;
+      interesting.push({ ...f, source:'Site Survey', cat:'Survey Report' });
+    }
+
+    const html = interesting.map(f => {
+      const inApproved = approvedNames.has(f.name);
+      return `<div class="file-row" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:11px">
+        <span style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);width:90px;font-family:ui-monospace,Menlo,monospace">${x(f.cat)}</span>
+        <span style="flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em">${x(f.name)}</span>
+        ${inApproved
+          ? '<span style="font-size:9px;letter-spacing:.14em;color:var(--blue);font-family:ui-monospace,Menlo,monospace">✓ COPIED</span>'
+          : `<button class="btn-tiny primary copy-btn" data-fileid="${f.id}" data-name="${x(f.name)}">→ Copy</button>`}
+      </div>`;
+    }).join('');
+
+    $('#files-list').innerHTML = html || '<div class="loading" style="padding:14px">No PDFs found</div>';
+  }catch(e){
+    $('#files-list').innerHTML = `<div class="error">${x(e.message)}</div>`;
+  }
+}
+
+document.addEventListener('click', async e => {
+  const btn = e.target.closest('.copy-btn');
+  if(!btn) return;
+  e.stopPropagation();
+  const fileId = btn.dataset.fileid;
+  const name = btn.dataset.name;
+  btn.disabled = true; btn.textContent = 'Copying…';
+  try{
+    const r = await fetch(`${API}/sow/v2/copy-to-approved`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID), file_id: fileId }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    btn.outerHTML = '<span style="font-size:9px;letter-spacing:.14em;color:var(--blue);font-family:ui-monospace,Menlo,monospace">✓ COPIED</span>';
+  }catch(err){
+    btn.disabled = false;
+    btn.textContent = 'Retry';
+    alert('Copy failed: ' + err.message);
+  }
+});
 
 // APN search
 $('#apn-search').addEventListener('click', () => {
