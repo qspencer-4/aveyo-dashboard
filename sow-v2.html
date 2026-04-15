@@ -120,6 +120,16 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .dsk-btn-primary{padding:14px 28px;background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
 
 .loading{padding:40px;text-align:center;font-size:9px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+
+.src-cell{background:var(--bg);padding:10px 12px;text-align:left}
+.src-cell .src-lbl{font-size:8px;color:var(--text4);text-transform:uppercase;letter-spacing:.16em;margin-bottom:4px;font-weight:700;font-family:ui-monospace,Menlo,monospace}
+.src-cell .src-val{font-size:13px;font-weight:700;color:var(--text);font-family:ui-monospace,Menlo,monospace}
+.src-cell.match{box-shadow:inset 2px 0 0 var(--blue)}
+.src-cell.match .src-val{color:var(--blue)}
+.src-cell.diff{box-shadow:inset 2px 0 0 var(--silver)}
+.src-cell.diff .src-val{color:var(--silver)}
+.src-cell.empty{color:var(--text4)}
+.src-cell.empty .src-val{color:var(--text4)}
 .error{padding:18px;background:var(--silver-dim);border:1px solid var(--silver-edge);color:var(--silver);font-size:11px;letter-spacing:.04em;font-family:ui-monospace,Menlo,monospace}
 </style>
 </head>
@@ -168,9 +178,11 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <!-- STAGE 1: CROSS-MATCH -->
       <div class="sec" id="stage-1" data-section="1">
         <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title">Cross-Match Verification</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">System Size</div><div class="row-detail">Verify Podio · Planset · LightReach · Aurora (Sold) all match</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail">LightReach is source of truth — confirm Podio matches</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Design Layout</div><div class="row-detail">Compare proposal &amp; planset layouts — open the Layout Compare tool above</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">System Size</div><div class="row-detail" id="cm-size">Loading LightReach data…</div></div></div>
+        <div id="cm-size-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);padding:1px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail" id="cm-price">Loading…</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment</div><div class="row-detail" id="cm-equipment">Loading…</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Design Layout</div><div class="row-detail">Compare proposal &amp; planset layouts side-by-side — Layout Compare tool (Phase 2)</div></div></div>
       </div>
 
       <!-- STAGE 2: ROOF & STRUCTURE -->
@@ -272,9 +284,54 @@ async function loadProject(){
     renderHeader(d);
     renderProjNav(d);
     loadComments(d.project_item_id);
+    if(d.finance_id) loadPalmetto(d.finance_id);
   }catch(e){
     document.querySelector('.dsk-main').insertAdjacentHTML('afterbegin', `<div class="error">Project load failed: ${x(e.message)}</div>`);
   }
+}
+
+let PALMETTO = null;
+async function loadPalmetto(financeId){
+  try{
+    const r = await fetch(`${API}/sow/v2/palmetto/${financeId}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Palmetto error');
+    PALMETTO = d;
+    renderCrossMatch(d);
+    // also fold into the header meta cells
+    const sizeCell = document.createElement('div');
+    sizeCell.className = 'dsk-meta-cell';
+    sizeCell.innerHTML = `<div class="m-lbl">System</div><div class="m-val">${(d.system_size_kw||'?')} kW</div>`;
+    const meta = $('#hdr-meta');
+    meta.insertBefore(sizeCell, meta.firstChild);
+    const prodCell = document.createElement('div');
+    prodCell.className = 'dsk-meta-cell';
+    prodCell.innerHTML = `<div class="m-lbl">Sold kWh</div><div class="m-val">${(d.production_kwh||0).toLocaleString()}</div>`;
+    // insert before stage cell (last)
+    const stageCell = meta.querySelector('.dsk-meta-cell:last-child');
+    meta.insertBefore(prodCell, stageCell);
+  }catch(e){
+    $('#cm-size').innerHTML = `<span class="silver">LightReach load failed: ${x(e.message)}</span>`;
+  }
+}
+
+function renderCrossMatch(p){
+  // System size 4-source grid
+  const lr = p.system_size_kw;
+  const grid = $('#cm-size-grid');
+  const cells = [
+    { lbl:'Podio',      val:'—' },
+    { lbl:'Planset',    val:'—' },
+    { lbl:'LightReach', val: lr ? lr+' kW' : '—' },
+    { lbl:'Aurora·Sold',val:'—' },
+  ];
+  grid.innerHTML = cells.map(c => `<div class="src-cell ${c.val==='—'?'empty':'match'}"><div class="src-lbl">${x(c.lbl)}</div><div class="src-val">${x(c.val)}</div></div>`).join('');
+  $('#cm-size').innerHTML = `LightReach reports <b>${lr} kW</b> · ${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}. Confirm Podio · Planset · Aurora (Sold) all agree.`;
+
+  $('#cm-price').innerHTML = `LightReach: <b>$${(p.total_system_cost||0).toLocaleString()}</b> · ${p.price_per_watt ? p.price_per_watt+' $/W' : ''} · ${x(p.product_name||'')}`;
+
+  const inv = (p.inverters||[]).map(i => `${i.count}× ${i.manufacturer} ${i.model}`).join(', ') || 'None listed';
+  $('#cm-equipment').innerHTML = `Panels: <b>${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}</b><br/>Inverter: ${x(inv)}`;
 }
 
 function renderHeader(d){
@@ -390,32 +447,48 @@ async function postComment(){
   }
 }
 
-// ────── CHECK TOGGLES (localStorage for now) ──────
-const CHECK_KEY = `sow-checks-${SOW_ITEM_ID}`;
-function loadChecks(){
-  try{ return JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); }catch{ return {}; }
-}
-function saveChecks(state){ localStorage.setItem(CHECK_KEY, JSON.stringify(state)); }
-function hydrateChecks(){
-  const state = loadChecks();
+// ────── CHECK TOGGLES (server-backed, shared across PMs) ──────
+let CHECK_STATE = {};
+
+async function hydrateChecks(){
+  if(!SOW_ITEM_ID) return;
+  try{
+    const r = await fetch(`${API}/sow/v2/checks/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    CHECK_STATE = d.checks || {};
+  }catch(e){ CHECK_STATE = {}; }
   document.querySelectorAll('[data-section]').forEach(sec => {
     sec.querySelectorAll('.row-icon').forEach((btn, i) => {
       const key = sec.id + ':' + i;
-      if(state[key]) btn.classList.add('checked');
+      if(CHECK_STATE[key]) btn.classList.add('checked');
     });
     refreshSection(sec);
   });
+  refreshOverall();
 }
-document.addEventListener('click', e => {
+
+document.addEventListener('click', async e => {
   const btn = e.target.closest('.row-icon');
   if(!btn) return;
-  btn.classList.toggle('checked');
   const sec = btn.closest('[data-section]');
-  if(sec){
-    const idx = Array.from(sec.querySelectorAll('.row-icon')).indexOf(btn);
-    const state = loadChecks();
-    state[sec.id + ':' + idx] = btn.classList.contains('checked');
-    saveChecks(state);
+  if(!sec) return;
+  const idx = Array.from(sec.querySelectorAll('.row-icon')).indexOf(btn);
+  const key = sec.id + ':' + idx;
+  const willCheck = !btn.classList.contains('checked');
+  // optimistic UI
+  btn.classList.toggle('checked', willCheck);
+  refreshSection(sec);
+  refreshOverall();
+  try{
+    await fetch(`${API}/sow/v2/checks/${SOW_ITEM_ID}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ key, checked: willCheck }),
+    });
+    if(willCheck) CHECK_STATE[key] = true; else delete CHECK_STATE[key];
+  }catch(err){
+    // revert on failure
+    btn.classList.toggle('checked', !willCheck);
     refreshSection(sec);
     refreshOverall();
   }
