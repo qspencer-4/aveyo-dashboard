@@ -5097,8 +5097,9 @@ document.getElementById('sow-list').addEventListener('click',function(e){
 document.getElementById('sow-back').addEventListener('click',()=>{
   document.getElementById('sow-detail').style.display='none';
   document.querySelector('.sow-toolbar').style.display='';
+  document.getElementById('sow-detail-body').innerHTML = '';
   SOW_CURRENT_ITEM=null;
-  showView('sowresp');
+  showView('sow');
   setActiveNav('sow');
 });
 
@@ -5108,7 +5109,10 @@ function openSOWDetail(itemId){
   const item = SOW_ITEMS.find(i=>i.item_id===itemId);
   if(!item) return;
   SOW_CURRENT_ITEM = item;
-  buildSOWDetail(item);
+  // SOW v2 embed — new tool-palette layout served from sow-v2.html
+  const body = document.getElementById('sow-detail-body');
+  body.innerHTML = '<iframe src="sow-v2.html?sow=' + itemId + '" style="width:100%;height:calc(100vh - 110px);border:none;display:block;background:#000" title="SOW v2"></iframe>';
+  document.querySelector('.sow-toolbar').style.display = 'none';
   document.getElementById('sow-detail').style.display='block';
   document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
 }
