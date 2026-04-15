@@ -247,13 +247,9 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <!-- STAGE 5: MOBILE HOME -->
       <div class="sec" id="stage-5" data-section="5">
         <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title">Mobile Home Check</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Verify on County Records</div><div class="row-detail">Enter APN, search county records, confirm not a manufactured home</div></div></div>
-        <div style="padding:14px 16px;border-top:1px solid var(--border)">
-          <div style="display:flex;gap:10px;align-items:center">
-            <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace">APN</div>
-            <input id="apn-input" type="text" placeholder="Enter APN…" style="flex:1;background:var(--bg0);border:1px solid var(--border2);color:var(--text);font-family:ui-monospace,Menlo,monospace;font-size:13px;padding:9px 12px;letter-spacing:.04em;outline:none"/>
-            <button class="btn-tiny primary" id="apn-search">↗ Google County Search</button>
-          </div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Property / Title Report</div><div class="row-detail">Pulled live from the LightReach Title Report · confirm not a manufactured home</div></div></div>
+        <div id="property-report-block" style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)">
+          <div class="loading" style="padding:14px">Loading property report…</div>
         </div>
       </div>
 
@@ -967,27 +963,72 @@ document.addEventListener('click', async e => {
   }
 });
 
-// APN search — resolves city/state from address and builds a tight search query
-$('#apn-search').addEventListener('click', () => {
-  const apn = ($('#apn-input').value || '').trim();
-  if(!apn){ alert('Enter an APN first.'); return; }
-  if(!PROJECT){ alert('Project not loaded.'); return; }
-  // Address shape: "24770 IL-1, Danville, IL 61834"
-  const addr = PROJECT.address || '';
-  const m = addr.match(/,\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})/);
-  let q;
-  if(m){
-    const city = m[1].trim();
-    const state = m[2].trim();
-    q = `${city} ${state} county parcel search ${apn}`;
-  } else {
-    q = `${addr} parcel APN ${apn} county records`;
+// Property / Title Report (Stage 5) — LightReach Title Report via Palmetto property-reports
+async function loadPropertyReport(){
+  const block = $('#property-report-block');
+  if(!block || !SOW_ITEM_ID) return;
+  try {
+    const r = await fetch(`${API}/sow/v2/property-report/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status === 'error'){
+      block.innerHTML = `<div class="loading" style="padding:14px;color:var(--danger,#e07070)">Property report unavailable: ${x(d.message||'error')}</div>`;
+      return;
+    }
+    if(d.status === 'empty'){
+      block.innerHTML = `<div class="loading" style="padding:14px">No property report on file for finance ID ${x(d.finance_id||'')}.</div>`;
+      return;
+    }
+    const apn = d.apn || '—';
+    const county = d.county ? d.county.replace(/\b\w/g,c=>c.toUpperCase()) : '';
+    const ownerBadge = d.applicant_matches_owner === true
+      ? '<span class="pill ok" style="margin-left:8px">OWNER MATCH</span>'
+      : d.applicant_matches_owner === false
+        ? '<span class="pill warn" style="margin-left:8px">NAME MISMATCH</span>' : '';
+    const mobileBanner = d.mobile_home_suspect
+      ? `<div style="padding:10px 12px;margin-top:10px;background:rgba(224,112,112,.12);border:1px solid rgba(224,112,112,.4);color:#ffb3b3;font-size:11px;letter-spacing:.06em;font-family:ui-monospace,Menlo,monospace">⚠ POSSIBLE MANUFACTURED / MOBILE HOME — VERIFY ON COUNTY SITE BEFORE PROCEEDING</div>`
+      : '';
+    const titleStatusPill = d.title_status
+      ? `<span class="pill ${d.title_status==='verified'?'ok':'warn'}" style="margin-left:8px">${x(String(d.title_status).toUpperCase())}</span>`
+      : '';
+    block.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;font-family:ui-monospace,Menlo,monospace;font-size:12px">
+        <div>
+          <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:4px">APN${titleStatusPill}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="font-size:14px;color:var(--text);font-weight:600">${x(apn)}</div>
+            <button class="btn-tiny" id="apn-copy" title="Copy">⎘</button>
+          </div>
+          ${d.apn_alts && d.apn_alts.length ? `<div style="font-size:10px;color:var(--text3);margin-top:3px">alt: ${d.apn_alts.map(esc).join(', ')}</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:4px">County</div>
+          <div style="font-size:13px;color:var(--text)">${x(county)}${d.state?', '+x(d.state):''}</div>
+        </div>
+        <div style="grid-column:1 / -1">
+          <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:4px">Owner of Record${ownerBadge}</div>
+          <div style="font-size:12px;color:var(--text)">${x(d.owner||'—')}</div>
+          ${d.applicant_name ? `<div style="font-size:10px;color:var(--text3);margin-top:2px">Applicant: ${x(d.applicant_name)}</div>`:''}
+        </div>
+        <div style="grid-column:1 / -1">
+          <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:4px">Land Use · Structure</div>
+          <div style="font-size:11px;color:var(--text2)">${x(d.land_use_desc||'—')} ${d.land_use_code?'('+x(d.land_use_code)+')':''}</div>
+          <div style="font-size:11px;color:var(--text2)">${x(d.structure_desc||'—')} ${d.structure_code?'('+x(d.structure_code)+')':''}</div>
+        </div>
+      </div>
+      ${mobileBanner}
+      <div style="margin-top:12px;display:flex;gap:8px">
+        ${d.ahj_search_url ? `<a class="btn-tiny primary" href="${x(d.ahj_search_url)}" target="_blank" rel="noopener">↗ AHJ Parcel Search</a>`:''}
+      </div>
+    `;
+    const cp = document.getElementById('apn-copy');
+    if(cp) cp.addEventListener('click', ()=>{ navigator.clipboard.writeText(apn); cp.textContent='✓'; setTimeout(()=>cp.textContent='⎘',1200); });
+  } catch(e){
+    block.innerHTML = `<div class="loading" style="padding:14px;color:var(--danger,#e07070)">Failed to load property report: ${x(String(e))}</div>`;
   }
-  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
-});
+}
 
 // init
-loadProject().then(hydrateChecks);
+loadProject().then(() => { hydrateChecks(); loadPropertyReport(); });
 </script>
 </body>
 </html>
