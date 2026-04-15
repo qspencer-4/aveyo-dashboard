@@ -237,9 +237,11 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <!-- STAGE 4: ADDERS -->
       <div class="sec" id="stage-4" data-section="4">
         <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title">Adders</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Distance Adder</div><div class="row-detail">Compute miles to Springfield + Frankfort, take shorter, match tier</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Planset Adders</div><div class="row-detail">Scrape planset, reconcile against project's Adders in Podio</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Pricing</div><div class="row-detail">Quote any adders flagged &quot;Missing Price?&quot; in Podio</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Distance Adder</div><div class="row-detail" id="dist-detail">Loading distances…</div></div></div>
+        <div id="dist-pair" style="display:none;grid-template-columns:1fr 1fr;gap:1px;padding:1px;background:var(--border);border-top:1px solid var(--border)"></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Project Adders in Podio</div><div class="row-detail" id="adders-detail">Loading…</div></div></div>
+        <div id="adders-list" style="border-top:1px solid var(--border);background:var(--bg)"></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Quote Missing Prices</div><div class="row-detail" id="adders-missing">—</div></div></div>
       </div>
 
       <!-- STAGE 5: MOBILE HOME -->
@@ -323,6 +325,8 @@ async function loadProject(){
     loadFiles();
     loadPlansetInfo();
     loadAurora();
+    loadDistance();
+    loadAdders();
   }catch(e){
     document.querySelector('.dsk-main').insertAdjacentHTML('afterbegin', `<div class="error">Project load failed: ${x(e.message)}</div>`);
   }
@@ -579,6 +583,69 @@ function refreshOverall(){
     if(checks.length && checks.length === sec.querySelectorAll('.row-icon.checked').length) done++;
   });
   $('#status-sections').textContent = `${done} / ${sections.length}`;
+}
+
+// ────── DISTANCE ADDER ──────
+async function loadDistance(){
+  try{
+    const r = await fetch(`${API}/sow/v2/distance/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    const winner = d.winner || {};
+    const tier = d.tier || {};
+    $('#dist-detail').innerHTML = `Closer warehouse: <b>${x(winner.warehouse||'?')}</b> at <b>${winner.miles||'?'} mi</b> · <span class="ok">${x(tier.label||'')}</span>`;
+    const pair = $('#dist-pair');
+    pair.style.display = 'grid';
+    pair.innerHTML = (d.warehouses||[]).map(w => {
+      const isWinner = winner.warehouse === w.warehouse;
+      const bg = isWinner ? 'var(--blue-dim)' : 'var(--bg)';
+      const accent = isWinner ? 'var(--blue)' : 'var(--text)';
+      const arrow = isWinner ? '◄ ' : '';
+      if(w.error) return `<div style="background:${bg};padding:14px 12px;text-align:center"><div style="font-size:8px;color:var(--text4);text-transform:uppercase;letter-spacing:.16em;font-family:ui-monospace,Menlo,monospace">${x(w.warehouse)}</div><div style="font-size:11px;color:var(--silver);margin-top:6px">${x(w.error)}</div></div>`;
+      return `<div style="background:${bg};padding:14px 12px;text-align:center;${isWinner?'box-shadow:inset 0 -2px 0 var(--blue)':''}">
+        <div style="font-size:8px;color:var(--text4);text-transform:uppercase;letter-spacing:.16em;font-family:ui-monospace,Menlo,monospace">${x(w.warehouse)}</div>
+        <div style="font-size:22px;font-weight:700;color:${accent};font-family:ui-monospace,Menlo,monospace;margin-top:4px">${w.miles}</div>
+        <div style="font-size:9px;color:${isWinner?'var(--blue)':'var(--text3)'};margin-top:4px;text-transform:uppercase;letter-spacing:.14em;font-family:ui-monospace,Menlo,monospace">${arrow}${x(w.duration_text||'')}</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    $('#dist-detail').innerHTML = `<span class="silver">Distance lookup failed: ${x(e.message)}</span>`;
+  }
+}
+
+// ────── PROJECT ADDERS (Podio) ──────
+async function loadAdders(){
+  try{
+    const r = await fetch(`${API}/sow/v2/adders/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message);
+    const adders = d.adders || [];
+    $('#adders-detail').innerHTML = `<b>${adders.length}</b> active adders on this project. Cross-check against the planset to make sure nothing is missed.`;
+
+    const list = $('#adders-list');
+    if(!adders.length){ list.innerHTML = ''; $('#adders-missing').textContent = 'No adders on project'; return; }
+
+    list.innerHTML = adders.map(a => {
+      const audTag = a.audience ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--blue-edge);background:var(--blue-dim);color:var(--blue)">${x(a.audience)}</span>` : '';
+      const priceCell = a.missing_price
+        ? `<span style="color:var(--silver);font-size:10px;font-family:ui-monospace,Menlo,monospace">⚠ NO PRICE</span>`
+        : `<span style="color:var(--text3);font-size:10px;font-family:ui-monospace,Menlo,monospace">${x(a.sales_amount_text||'')}</span>`;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px">
+        ${audTag}
+        <a href="${x(a.podio_url)}" target="_blank" style="flex:1;color:var(--text);font-weight:500;letter-spacing:.02em;text-decoration:none">${x(a.name||'(no name)')}</a>
+        ${priceCell}
+      </div>`;
+    }).join('');
+
+    const missing = adders.filter(a => a.missing_price);
+    if(missing.length){
+      $('#adders-missing').innerHTML = `<span class="silver"><b>${missing.length}</b> adder${missing.length>1?'s':''} need pricing: ${x(missing.map(m=>m.name).join(', '))}</span>`;
+    } else {
+      $('#adders-missing').innerHTML = `<span class="ok">All ${adders.length} adders have prices ✓</span>`;
+    }
+  }catch(e){
+    $('#adders-detail').innerHTML = `<span class="silver">Adders load failed: ${x(e.message)}</span>`;
+  }
 }
 
 // ────── AURORA (Sold milestone design) ──────
@@ -891,13 +958,23 @@ document.addEventListener('click', async e => {
   }
 });
 
-// APN search
+// APN search — resolves city/state from address and builds a tight search query
 $('#apn-search').addEventListener('click', () => {
   const apn = ($('#apn-input').value || '').trim();
-  if(!apn || !PROJECT){ alert('Enter an APN first.'); return; }
-  // Extract county from address — last segment before zip is "City, State zip"; we'll use a generic search
-  const q = encodeURIComponent(`${PROJECT.address || ''} parcel APN ${apn} county records`);
-  window.open(`https://www.google.com/search?q=${q}`, '_blank');
+  if(!apn){ alert('Enter an APN first.'); return; }
+  if(!PROJECT){ alert('Project not loaded.'); return; }
+  // Address shape: "24770 IL-1, Danville, IL 61834"
+  const addr = PROJECT.address || '';
+  const m = addr.match(/,\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})/);
+  let q;
+  if(m){
+    const city = m[1].trim();
+    const state = m[2].trim();
+    q = `${city} ${state} county parcel search ${apn}`;
+  } else {
+    q = `${addr} parcel APN ${apn} county records`;
+  }
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
 });
 
 // init
