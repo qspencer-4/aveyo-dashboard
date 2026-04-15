@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SOW Tab — Redesign Mockup</title>
+<style>
+  :root{
+    --bg:#0a0a0b; --bg2:#131316; --bg3:#1a1a1f; --bg4:#212129;
+    --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12);
+    --text:#f4f4f5; --text2:rgba(255,255,255,.7); --text3:rgba(255,255,255,.4); --text4:rgba(255,255,255,.25);
+    --blue:#5B9DD9; --blue-soft:rgba(91,157,217,.12);
+    --green:#7BB661; --green-soft:rgba(123,182,97,.12);
+    --amber:#E0A458; --amber-soft:rgba(224,164,88,.13);
+    --red:#D9695B; --red-soft:rgba(217,105,91,.12);
+    --radius:8px; --radius-lg:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:13px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none}
+  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+  .frame{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);border-left:.5px solid var(--border);border-right:.5px solid var(--border);position:relative;padding-bottom:120px}
+
+  /* HEADER */
+  .hdr{position:sticky;top:0;z-index:50;background:rgba(10,10,11,.92);backdrop-filter:blur(20px);border-bottom:.5px solid var(--border);padding:14px 16px}
+  .hdr-back{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;margin-bottom:8px;cursor:pointer}
+  .hdr-title{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .hdr-sub{font-size:11px;color:var(--text3);margin-top:2px}
+  .hdr-progress{display:flex;gap:4px;margin-top:12px}
+  .hdr-progress div{flex:1;height:3px;border-radius:2px;background:var(--bg4)}
+  .hdr-progress div.done{background:var(--green)}
+  .hdr-progress div.warn{background:var(--amber)}
+  .hdr-progress div.fail{background:var(--red)}
+
+  /* SECTION CARD */
+  .sec{margin:14px;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  .sec-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:.5px solid var(--border)}
+  .sec-num{width:22px;height:22px;border-radius:50%;background:var(--bg4);color:var(--text2);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sec-title{flex:1;font-size:13px;font-weight:600;letter-spacing:-.01em}
+  .pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;letter-spacing:.02em;text-transform:uppercase}
+  .pill.done{background:var(--green-soft);color:var(--green)}
+  .pill.warn{background:var(--amber-soft);color:var(--amber)}
+  .pill.fail{background:var(--red-soft);color:var(--red)}
+  .pill.pending{background:var(--bg4);color:var(--text3)}
+  .sec-body{padding:4px 0}
+
+  /* CHECK ROW */
+  .row{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:.5px solid var(--border)}
+  .row:last-child{border-bottom:none}
+  .row-icon{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px}
+  .row-icon.done{background:var(--green-soft);color:var(--green);border:1px solid var(--green)}
+  .row-icon.warn{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber)}
+  .row-icon.fail{background:var(--red-soft);color:var(--red);border:1px solid var(--red)}
+  .row-icon.pending{background:transparent;color:var(--text4);border:1.5px solid var(--border2)}
+  .row-body{flex:1;min-width:0}
+  .row-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+  .row-detail{font-size:11px;color:var(--text3);line-height:1.45}
+  .row-detail .ok{color:var(--green)}
+  .row-detail .warn{color:var(--amber)}
+  .row-detail .fail{color:var(--red)}
+  .row-action{display:flex;align-items:center;gap:6px}
+  .btn-tiny{font-size:10px;padding:5px 10px;border-radius:6px;background:var(--bg4);color:var(--text2);font-weight:500;border:.5px solid var(--border2)}
+  .btn-tiny:hover{background:var(--bg3);color:var(--text)}
+  .btn-tiny.primary{background:var(--blue-soft);color:var(--blue);border-color:rgba(91,157,217,.3)}
+
+  /* DATA TABLE */
+  .data{padding:10px 16px;background:var(--bg);border-top:.5px solid var(--border);border-bottom:.5px solid var(--border)}
+  .data:last-child{border-bottom:none}
+  .data-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;color:var(--text2)}
+  .data-row b{color:var(--text);font-weight:600}
+  .data-row .src{color:var(--text4);font-size:10px}
+  .data-row.match b{color:var(--green)}
+  .data-row.mismatch b{color:var(--amber)}
+
+  /* SOURCE GRID for cross-match */
+  .src-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px;background:var(--bg)}
+  .src-cell{background:var(--bg2);border:.5px solid var(--border);border-radius:6px;padding:8px 10px}
+  .src-cell .src-lbl{font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-weight:600}
+  .src-cell .src-val{font-size:12px;font-weight:600;color:var(--text)}
+  .src-cell.match .src-val{color:var(--green)}
+  .src-cell.mismatch .src-val{color:var(--amber)}
+
+  /* ADDER LIST */
+  .adder{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:.5px solid var(--border);font-size:11px}
+  .adder:last-child{border-bottom:none}
+  .adder-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+  .adder-tag.sold{background:var(--blue-soft);color:var(--blue)}
+  .adder-tag.detected{background:var(--amber-soft);color:var(--amber)}
+  .adder-tag.podio{background:var(--green-soft);color:var(--green)}
+  .adder-name{flex:1;color:var(--text);font-weight:500}
+  .adder-price{color:var(--text3);font-size:11px;font-variant-numeric:tabular-nums}
+  .adder-price.missing{color:var(--red)}
+
+  /* TOLERANCE BAR */
+  .tol-wrap{padding:14px 16px;background:var(--bg)}
+  .tol-bar{position:relative;height:6px;background:var(--bg4);border-radius:3px;margin:18px 0 22px}
+  .tol-band{position:absolute;top:0;bottom:0;background:var(--green-soft);border-radius:3px}
+  .tol-marker{position:absolute;top:-4px;width:2px;height:14px;background:var(--text)}
+  .tol-marker .tol-lbl{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text2);white-space:nowrap;font-weight:600}
+  .tol-marker .tol-pct{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--text3);white-space:nowrap}
+  .tol-edge{position:absolute;top:-2px;width:1px;height:10px;background:var(--text4)}
+  .tol-edge .e-lbl{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--text4)}
+
+  /* CHANGE ORDER DRAFT */
+  .draft{margin:12px 16px;background:var(--bg);border:1px dashed var(--amber);border-radius:8px;padding:12px}
+  .draft-hdr{font-size:10px;color:var(--amber);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .draft-body{font-size:11px;color:var(--text2);line-height:1.5;font-family:ui-monospace,"SF Mono",Menlo,monospace;background:var(--bg2);padding:10px;border-radius:6px;border:.5px solid var(--border)}
+  .draft-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
+
+  /* DISTANCE READOUT */
+  .dist-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px;background:var(--bg)}
+  .dist-cell{background:var(--bg2);border:.5px solid var(--border);border-radius:6px;padding:9px 11px;text-align:center}
+  .dist-cell.winner{border-color:var(--blue);background:var(--blue-soft)}
+  .dist-cell .dist-city{font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .dist-cell .dist-mi{font-size:16px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px}
+  .dist-cell .dist-tier{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+  .dist-cell.winner .dist-tier{color:var(--blue)}
+
+  /* APN BLOCK */
+  .apn-block{padding:12px 16px}
+  .apn-row{display:flex;align-items:center;gap:8px;background:var(--bg);border:.5px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+  .apn-row .apn-lbl{font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .apn-row .apn-val{flex:1;font-size:13px;font-weight:600;color:var(--text);font-family:ui-monospace,Menlo,monospace}
+  .apn-link{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--blue-soft);border:.5px solid rgba(91,157,217,.3);border-radius:6px;font-size:11px;color:var(--blue);font-weight:600;justify-content:center}
+
+  /* FILE COPY LIST */
+  .file-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:.5px solid var(--border);font-size:11px}
+  .file-row:last-child{border-bottom:none}
+  .file-icon{width:24px;height:24px;background:var(--bg4);border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--text3);flex-shrink:0;font-size:11px;font-weight:600}
+  .file-name{flex:1;color:var(--text)}
+  .file-status{font-size:10px}
+  .file-status.copied{color:var(--green)}
+  .file-status.pending{color:var(--text3)}
+
+  /* BOTTOM BAR */
+  .cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:14px 16px;background:rgba(10,10,11,.95);backdrop-filter:blur(20px);border-top:.5px solid var(--border);z-index:60}
+  .cta-status{font-size:10px;color:var(--text3);margin-bottom:8px;display:flex;justify-content:space-between}
+  .cta-btn{width:100%;padding:14px;border-radius:10px;background:var(--blue);color:#fff;font-size:14px;font-weight:600;letter-spacing:-.01em;border:none}
+  .cta-btn.locked{background:var(--bg4);color:var(--text4);cursor:not-allowed}
+  .cta-secondary{width:100%;margin-top:8px;padding:10px;border-radius:8px;background:transparent;border:.5px solid var(--border2);color:var(--text2);font-size:11px}
+
+  /* MOCKUP TOGGLE */
+  .toggle-bar{max-width:480px;margin:20px auto 0;padding:0 16px;display:flex;gap:8px;justify-content:center}
+  .toggle-bar button{padding:8px 14px;border-radius:6px;background:var(--bg2);border:.5px solid var(--border2);color:var(--text2);font-size:11px}
+  .toggle-bar button.active{background:var(--blue-soft);color:var(--blue);border-color:var(--blue)}
+  .mock-label{max-width:480px;margin:14px auto 0;padding:0 16px;font-size:11px;color:var(--text4);text-align:center;letter-spacing:.06em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="mock-label">Scope of Work · Redesign Mockup · v1</div>
+<div class="toggle-bar">
+  <button class="active">Greenfield (new SOW)</button>
+</div>
+
+<div class="frame">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-back">‹ Back to SOW list</div>
+    <div class="hdr-title">#06265 Kristopher Suchaczewski</div>
+    <div class="hdr-sub">24770 IL-1, Danville, IL 61834 · LightReach · 11.6 kW</div>
+    <div class="hdr-progress">
+      <div class="done"></div>
+      <div class="done"></div>
+      <div class="warn"></div>
+      <div class="warn"></div>
+      <div class="done"></div>
+      <div></div>
+    </div>
+  </div>
+
+  <!-- 1. CROSS-MATCH -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">1</div>
+      <div class="sec-title">Cross-Match Verification</div>
+      <div class="pill done">2/3 pass</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">System Size Matches</div>
+          <div class="row-detail">All 4 sources agree: <span class="ok">11.6 kW</span></div>
+        </div>
+      </div>
+      <div class="src-grid">
+        <div class="src-cell match"><div class="src-lbl">Podio</div><div class="src-val">11.6 kW</div></div>
+        <div class="src-cell match"><div class="src-lbl">Planset</div><div class="src-val">11.6 kW</div></div>
+        <div class="src-cell match"><div class="src-lbl">LightReach</div><div class="src-val">11.6 kW</div></div>
+        <div class="src-cell match"><div class="src-lbl">Aurora (Sold)</div><div class="src-val">11.6 kW</div></div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Contract Price Matches</div>
+          <div class="row-detail">LightReach <b style="color:var(--text)">$78,569.50</b> · Podio <b style="color:var(--text)">$78,569.50</b> <span class="ok">· match</span></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon warn">!</div>
+        <div class="row-body">
+          <div class="row-label">Design Matches Planset</div>
+          <div class="row-detail">Layouts differ — <span class="warn">2 panels relocated on south array</span></div>
+        </div>
+        <div class="row-action">
+          <button class="btn-tiny primary">Compare</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. ROOF & STRUCTURE -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">2</div>
+      <div class="sec-title">Roof & Structure</div>
+      <div class="pill done">Pass</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Structural Upgrade Needed?</div>
+          <div class="row-detail">PE Letter found · "<i>This structure is adequate…</i>" detected · <span class="ok">No upgrade adder required</span></div>
+        </div>
+        <div class="row-action"><button class="btn-tiny">Open PE</button></div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Roof Review</div>
+          <div class="row-detail">14 site survey photos · roof condition <span class="ok">acceptable</span> · Site Survey Report copied to Approved ✓</div>
+        </div>
+        <div class="row-action"><button class="btn-tiny">Photos</button></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. PRODUCTION -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">3</div>
+      <div class="sec-title">Production Tolerance</div>
+      <div class="pill warn">Out of band</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Equipment Match (Aurora ↔ Planset)</div>
+          <div class="row-detail">Panels: REC Alpha Pure-R 410W ✓ · Inverter: Enphase IQ8+ ✓ · Lidar enabled ✓</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon warn">!</div>
+        <div class="row-body">
+          <div class="row-label">Tilt Reconciliation</div>
+          <div class="row-detail">Plans: 25° · Aurora: 25° · Site Survey photos: <span class="warn">22°</span> — Aurora needs update</div>
+        </div>
+        <div class="row-action"><button class="btn-tiny primary">Open Aurora</button></div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon fail">✕</div>
+        <div class="row-body">
+          <div class="row-label">Production vs LightReach (−5% / +10%)</div>
+          <div class="row-detail">LightReach: <b style="color:var(--text)">15,420 kWh</b> · New Aurora: <b style="color:var(--text)">14,180 kWh</b> · <span class="fail">−8.0% (out of tolerance)</span></div>
+        </div>
+      </div>
+
+      <div class="tol-wrap">
+        <div class="tol-bar">
+          <div class="tol-band" style="left:33%;right:33%"></div>
+          <div class="tol-edge" style="left:33%"><span class="e-lbl">−5%</span></div>
+          <div class="tol-edge" style="left:67%"><span class="e-lbl">+10%</span></div>
+          <div class="tol-marker" style="left:20%">
+            <span class="tol-lbl">Current</span>
+            <span class="tol-pct">−8%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="draft">
+        <div class="draft-hdr">⚠ Change Order Draft · NOT SENT</div>
+        <div class="draft-body">@sales Updated production is 14,180kwh and the sold production is 15,420kwh which is a 1,240kwh decrease, so production decreased by 8%, and this will require a change order. Please review and let us know if anything is needed. Thank you!</div>
+        <div class="draft-actions">
+          <button class="btn-tiny">Edit</button>
+          <button class="btn-tiny primary">Confirm & Send to Podio</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon warn">P</div>
+        <div class="row-body">
+          <div class="row-label">Permit Package Design</div>
+          <div class="row-detail"><span class="warn">Rejected</span> — production out of tolerance</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. ADDERS -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">4</div>
+      <div class="sec-title">Adders</div>
+      <div class="pill warn">2 issues</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Distance Adder</div>
+          <div class="row-detail">Closer warehouse: <b style="color:var(--text)">Frankfort, IL</b> · <span class="ok">Tier 1 (75–124 mi)</span></div>
+        </div>
+      </div>
+      <div class="dist-pair">
+        <div class="dist-cell"><div class="dist-city">Springfield, IL</div><div class="dist-mi">147 mi</div><div class="dist-tier">Tier 2</div></div>
+        <div class="dist-cell winner"><div class="dist-city">Frankfort, IL</div><div class="dist-mi">98 mi</div><div class="dist-tier">Tier 1 ◄</div></div>
+      </div>
+
+      <div class="row">
+        <div class="row-icon warn">!</div>
+        <div class="row-body">
+          <div class="row-label">Planset vs Podio Adders Reconciliation</div>
+          <div class="row-detail"><span class="warn">2 mismatches</span> — see below</div>
+        </div>
+      </div>
+      <div class="adder"><span class="adder-tag podio">Podio</span><span class="adder-name">MPU (200 AMP)</span><span class="adder-price">$1,850</span></div>
+      <div class="adder"><span class="adder-tag podio">Podio</span><span class="adder-name">Distance Adder T1</span><span class="adder-price">$425</span></div>
+      <div class="adder"><span class="adder-tag detected">Planset</span><span class="adder-name">Trenching (Concrete) — 42 ft</span><span class="adder-price missing">No price · quote needed</span></div>
+      <div class="adder"><span class="adder-tag detected">Planset</span><span class="adder-name">Sub Panel</span><span class="adder-price missing">Missing in Podio · add</span></div>
+      <div class="adder"><span class="adder-tag sold">Sold</span><span class="adder-name">EV Charger Rough-In</span><span class="adder-price">$650</span></div>
+
+    </div>
+  </div>
+
+  <!-- 5. MOBILE HOME CHECK -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">5</div>
+      <div class="sec-title">Mobile Home Check</div>
+      <div class="pill done">Pass</div>
+    </div>
+    <div class="sec-body">
+      <div class="row">
+        <div class="row-icon done">✓</div>
+        <div class="row-body">
+          <div class="row-label">Parcel Classification</div>
+          <div class="row-detail">Regrid land use: <b style="color:var(--text)">Single Family Residential</b> · <span class="ok">not flagged as manufactured housing</span></div>
+        </div>
+      </div>
+      <div class="apn-block">
+        <div class="apn-row">
+          <div class="apn-lbl">APN</div>
+          <div class="apn-val">12-34-567-890-0000</div>
+          <button class="btn-tiny">Copy</button>
+        </div>
+        <a class="apn-link" href="#">↗ Open Vermilion County parcel search for 12-34-567-890-0000</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. FINAL -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-num">6</div>
+      <div class="sec-title">Screenshots & File Copies</div>
+      <div class="pill pending">Pending</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="row">
+        <div class="row-icon pending">○</div>
+        <div class="row-body">
+          <div class="row-label">Labeled Site Plan Screenshot</div>
+          <div class="row-detail">Equipment + trenching labels</div>
+        </div>
+        <div class="row-action"><button class="btn-tiny primary">Generate</button></div>
+      </div>
+
+      <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">Site Survey Report</div><div class="file-status copied">✓ Copied</div></div>
+      <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">LightReach Proposal</div><div class="file-status pending">Copy →</div></div>
+      <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">Battery Acknowledgement</div><div class="file-status pending">Copy →</div></div>
+
+      <div style="padding:10px 16px"><button class="btn-tiny primary" style="width:100%;padding:9px">Copy all to Approved folder</button></div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="cta">
+  <div class="cta-status">
+    <span>3 / 6 groups passing</span>
+    <span style="color:var(--amber)">2 issues need attention</span>
+  </div>
+  <button class="cta-btn locked">🔒 Generate SOW Webform — fix issues first</button>
+  <button class="cta-secondary">Override & generate anyway</button>
+</div>
+
+</body>
+</html>
