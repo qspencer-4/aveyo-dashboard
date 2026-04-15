@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Scope of Work · v2</title>
+<link rel="icon" href="data:,"/>
+<style>
+:root{
+  --blue:#ADD8E6; --blue-dim:rgba(173,216,230,.10); --blue-edge:rgba(173,216,230,.28);
+  --silver:#c8c7bf; --silver-dim:rgba(200,199,191,.10); --silver-edge:rgba(200,199,191,.28);
+  --bg0:#000; --bg:#141413; --bg2:#1c1c1a; --bg3:#262624; --bg4:#3a3a37;
+  --text:#f0efea; --text2:rgba(255,255,255,.6); --text3:rgba(255,255,255,.35); --text4:rgba(255,255,255,.18);
+  --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12); --border3:rgba(255,255,255,.22);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg0);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{padding-bottom:140px}
+a{color:var(--blue);text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+.crumbs{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;color:var(--text4);margin-bottom:10px;flex-wrap:wrap}
+.crumbs a{color:var(--text3);text-decoration:none}
+.crumbs a:hover{color:var(--blue)}
+.crumbs .sep{color:var(--text4);opacity:.5}
+.crumbs .current{color:var(--text2)}
+
+.proj-nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 0;border-top:1px solid var(--border);margin-top:14px}
+.proj-nav-link{font-size:8px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace;background:transparent;border:1px solid var(--border2);color:var(--text3);padding:5px 11px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.proj-nav-link:hover{border-color:var(--blue-edge);color:var(--blue);background:var(--blue-dim)}
+.proj-nav-link.folder{color:var(--silver);border-color:var(--silver-edge);background:var(--silver-dim)}
+.proj-nav-link.folder:hover{color:var(--blue);border-color:var(--blue-edge);background:var(--blue-dim)}
+
+.stage-nav{display:flex;gap:1px;background:var(--border);padding:1px;border:1px solid var(--border2);margin-top:14px;position:sticky;top:0;z-index:49;background-color:var(--bg0)}
+.stage-nav a{flex:1;text-align:center;padding:11px 8px;background:var(--bg);color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;border-bottom:2px solid transparent;transition:all .12s}
+.stage-nav a:hover{color:var(--blue);background:var(--bg2)}
+.stage-nav a .sn-num{font-size:8px;color:var(--text4);letter-spacing:.16em}
+.stage-nav a.done{color:var(--blue);border-bottom-color:var(--blue)}
+.stage-nav a.done .sn-num{color:var(--blue)}
+.stage-nav a.review{color:var(--silver);border-bottom-color:var(--silver)}
+.stage-nav a.review .sn-num{color:var(--silver)}
+
+.sec{background:var(--bg);border:1px solid var(--border);overflow:hidden;margin-bottom:14px}
+.sec-hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.sec-num{width:24px;height:24px;background:var(--bg0);border:1px solid var(--border2);font-size:10px;font-weight:700;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:ui-monospace,Menlo,monospace}
+.sec-title{flex:1;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--text)}
+.pill{font-size:9px;font-weight:700;padding:4px 10px;letter-spacing:.14em;text-transform:uppercase;border:1px solid;font-family:ui-monospace,Menlo,monospace}
+.pill.ok{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-edge)}
+.pill.review{background:var(--silver-dim);color:var(--silver);border-color:var(--silver-edge)}
+.pill.idle{background:transparent;color:var(--text3);border-color:var(--border2)}
+
+.row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:ui-monospace,Menlo,monospace;border:1px solid;cursor:pointer;background:transparent;color:var(--text4);border-color:var(--border2);transition:all .12s;padding:0}
+.row-icon:hover{border-color:var(--blue-edge);color:var(--blue);background:var(--blue-dim)}
+.row-icon.checked{background:var(--blue-dim);color:var(--blue);border-color:var(--blue)}
+.row-icon.checked::before{content:'✓'}
+.row-body{flex:1;min-width:0}
+.row-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.row-detail{font-size:11px;color:var(--text3);line-height:1.5;letter-spacing:.02em}
+.row-detail b{color:var(--text);font-weight:600}
+.row-detail .ok{color:var(--blue)}
+.row-detail .silver{color:var(--silver)}
+
+.btn-tiny{font-size:9px;padding:6px 10px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+.btn-tiny:hover{border-color:var(--blue-edge);color:var(--blue)}
+.btn-tiny.primary{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-edge)}
+
+.tool-rail{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px;margin-bottom:14px}
+.tool-card{background:var(--bg2);border:1px solid var(--border2);padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.tool-icon{width:44px;height:44px;background:var(--bg0);border:1px solid var(--blue-edge);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tool-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5}
+.tool-text .tt-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+.tool-text .tt-desc{font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:.04em}
+
+/* COMMENTS */
+.comments-list{flex:1;overflow-y:auto;min-height:0}
+.comment{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px}
+.comment:last-child{border-bottom:none}
+.comment-avatar{width:30px;height:30px;background:var(--bg0);border:1px solid var(--border2);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:ui-monospace,Menlo,monospace;flex-shrink:0;letter-spacing:.04em}
+.comment-body{flex:1;min-width:0}
+.comment-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:8px}
+.comment-author{font-size:10px;font-weight:700;color:var(--text);letter-spacing:.06em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comment-time{font-size:9px;color:var(--text4);letter-spacing:.04em;font-family:ui-monospace,Menlo,monospace;flex-shrink:0}
+.comment-text{font-size:11px;color:var(--text2);line-height:1.5;letter-spacing:.02em;word-wrap:break-word}
+.comment-text .mention{color:var(--blue);font-weight:600}
+.compose{padding:14px 16px;border-top:1px solid var(--border2);background:var(--bg2)}
+.compose textarea{width:100%;min-height:64px;background:var(--bg0);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:11px;padding:10px 12px;resize:vertical;outline:none;letter-spacing:.02em;line-height:1.5}
+.compose textarea:focus{border-color:var(--blue-edge)}
+.compose-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}
+.compose-hint{font-size:9px;color:var(--text4);letter-spacing:.06em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+.compose .compose-status{font-size:9px;color:var(--silver);letter-spacing:.06em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+
+.frame{max-width:1680px;margin:0 auto;padding:0 24px}
+.dsk-hdr{background:var(--bg0);border:1px solid var(--border2);margin-top:14px;padding:18px 22px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.dsk-hdr-left .dsk-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.dsk-hdr-left .dsk-sub{font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:.04em}
+.dsk-hdr-meta{display:flex;gap:0;align-items:center}
+.dsk-meta-cell{text-align:center;border-left:1px solid var(--border2);padding:0 22px}
+.dsk-meta-cell:first-child{border-left:none}
+.dsk-meta-cell .m-lbl{font-size:8px;color:var(--text4);text-transform:uppercase;letter-spacing:.16em;font-weight:700;font-family:ui-monospace,Menlo,monospace}
+.dsk-meta-cell .m-val{font-size:16px;font-weight:700;color:var(--text);font-family:ui-monospace,Menlo,monospace;margin-top:4px}
+.dsk-meta-cell .m-val.blue{color:var(--blue)}
+
+.dsk-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start;margin-top:14px}
+.dsk-main{min-width:0}
+.dsk-side{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+.dsk-side .sec{display:flex;flex-direction:column;flex:1;min-height:0;margin-bottom:0}
+@media(max-width:1280px){.dsk-body{grid-template-columns:minmax(0,1fr) 320px}}
+
+.dsk-cta{position:fixed;bottom:0;left:0;right:0;background:var(--bg0);border-top:1px solid var(--border3);padding:18px 24px;z-index:60}
+.dsk-cta-inner{max-width:1680px;margin:0 auto;display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center}
+.dsk-cta-status{display:flex;gap:24px;align-items:center}
+.dsk-cta-status .s-cell{display:flex;align-items:center;gap:10px}
+.dsk-cta-status .s-lbl{font-size:8px;color:var(--text4);text-transform:uppercase;letter-spacing:.16em;font-weight:700;font-family:ui-monospace,Menlo,monospace}
+.dsk-cta-status .s-val{font-size:13px;font-weight:700;color:var(--text);font-family:ui-monospace,Menlo,monospace}
+.dsk-cta-status .s-val.silver{color:var(--silver)}
+.dsk-cta-status .s-val.blue{color:var(--blue)}
+.dsk-btn-secondary{padding:14px 22px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+.dsk-btn-primary{padding:14px 28px;background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+
+.loading{padding:40px;text-align:center;font-size:9px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+.error{padding:18px;background:var(--silver-dim);border:1px solid var(--silver-edge);color:var(--silver);font-size:11px;letter-spacing:.04em;font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- HEADER -->
+  <div class="dsk-hdr">
+    <div class="dsk-hdr-left">
+      <div class="crumbs">
+        <a href="/aveyo-dashboard.html">Dashboard</a><span class="sep">/</span>
+        <a href="/aveyo-dashboard.html#sow">Scope of Work</a><span class="sep">/</span>
+        <span class="current" id="hdr-current">Loading…</span>
+      </div>
+      <div class="dsk-title" id="hdr-title">Loading project…</div>
+      <div class="dsk-sub" id="hdr-sub">&nbsp;</div>
+    </div>
+    <div class="dsk-hdr-meta" id="hdr-meta">
+      <div class="dsk-meta-cell"><div class="m-lbl">Stage</div><div class="m-val blue">SOW</div></div>
+    </div>
+    <div class="proj-nav" id="proj-nav" style="grid-column:1/-1"></div>
+  </div>
+
+  <!-- STAGE NAV -->
+  <nav class="stage-nav">
+    <a href="#stage-1" data-stage="1"><span class="sn-num">01</span>Cross-Match</a>
+    <a href="#stage-2" data-stage="2"><span class="sn-num">02</span>Roof &amp; Structure</a>
+    <a href="#stage-3" data-stage="3"><span class="sn-num">03</span>Production</a>
+    <a href="#stage-4" data-stage="4"><span class="sn-num">04</span>Adders</a>
+    <a href="#stage-5" data-stage="5"><span class="sn-num">05</span>Mobile Home</a>
+    <a href="#stage-6" data-stage="6"><span class="sn-num">06</span>Final</a>
+  </nav>
+
+  <div class="dsk-body">
+    <div class="dsk-main">
+
+      <!-- TOOL RAIL -->
+      <div class="tool-rail">
+        <div class="tool-card"><div class="tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div class="tool-text"><div class="tt-title">Layout Compare</div><div class="tt-desc">Proposal vs Planset</div></div><button class="btn-tiny primary">Open</button></div>
+        <div class="tool-card"><div class="tool-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="tool-text"><div class="tt-title">Site Survey</div><div class="tt-desc">Photos &amp; report</div></div><button class="btn-tiny primary">Open</button></div>
+        <div class="tool-card"><div class="tool-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="tool-text"><div class="tt-title">Screenshot Tool</div><div class="tt-desc">Label site plan</div></div><button class="btn-tiny primary">Open</button></div>
+        <div class="tool-card"><div class="tool-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="tool-text"><div class="tt-title">Approved Folder</div><div class="tt-desc">Open in Drive</div></div><a class="btn-tiny primary" id="folder-link" href="#" target="_blank">Open</a></div>
+      </div>
+
+      <!-- STAGE 1: CROSS-MATCH -->
+      <div class="sec" id="stage-1" data-section="1">
+        <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title">Cross-Match Verification</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">System Size</div><div class="row-detail">Verify Podio · Planset · LightReach · Aurora (Sold) all match</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail">LightReach is source of truth — confirm Podio matches</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Design Layout</div><div class="row-detail">Compare proposal &amp; planset layouts — open the Layout Compare tool above</div></div></div>
+      </div>
+
+      <!-- STAGE 2: ROOF & STRUCTURE -->
+      <div class="sec" id="stage-2" data-section="2">
+        <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title">Roof &amp; Structure</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Structural Upgrade</div><div class="row-detail">Read PE letter — &quot;structure is adequate&quot; means no upgrade adder needed</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Roof Condition</div><div class="row-detail">Review site survey photos &amp; decide if install-ready</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copy the Site Survey Report PDF into the Approved folder</div></div></div>
+      </div>
+
+      <!-- STAGE 3: PRODUCTION -->
+      <div class="sec" id="stage-3" data-section="3">
+        <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title">Production Tolerance</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment + Lidar</div><div class="row-detail">Aurora &amp; planset reference same panel + inverter · Lidar enabled in Aurora</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Tilt Reconciliation</div><div class="row-detail">Plans · Aurora · Site Survey photos must agree (Site Survey is ground truth)</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Production within −5% / +10%</div><div class="row-detail">Re-simulate Aurora and compare to LightReach kWh</div></div></div>
+      </div>
+
+      <!-- STAGE 4: ADDERS -->
+      <div class="sec" id="stage-4" data-section="4">
+        <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title">Adders</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Distance Adder</div><div class="row-detail">Compute miles to Springfield + Frankfort, take shorter, match tier</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Planset Adders</div><div class="row-detail">Scrape planset, reconcile against project's Adders in Podio</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Pricing</div><div class="row-detail">Quote any adders flagged &quot;Missing Price?&quot; in Podio</div></div></div>
+      </div>
+
+      <!-- STAGE 5: MOBILE HOME -->
+      <div class="sec" id="stage-5" data-section="5">
+        <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title">Mobile Home Check</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Verify on County Records</div><div class="row-detail">Enter APN, search county records, confirm not a manufactured home</div></div></div>
+        <div style="padding:14px 16px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace">APN</div>
+            <input id="apn-input" type="text" placeholder="Enter APN…" style="flex:1;background:var(--bg0);border:1px solid var(--border2);color:var(--text);font-family:ui-monospace,Menlo,monospace;font-size:13px;padding:9px 12px;letter-spacing:.04em;outline:none"/>
+            <button class="btn-tiny primary" id="apn-search">↗ Google County Search</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 6: FINAL -->
+      <div class="sec" id="stage-6" data-section="6">
+        <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title">Screenshots &amp; File Copies</div><div class="pill review">PM Review</div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Labeled Site Plan</div><div class="row-detail">Use the screenshot tool to label equipment + trenching</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copied during stage 02</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Proposal → Approved</div><div class="row-detail">Copy LightReach proposal PDF</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Battery Acknowledgement → Approved</div><div class="row-detail">Copy battery ack form (tells you the battery adder)</div></div></div>
+      </div>
+
+    </div>
+
+    <!-- COMMENTS SIDEBAR -->
+    <aside class="dsk-side">
+      <div class="sec">
+        <div class="sec-hdr"><div class="sec-num" style="color:var(--silver)">¶</div><div class="sec-title">Project Comments</div><div class="pill idle" id="comment-count">…</div></div>
+        <div class="comments-list" id="comments-list"><div class="loading">Loading…</div></div>
+        <div class="compose">
+          <textarea id="compose-text" placeholder="Add a comment to this project… use @ to mention"></textarea>
+          <div class="compose-actions">
+            <span class="compose-hint" id="compose-hint">⌘+↩ to post</span>
+            <button class="btn-tiny primary" id="compose-post">Post</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="dsk-cta">
+  <div class="dsk-cta-inner">
+    <div class="dsk-cta-status">
+      <div class="s-cell"><div class="s-lbl">Sections</div><div class="s-val" id="status-sections">0 / 6</div></div>
+      <div class="s-cell"><div class="s-lbl">Status</div><div class="s-val blue" id="status-text">Tools ready</div></div>
+    </div>
+    <button class="dsk-btn-secondary">Save Draft</button>
+    <button class="dsk-btn-primary">⌧ Generate SOW Webform</button>
+  </div>
+</div>
+
+<script>
+const API = 'https://aveyo.aiwhileyousleeping.com';
+const params = new URLSearchParams(location.search);
+const SOW_ITEM_ID = params.get('sow') || params.get('id');
+const $ = sel => document.querySelector(sel);
+const x = s => String(s||'').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+
+let PROJECT = null;
+
+async function loadProject(){
+  if(!SOW_ITEM_ID){
+    document.querySelector('.dsk-main').innerHTML = '<div class="error">No <code>?sow=&lt;sow_item_id&gt;</code> in URL. Open this page from the SOW queue.</div>';
+    return;
+  }
+  try{
+    const r = await fetch(`${API}/sow/v2/project/${SOW_ITEM_ID}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Failed to load project');
+    PROJECT = d;
+    renderHeader(d);
+    renderProjNav(d);
+    loadComments(d.project_item_id);
+  }catch(e){
+    document.querySelector('.dsk-main').insertAdjacentHTML('afterbegin', `<div class="error">Project load failed: ${x(e.message)}</div>`);
+  }
+}
+
+function renderHeader(d){
+  $('#hdr-current').textContent = d.project_id_display || `#${d.sow_item_id}`;
+  $('#hdr-title').textContent = `${d.project_id_display || ''} · ${(d.name || '').toUpperCase()}`.trim();
+  $('#hdr-sub').textContent = [d.address, d.finance_id ? `LightReach · ${d.finance_id}` : null].filter(Boolean).join(' · ');
+  document.title = `SOW · ${d.project_id_display || d.name || d.sow_item_id}`;
+
+  // Meta cells — extract from funding_raw markdown
+  const meta = $('#hdr-meta');
+  meta.innerHTML = '';
+  const cells = [];
+  const raw = d.funding_raw || '';
+  const price = raw.match(/Contract Price:\s*\*\*\s*\$?([\d,.]+)/i);
+  const lender = raw.match(/Lender:\s*\*\*\s*([^\n*]+)/i);
+  if(price) cells.push({ lbl:'Contract', val:'$'+Math.round(parseFloat(price[1])).toLocaleString() });
+  if(lender) cells.push({ lbl:'Lender', val:lender[1].trim() });
+  if(d.lat && d.lng) cells.push({ lbl:'Coords', val:`${parseFloat(d.lat).toFixed(2)}, ${parseFloat(d.lng).toFixed(2)}` });
+  cells.push({ lbl:'Stage', val:'SOW', cls:'blue' });
+  meta.innerHTML = cells.map(c => `<div class="dsk-meta-cell"><div class="m-lbl">${x(c.lbl)}</div><div class="m-val ${c.cls||''}">${x(c.val)}</div></div>`).join('');
+
+  // Approved folder link in tool rail
+  if(d.folders && d.folders.approved) $('#folder-link').href = d.folders.approved;
+}
+
+function renderProjNav(d){
+  const nav = $('#proj-nav');
+  let html = '';
+  if(d.folders && d.folders.approved) html += `<a class="proj-nav-link folder" href="${x(d.folders.approved)}" target="_blank">↗ Approved Folder</a>`;
+  if(d.folders && d.folders.customer_docs) html += `<a class="proj-nav-link folder" href="${x(d.folders.customer_docs)}" target="_blank">↗ Customer Docs</a>`;
+  if(d.folders && d.folders.site_survey) html += `<a class="proj-nav-link folder" href="${x(d.folders.site_survey)}" target="_blank">↗ Site Survey</a>`;
+  if(d.proj_nav && d.proj_nav.length){
+    d.proj_nav.forEach(l => { html += `<a class="proj-nav-link" href="${x(l.url)}" target="_blank">${x(l.label)}</a>`; });
+  } else if(d.podio_links) {
+    html += `<a class="proj-nav-link" href="${x(d.podio_links.project_item)}" target="_blank">Project</a>`;
+    html += `<a class="proj-nav-link" href="${x(d.podio_links.sow_item)}" target="_blank">SOW</a>`;
+  }
+  nav.innerHTML = html;
+}
+
+// ────── COMMENTS ──────
+function timeAgo(iso){
+  if(!iso) return '';
+  const dt = new Date(iso.replace(' ', 'T') + 'Z');
+  const sec = Math.floor((Date.now() - dt.getTime()) / 1000);
+  if(sec < 60) return sec + 's';
+  if(sec < 3600) return Math.floor(sec/60) + 'm';
+  if(sec < 86400) return Math.floor(sec/3600) + 'h';
+  if(sec < 86400*7) return Math.floor(sec/86400) + 'd';
+  return dt.toLocaleDateString();
+}
+function initials(name){
+  return (name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0].toUpperCase()).join('') || '?';
+}
+function renderCommentText(t){
+  return x(t).replace(/(@\w+)/g, '<span class="mention">$1</span>').replace(/\n/g, '<br>');
+}
+
+async function loadComments(projectItemId){
+  try{
+    const r = await fetch(`${API}/sow/v2/comments/${projectItemId}`);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Failed');
+    const list = $('#comments-list');
+    $('#comment-count').textContent = (d.comments || []).length;
+    if(!d.comments.length){
+      list.innerHTML = '<div class="loading">No comments yet</div>';
+      return;
+    }
+    list.innerHTML = d.comments.map(c => `
+      <div class="comment">
+        <div class="comment-avatar">${x(initials(c.author))}</div>
+        <div class="comment-body">
+          <div class="comment-meta"><span class="comment-author">${x(c.author)}</span><span class="comment-time">${x(timeAgo(c.created_on))}</span></div>
+          <div class="comment-text">${renderCommentText(c.value)}</div>
+        </div>
+      </div>
+    `).join('');
+  }catch(e){
+    $('#comments-list').innerHTML = `<div class="error">${x(e.message)}</div>`;
+  }
+}
+
+$('#compose-post').addEventListener('click', postComment);
+$('#compose-text').addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){ e.preventDefault(); postComment(); }
+});
+
+async function postComment(){
+  if(!PROJECT) return;
+  const ta = $('#compose-text');
+  const value = ta.value.trim();
+  if(!value) return;
+  const btn = $('#compose-post');
+  const hint = $('#compose-hint');
+  btn.disabled = true; btn.textContent = 'Posting…'; hint.textContent = '';
+  try{
+    const r = await fetch(`${API}/sow/v2/comments/${PROJECT.project_item_id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Failed');
+    ta.value = '';
+    hint.textContent = 'Posted ✓';
+    setTimeout(() => { hint.textContent = '⌘+↩ to post'; }, 2000);
+    loadComments(PROJECT.project_item_id);
+  }catch(e){
+    hint.textContent = 'Error: ' + e.message;
+  }finally{
+    btn.disabled = false; btn.textContent = 'Post';
+  }
+}
+
+// ────── CHECK TOGGLES (localStorage for now) ──────
+const CHECK_KEY = `sow-checks-${SOW_ITEM_ID}`;
+function loadChecks(){
+  try{ return JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); }catch{ return {}; }
+}
+function saveChecks(state){ localStorage.setItem(CHECK_KEY, JSON.stringify(state)); }
+function hydrateChecks(){
+  const state = loadChecks();
+  document.querySelectorAll('[data-section]').forEach(sec => {
+    sec.querySelectorAll('.row-icon').forEach((btn, i) => {
+      const key = sec.id + ':' + i;
+      if(state[key]) btn.classList.add('checked');
+    });
+    refreshSection(sec);
+  });
+}
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.row-icon');
+  if(!btn) return;
+  btn.classList.toggle('checked');
+  const sec = btn.closest('[data-section]');
+  if(sec){
+    const idx = Array.from(sec.querySelectorAll('.row-icon')).indexOf(btn);
+    const state = loadChecks();
+    state[sec.id + ':' + idx] = btn.classList.contains('checked');
+    saveChecks(state);
+    refreshSection(sec);
+    refreshOverall();
+  }
+});
+function refreshSection(sec){
+  const checks = sec.querySelectorAll('.row-icon');
+  if(!checks.length) return;
+  const total = checks.length;
+  const done = sec.querySelectorAll('.row-icon.checked').length;
+  const pill = sec.querySelector('.sec-hdr .pill');
+  if(pill){
+    pill.classList.remove('ok','review','idle');
+    if(done === total){ pill.classList.add('ok'); pill.textContent = 'Verified'; }
+    else if(done > 0){ pill.classList.add('review'); pill.textContent = `${done} / ${total}`; }
+    else{ pill.classList.add('review'); pill.textContent = 'PM Review'; }
+  }
+  const stage = sec.dataset.section;
+  document.querySelectorAll('.stage-nav a').forEach(a => {
+    if(a.getAttribute('href') === '#stage-' + stage){
+      a.classList.remove('done','review');
+      if(done === total) a.classList.add('done');
+      else if(done > 0) a.classList.add('review');
+    }
+  });
+}
+function refreshOverall(){
+  const sections = document.querySelectorAll('[data-section]');
+  let done = 0;
+  sections.forEach(sec => {
+    const checks = sec.querySelectorAll('.row-icon');
+    if(checks.length && checks.length === sec.querySelectorAll('.row-icon.checked').length) done++;
+  });
+  $('#status-sections').textContent = `${done} / ${sections.length}`;
+}
+
+// APN search
+$('#apn-search').addEventListener('click', () => {
+  const apn = ($('#apn-input').value || '').trim();
+  if(!apn || !PROJECT){ alert('Enter an APN first.'); return; }
+  // Extract county from address — last segment before zip is "City, State zip"; we'll use a generic search
+  const q = encodeURIComponent(`${PROJECT.address || ''} parcel APN ${apn} county records`);
+  window.open(`https://www.google.com/search?q=${q}`, '_blank');
+});
+
+// init
+loadProject().then(hydrateChecks);
+</script>
+</body>
+</html>
