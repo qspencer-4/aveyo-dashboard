@@ -5120,7 +5120,7 @@ function openSOWDetail(itemId){
   SOW_CURRENT_ITEM = item;
   // SOW v2 embed — new tool-palette layout served from sow-v2.html
   const body = document.getElementById('sow-detail-body');
-  body.innerHTML = '<iframe src="sow-v2.html?sow=' + itemId + '" style="width:100%;height:calc(100vh - 110px);border:none;display:block;background:#000" title="SOW v2"></iframe>';
+  body.innerHTML = '<iframe src="sow-v2.html?sow=' + itemId + '&v=' + Date.now() + '" style="width:100%;height:calc(100vh - 110px);border:none;display:block;background:#000" title="SOW v2"></iframe>';
   document.querySelector('.sow-toolbar').style.display = 'none';
   document.getElementById('sow-detail').style.display='block';
   document.getElementById('sow-detail').scrollIntoView({behavior:'smooth'});
