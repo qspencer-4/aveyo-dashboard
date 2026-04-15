@@ -161,6 +161,16 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
     </div>
     <div class="dsk-hdr-meta" id="hdr-meta">
       <div class="dsk-meta-cell"><div class="m-lbl">Stage</div><div class="m-val blue">SOW</div></div>
+      <div class="dsk-meta-cell" id="hdr-status-cell"><div class="m-lbl">SOW Status</div><div class="m-val" id="hdr-status">—</div></div>
+      <div class="dsk-meta-cell" id="hdr-permit-cell"><div class="m-lbl">Permit Pkg</div><div class="m-val" id="hdr-permit">—</div></div>
+    </div>
+    <div id="kickback-banner" style="display:none;grid-column:1/-1;margin-top:10px;padding:12px 14px;background:rgba(224,112,112,.12);border:1px solid rgba(224,112,112,.5);color:#ffb3b3;font-family:ui-monospace,Menlo,monospace;font-size:12px">
+      <div style="letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:4px">⚠ Design Revision Kickback Active</div>
+      <div style="font-size:11px;color:#ffd0d0;margin-bottom:8px">Decide if this revision impacts the SOW (adders, layout, pricing) or not.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-tiny" id="kickback-impact">SOW-impacting → regenerate webform</button>
+        <button class="btn-tiny primary" id="kickback-no-impact">Not impacting → Aveyo Approved</button>
+      </div>
     </div>
     <div class="proj-nav" id="proj-nav" style="grid-column:1/-1"></div>
   </div>
@@ -193,7 +203,33 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
         <div id="cm-size-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);padding:1px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail" id="cm-price">Loading…</div></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment</div><div class="row-detail" id="cm-equipment">Loading…</div></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Design Layout</div><div class="row-detail">Compare proposal &amp; planset layouts side-by-side — Layout Compare tool (Phase 2)</div></div></div>
+        <div class="row" id="design-match-row">
+          <button class="row-icon" type="button"></button>
+          <div class="row-body">
+            <div class="row-label">Design Layout Matches?</div>
+            <div class="row-detail">Compare the proposal layout vs the planset layout — identical panel layout means Yes. If ANY panel moved, choose No and describe the change.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-tiny" id="design-yes">Yes</button>
+            <button class="btn-tiny" id="design-no">No</button>
+          </div>
+        </div>
+        <div id="design-no-panel" style="display:none;padding:12px 16px;border-top:1px solid var(--border);background:rgba(201,120,80,.08)">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="font-size:8px;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace">Change Type</div>
+            <select id="design-change-type" style="background:var(--bg0);border:1px solid var(--border2);color:var(--text);font-family:ui-monospace,Menlo,monospace;font-size:12px;padding:7px 10px;outline:none">
+              <option value="">—</option>
+              <option value="panel_count">Panel count changed</option>
+              <option value="array_relocation">Array relocation / new roof face</option>
+              <option value="tilt">Tilt/pitch changed</option>
+              <option value="orientation">Azimuth / orientation changed</option>
+              <option value="other">Other</option>
+            </select>
+            <input id="design-change-note" type="text" placeholder="Note (optional)…" style="flex:1;min-width:180px;background:var(--bg0);border:1px solid var(--border2);color:var(--text);font-family:ui-monospace,Menlo,monospace;font-size:12px;padding:7px 10px;outline:none"/>
+            <button class="btn-tiny primary" id="design-save">Save</button>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#e0a070;font-family:ui-monospace,Menlo,monospace">⚠ Layout changed — a Design Revision may be required before continuing. Use the Kickback controls in the header if one is already open.</div>
+        </div>
       </div>
 
       <!-- STAGE 2: ROOF & STRUCTURE -->
@@ -289,8 +325,9 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <div class="s-cell"><div class="s-lbl">Sections</div><div class="s-val" id="status-sections">0 / 6</div></div>
       <div class="s-cell"><div class="s-lbl">Status</div><div class="s-val blue" id="status-text">Tools ready</div></div>
     </div>
-    <button class="dsk-btn-secondary">Save Draft</button>
-    <button class="dsk-btn-primary">⌧ Generate SOW Webform</button>
+    <button class="dsk-btn-secondary" id="btn-create-webform" disabled>⌧ Generate SOW Webform (Created)</button>
+    <button class="dsk-btn-secondary" id="btn-send-rep" disabled>↗ Send to Rep</button>
+    <button class="dsk-btn-primary" id="btn-aveyo-approved" disabled>✓ Aveyo Approved</button>
   </div>
 </div>
 
@@ -408,10 +445,115 @@ function renderHeader(d){
   if(lender) cells.push({ lbl:'Lender', val:lender[1].trim() });
   if(d.lat && d.lng) cells.push({ lbl:'Coords', val:`${parseFloat(d.lat).toFixed(2)}, ${parseFloat(d.lng).toFixed(2)}` });
   cells.push({ lbl:'Stage', val:'SOW', cls:'blue' });
+
+  // Phase B/C — SOW status rail pill + Permit Package Design badge
+  const statePretty = {
+    not_ready:'Not Ready', ready_to_create:'Ready to Create', created:'Created',
+    sent_rep:'Sent to Rep', approved_rep:'Rep Approved', sent_customer:'Sent to Customer',
+    approved_customer:'Customer Approved', approved_ops:'Aveyo Approved'
+  };
+  const stateClass = {
+    not_ready:'silver', ready_to_create:'silver', created:'blue', sent_rep:'blue',
+    approved_rep:'ok', sent_customer:'blue', approved_customer:'ok', approved_ops:'ok'
+  };
+  if(d.status_rail){
+    const st = d.status_rail;
+    // Derive locally the same way the backend /webform/status does (for the /project fallback)
+    let state = 'not_ready';
+    if(st.ops_forced_approval === 'Approved') state = 'approved_ops';
+    else if(st.customer_approval === 'Approved' || st.customer_sow_status === 'Approved') state = 'approved_customer';
+    else if(st.customer_sow_status === 'Sent to Customer') state = 'sent_customer';
+    else if(st.rep_scope_approval === 'Approved') state = 'approved_rep';
+    else if(st.rep_scope_approval === 'Sent for Approval') state = 'sent_rep';
+    else if(st.rep_scope_creation === 'Created') state = 'created';
+    else if(st.rep_scope_creation === 'Ready to be Created') state = 'ready_to_create';
+    cells.push({ lbl:'SOW Status', val: statePretty[state] || state, cls: stateClass[state] || '' });
+    // Kickback banner — revision open
+    if(st.revision_status === 'Open'){
+      const kb = $('#kickback-banner');
+      if(kb) kb.style.display = 'block';
+    }
+  }
+  const pp = d.permit_package_design;
+  if(pp && pp.slug){
+    const ppCls = {approved:'ok', rejected:'danger', submitted:'blue', ready:'silver', na:'silver'}[pp.slug] || 'silver';
+    cells.push({ lbl:'Permit Pkg', val: pp.label || '—', cls: ppCls });
+  }
+
   meta.innerHTML = cells.map(c => `<div class="dsk-meta-cell"><div class="m-lbl">${x(c.lbl)}</div><div class="m-val ${c.cls||''}">${x(c.val)}</div></div>`).join('');
+
+  // Action bar enablement
+  const st = d.status_rail || {};
+  const canCreate = (st.rep_scope_creation == null || st.rep_scope_creation === 'Not Ready' || st.rep_scope_creation === 'Ready to be Created');
+  const canSend = (st.rep_scope_creation === 'Created' && (st.rep_scope_approval == null || st.rep_scope_approval === 'Ready to Send'));
+  const canAveyoApprove = (st.revision_status === 'Open' && st.ops_forced_approval !== 'Approved');
+  const b1 = $('#btn-create-webform'); if(b1) b1.disabled = !canCreate;
+  const b2 = $('#btn-send-rep'); if(b2) b2.disabled = !canSend;
+  const b3 = $('#btn-aveyo-approved'); if(b3) b3.disabled = !canAveyoApprove;
 
   // Approved folder link in tool rail
   if(d.folders && d.folders.approved) $('#folder-link').href = d.folders.approved;
+}
+
+// ── Phase B stage+confirm action helpers ────────────────────
+async function sowWrite(path, label){
+  if(!SOW_ITEM_ID) return;
+  // Stage
+  const r1 = await fetch(`${API}${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+  const d1 = await r1.json();
+  if(d1.status === 'error'){ alert(`${label} failed: ${d1.message}`); return; }
+  const confirmMsg = `${label}\n\nThis will write:\n${JSON.stringify(d1.would_write, null, 2)}\n\nProceed?`;
+  if(!confirm(confirmMsg)) return;
+  // Confirm
+  const r2 = await fetch(`${API}${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({confirm:true}) });
+  const d2 = await r2.json();
+  if(d2.status === 'ok'){
+    alert(`${label} applied. Refreshing…`);
+    loadProject().then(() => { hydrateChecks(); loadPropertyReport(); });
+  } else {
+    alert(`${label} failed: ${d2.message || 'unknown'}`);
+  }
+}
+
+function wireActions(){
+  const b1 = $('#btn-create-webform');
+  if(b1) b1.addEventListener('click', () => sowWrite(`/sow/v2/webform/create/${SOW_ITEM_ID}`, 'Generate SOW Webform'));
+  const b2 = $('#btn-send-rep');
+  if(b2) b2.addEventListener('click', () => sowWrite(`/sow/v2/webform/send-to-rep/${SOW_ITEM_ID}`, 'Send SOW to Rep'));
+  const b3 = $('#btn-aveyo-approved');
+  if(b3) b3.addEventListener('click', () => sowWrite(`/sow/v2/webform/aveyo-approved/${SOW_ITEM_ID}`, 'Aveyo Approved (OPS)'));
+  const ki = $('#kickback-impact');
+  if(ki) ki.addEventListener('click', () => { document.getElementById('stage-1')?.scrollIntoView({behavior:'smooth'}); alert('Re-verify Groups 1–5, then use "Send to Rep" once ready.'); });
+  const kni = $('#kickback-no-impact');
+  if(kni) kni.addEventListener('click', () => sowWrite(`/sow/v2/webform/aveyo-approved/${SOW_ITEM_ID}`, 'Aveyo Approved (OPS)'));
+
+  // Phase D — Design Matches Yes/No branch
+  const dy = $('#design-yes');
+  const dn = $('#design-no');
+  const panel = $('#design-no-panel');
+  async function saveDesignMatches(verdict, extras){
+    const body = { key: 'design_matches', value: { verdict, ...(extras||{}) } };
+    const r = await fetch(`${API}/sow/v2/checks/${SOW_ITEM_ID}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    return r.json();
+  }
+  if(dy) dy.addEventListener('click', async () => {
+    if(panel) panel.style.display = 'none';
+    dy.classList.add('primary'); if(dn) dn.classList.remove('primary');
+    await saveDesignMatches('yes');
+  });
+  if(dn) dn.addEventListener('click', () => {
+    if(panel) panel.style.display = 'block';
+    dn.classList.add('primary'); if(dy) dy.classList.remove('primary');
+  });
+  const ds = $('#design-save');
+  if(ds) ds.addEventListener('click', async () => {
+    const reason = ($('#design-change-type')||{}).value || '';
+    const note = ($('#design-change-note')||{}).value || '';
+    if(!reason){ alert('Pick a change type.'); return; }
+    const r = await saveDesignMatches('no', {reason, note});
+    if(r.status === 'ok'){ ds.textContent = '✓ Saved'; setTimeout(()=>ds.textContent='Save', 1500); }
+    else alert('Save failed: ' + (r.message||'unknown'));
+  });
 }
 
 function renderProjNav(d){
@@ -1028,6 +1170,7 @@ async function loadPropertyReport(){
 }
 
 // init
+wireActions();
 loadProject().then(() => { hydrateChecks(); loadPropertyReport(); });
 </script>
 </body>
