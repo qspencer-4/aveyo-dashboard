@@ -3811,6 +3811,11 @@ async function palmettoLookup(financeId){
     const quotes = await quotesRes.json();
     const activeQuote = (quotes||[]).find(q=>q.status==='active')||quotes?.[0]||{};
     const sd = acct.systemDetails||{};
+    // Non-DC contract price: Podio SOW prices are entered without the Domestic Content uplift,
+    // so the verification compares against effectivePPWRateWithoutDomesticContent × size.
+    const sizeKw = activeQuote.systemSizeKw || sd.systemSizeKw;
+    const ppwNonDc = activeQuote.effectivePPWRateWithoutDomesticContent;
+    const totalCostNonDc = (ppwNonDc && sizeKw) ? Math.round(ppwNonDc * sizeKw * 1000 * 100) / 100 : null;
     const result = {
       systemSizeKw: sd.systemSizeKw,
       panelManufacturer: sd.panelManufacturer,
@@ -3818,7 +3823,11 @@ async function palmettoLookup(financeId){
       totalPanelCount: sd.totalPanelCount,
       inverters: sd.inverters||[],
       productionKwh: sd.systemFirstYearProductionKwh,
-      totalSystemCost: activeQuote.totalSystemCost,
+      totalSystemCost: totalCostNonDc != null ? totalCostNonDc : activeQuote.totalSystemCost,
+      totalSystemCostDc: activeQuote.totalSystemCost,
+      totalSystemCostNonDc: totalCostNonDc,
+      effectivePPWRate: activeQuote.effectivePPWRate,
+      effectivePPWRateNonDc: ppwNonDc,
       pricePerWatt: activeQuote.pricePerWatt,
       kwhPrice: activeQuote.kwhPrice,
       escalationRate: activeQuote.escalationRate,
