@@ -3811,11 +3811,20 @@ async function palmettoLookup(financeId){
     const quotes = await quotesRes.json();
     const activeQuote = (quotes||[]).find(q=>q.status==='active')||quotes?.[0]||{};
     const sd = acct.systemDetails||{};
-    // Non-DC contract price: Podio SOW prices are entered without the Domestic Content uplift,
-    // so the verification compares against effectivePPWRateWithoutDomesticContent × size.
+    // Non-DC contract price: Podio SOW prices are entered without the Domestic Content uplift.
+    // LightReach's totalSystemCost is derived from an unrounded DC PPW, so recomputing from
+    // the rounded ppwNonDc drifts by a few dollars. Subtract the DC uplift from the DC total.
     const sizeKw = activeQuote.systemSizeKw || sd.systemSizeKw;
+    const ppwDc = activeQuote.effectivePPWRate;
     const ppwNonDc = activeQuote.effectivePPWRateWithoutDomesticContent;
-    const totalCostNonDc = (ppwNonDc && sizeKw) ? Math.round(ppwNonDc * sizeKw * 1000 * 100) / 100 : null;
+    const totalCostDc = activeQuote.totalSystemCost;
+    let totalCostNonDc = null;
+    if (totalCostDc != null && ppwDc && ppwNonDc && sizeKw) {
+      const uplift = (ppwDc - ppwNonDc) * sizeKw * 1000;
+      totalCostNonDc = Math.round((totalCostDc - uplift) * 100) / 100;
+    } else if (ppwNonDc && sizeKw) {
+      totalCostNonDc = Math.round(ppwNonDc * sizeKw * 1000 * 100) / 100;
+    }
     const result = {
       systemSizeKw: sd.systemSizeKw,
       panelManufacturer: sd.panelManufacturer,
