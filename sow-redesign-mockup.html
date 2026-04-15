@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SOW Tab — Redesign Mockup v3</title>
+<title>SOW Tab — Redesign Mockup v4</title>
 <style>
   /* strict palette: silver / white / black / lightblue only */
   :root{
@@ -47,10 +47,12 @@
   /* ROW */
   .row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border)}
   .row:last-child{border-bottom:none}
-  .row-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;font-family:ui-monospace,Menlo,monospace;border:1px solid}
-  .row-icon.ok{background:var(--blue-dim);color:var(--blue);border-color:var(--blue)}
+  .row-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:0;font-family:ui-monospace,Menlo,monospace;border:1px solid;cursor:pointer;background:transparent;color:var(--text4);border-color:var(--border2);transition:all .12s;padding:0}
+  .row-icon:hover{border-color:var(--blue-edge);color:var(--blue);background:var(--blue-dim)}
+  .row-icon.checked{background:var(--blue-dim);color:var(--blue);border-color:var(--blue)}
+  .row-icon.checked::before{content:'✓'}
+  .row-icon.idle::before{content:''}
   .row-icon.review{background:var(--silver-dim);color:var(--silver);border-color:var(--silver)}
-  .row-icon.idle{background:transparent;color:var(--text4);border-color:var(--border2)}
   .row-body{flex:1;min-width:0}
   .row-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
   .row-detail{font-size:11px;color:var(--text3);line-height:1.5;letter-spacing:.02em}
@@ -153,6 +155,23 @@
   .file-status.copied{color:var(--blue)}
   .file-status.pending{color:var(--text3)}
 
+  /* BREADCRUMB */
+  .crumbs{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;color:var(--text4);margin-bottom:10px}
+  .crumbs a{color:var(--text3);text-decoration:none}
+  .crumbs a:hover{color:var(--blue)}
+  .crumbs .sep{color:var(--text4);opacity:.5}
+  .crumbs .current{color:var(--text2)}
+
+  /* STAGE NAV */
+  .stage-nav{display:flex;gap:1px;background:var(--border);padding:1px;border:1px solid var(--border2);margin-top:14px;position:sticky;top:0;z-index:49;background-color:var(--bg0)}
+  .stage-nav a{flex:1;text-align:center;padding:11px 8px;background:var(--bg);color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;border-bottom:2px solid transparent;transition:all .12s}
+  .stage-nav a:hover{color:var(--blue);background:var(--bg2)}
+  .stage-nav a .sn-num{font-size:8px;color:var(--text4);letter-spacing:.16em}
+  .stage-nav a.done{color:var(--blue);border-bottom-color:var(--blue)}
+  .stage-nav a.done .sn-num{color:var(--blue)}
+  .stage-nav a.review{color:var(--silver);border-bottom-color:var(--silver)}
+  .stage-nav a.review .sn-num{color:var(--silver)}
+
   /* DESKTOP */
   .desktop{display:none}
   .mobile{display:none}
@@ -241,7 +260,12 @@
     <!-- HEADER -->
     <div class="dsk-hdr">
       <div class="dsk-hdr-left">
-        <div class="dsk-back">‹ Back to SOW Queue</div>
+        <div class="crumbs">
+          <a href="#">Dashboard</a><span class="sep">/</span>
+          <a href="#">Scope of Work</a><span class="sep">/</span>
+          <a href="#">Ready for SOW</a><span class="sep">/</span>
+          <span class="current">#06265 Suchaczewski</span>
+        </div>
         <div class="dsk-title">#06265 · KRISTOPHER SUCHACZEWSKI</div>
         <div class="dsk-sub">24770 IL-1, Danville, IL 61834 · LightReach · Finance ID 69c059c0f7e5fd52bda3a089</div>
       </div>
@@ -251,15 +275,17 @@
         <div class="dsk-meta-cell"><div class="m-lbl">Sold kWh</div><div class="m-val">15,420</div></div>
         <div class="dsk-meta-cell"><div class="m-lbl">Stage</div><div class="m-val blue">SOW</div></div>
       </div>
-      <div class="dsk-progress">
-        <div class="ok"><span>1 · Cross-Match</span></div>
-        <div class="ok"><span>2 · Roof</span></div>
-        <div class="review"><span>3 · Production</span></div>
-        <div class="review"><span>4 · Adders</span></div>
-        <div class="ok"><span>5 · Mobile Home</span></div>
-        <div><span>6 · Final</span></div>
-      </div>
     </div>
+
+    <!-- STAGE NAV -->
+    <nav class="stage-nav">
+      <a href="#stage-1" data-stage="1"><span class="sn-num">01</span>Cross-Match</a>
+      <a href="#stage-2" data-stage="2"><span class="sn-num">02</span>Roof &amp; Structure</a>
+      <a href="#stage-3" data-stage="3"><span class="sn-num">03</span>Production</a>
+      <a href="#stage-4" data-stage="4"><span class="sn-num">04</span>Adders</a>
+      <a href="#stage-5" data-stage="5"><span class="sn-num">05</span>Mobile Home</a>
+      <a href="#stage-6" data-stage="6"><span class="sn-num">06</span>Final</a>
+    </nav>
 
     <!-- TOP TOOL RAIL — always-visible PM tools -->
     <div class="tool-rail">
@@ -289,7 +315,7 @@
     <div class="dsk-grid">
 
       <!-- 1. CROSS-MATCH (full width, contains the side-by-side viewer) -->
-      <div class="sec full">
+      <div class="sec full" id="stage-1" data-section="1">
         <div class="sec-hdr">
           <div class="sec-num">01</div>
           <div class="sec-title">Cross-Match Verification</div>
@@ -299,7 +325,7 @@
           <!-- left: cross-match data -->
           <div style="border-right:1px solid var(--border)">
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">System Size</div>
                 <div class="row-detail">All sources show <b>11.6 kW</b></div>
@@ -312,14 +338,14 @@
               <div class="src-cell match"><div class="src-lbl">Aurora·Sold</div><div class="src-val">11.6</div></div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Contract Price</div>
                 <div class="row-detail">LightReach <b>$78,569.50</b><br/>Podio <b>$78,569.50</b></div>
               </div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Design Layout</div>
                 <div class="row-detail">PM compares the two layouts to the right →</div>
@@ -381,7 +407,7 @@
       </div>
 
       <!-- 2. ROOF & STRUCTURE (full width with site survey viewer) -->
-      <div class="sec full">
+      <div class="sec full" id="stage-2" data-section="2">
         <div class="sec-hdr">
           <div class="sec-num">02</div>
           <div class="sec-title">Roof &amp; Structure</div>
@@ -390,7 +416,7 @@
         <div style="display:grid;grid-template-columns:340px 1fr">
           <div style="border-right:1px solid var(--border)">
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Structural Upgrade</div>
                 <div class="row-detail">PE Letter contains "<i>structure is adequate</i>" — PM confirms</div>
@@ -398,14 +424,14 @@
               <div><button class="btn-tiny">Open PE</button></div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Roof Condition</div>
                 <div class="row-detail">PM reviews site survey photos to the right and decides if roof is install-ready</div>
               </div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Survey Report → Approved</div>
                 <div class="row-detail">One-click copy when PM is satisfied</div>
@@ -443,7 +469,7 @@
       </div>
 
       <!-- 3. PRODUCTION -->
-      <div class="sec full">
+      <div class="sec full" id="stage-3" data-section="3">
         <div class="sec-hdr">
           <div class="sec-num">03</div>
           <div class="sec-title">Production Tolerance · Aurora ↔ LightReach</div>
@@ -452,14 +478,14 @@
         <div style="display:grid;grid-template-columns:1fr 1fr">
           <div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Equipment + Lidar Check</div>
                 <div class="row-detail">Aurora and planset reference the same panel and inverter · Lidar enabled in Aurora · PM confirms</div>
               </div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Tilt Reconciliation</div>
                 <div class="row-detail">Plans <b>25°</b> · Aurora <b>25°</b> · Site Survey shows <span class="silver">22°</span> — PM updates Aurora and re-simulates</div>
@@ -467,7 +493,7 @@
               <div><button class="btn-tiny primary">Open Aurora</button></div>
             </div>
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Permit Package Design</div>
                 <div class="row-detail">Status: <span class="silver">REJECTED</span> — production currently outside −5% / +10% band</div>
@@ -502,7 +528,7 @@
       </div>
 
       <!-- 4. ADDERS -->
-      <div class="sec full">
+      <div class="sec full" id="stage-4" data-section="4">
         <div class="sec-hdr">
           <div class="sec-num">04</div>
           <div class="sec-title">Adders Reconciliation</div>
@@ -511,7 +537,7 @@
         <div style="display:grid;grid-template-columns:340px 1fr">
           <div style="border-right:1px solid var(--border)">
             <div class="row">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Distance Adder Tier</div>
                 <div class="row-detail">App computes both warehouse distances · PM confirms tier</div>
@@ -524,7 +550,7 @@
           </div>
           <div>
             <div class="row" style="border-bottom:1px solid var(--border)">
-              <div class="row-icon idle">○</div>
+              <button class="row-icon idle" type="button" aria-label="Mark check"></button>
               <div class="row-body">
                 <div class="row-label">Planset Adders ↔ Podio Adders</div>
                 <div class="row-detail">App pulls both lists side-by-side · PM adds missing items and quotes prices in Podio</div>
@@ -541,14 +567,14 @@
       </div>
 
       <!-- 5. MOBILE HOME -->
-      <div class="sec">
+      <div class="sec" id="stage-5" data-section="5">
         <div class="sec-hdr">
           <div class="sec-num">05</div>
           <div class="sec-title">Mobile Home Check</div>
-          <div class="pill ok">Pass</div>
+          <div class="pill review">PM Review</div>
         </div>
         <div class="row">
-          <div class="row-icon ok">✓</div>
+          <button class="row-icon checked" type="button" aria-label="Mark check"></button>
           <div class="row-body">
             <div class="row-label">Parcel · Regrid</div>
             <div class="row-detail">Land use: <b>Single Family Residential</b> · <span class="ok">not flagged as manufactured housing</span></div>
@@ -565,14 +591,14 @@
       </div>
 
       <!-- 6. FINAL -->
-      <div class="sec">
+      <div class="sec" id="stage-6" data-section="6">
         <div class="sec-hdr">
           <div class="sec-num">06</div>
           <div class="sec-title">Screenshots &amp; File Copies</div>
-          <div class="pill idle">Pending</div>
+          <div class="pill review">PM Review</div>
         </div>
         <div class="row">
-          <div class="row-icon idle">○</div>
+          <button class="row-icon idle" type="button" aria-label="Mark check"></button>
           <div class="row-body">
             <div class="row-label">Labeled Site Plan</div>
             <div class="row-detail">PM uses the screenshot tool to label equipment and trenching</div>
@@ -605,12 +631,21 @@
 <div class="mobile">
   <div class="mob-frame">
     <div class="mob-hdr">
-      <div class="mob-back">‹ Back to SOW Queue</div>
+      <div class="crumbs" style="margin-bottom:6px">
+        <a href="#">SOW</a><span class="sep">/</span>
+        <a href="#">Ready</a><span class="sep">/</span>
+        <span class="current">#06265</span>
+      </div>
       <div class="mob-title">#06265 KRISTOPHER SUCHACZEWSKI</div>
       <div class="mob-sub">24770 IL-1 · Danville, IL · LightReach · 11.6 kW</div>
-      <div class="mob-progress">
-        <div class="ok"></div><div class="ok"></div><div class="review"></div><div class="review"></div><div class="ok"></div><div></div>
-      </div>
+      <nav class="stage-nav" style="margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <a href="#m-stage-1"><span class="sn-num">01</span>Match</a>
+        <a href="#m-stage-2"><span class="sn-num">02</span>Roof</a>
+        <a href="#m-stage-3"><span class="sn-num">03</span>Prod</a>
+        <a href="#m-stage-4"><span class="sn-num">04</span>Adders</a>
+        <a href="#m-stage-5"><span class="sn-num">05</span>Home</a>
+        <a href="#m-stage-6"><span class="sn-num">06</span>Final</a>
+      </nav>
     </div>
 
     <!-- TOOL RAIL -->
@@ -621,16 +656,16 @@
       <div class="tool-card"><div class="tool-icon"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg></div><div class="tool-text"><div class="tt-title">Approved</div></div></div>
     </div></div>
 
-    <div class="sec">
+    <div class="sec" id="m-stage-1" data-section="1">
       <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title">Cross-Match</div><div class="pill review">Review</div></div>
-      <div class="row"><div class="row-icon idle">○</div><div class="row-body"><div class="row-label">System Size</div><div class="row-detail">All sources <b>11.6 kW</b></div></div></div>
+      <div class="row"><button class="row-icon idle" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">System Size</div><div class="row-detail">All sources <b>11.6 kW</b></div></div></div>
       <div class="src-grid">
         <div class="src-cell match"><div class="src-lbl">Podio</div><div class="src-val">11.6</div></div>
         <div class="src-cell match"><div class="src-lbl">Planset</div><div class="src-val">11.6</div></div>
         <div class="src-cell match"><div class="src-lbl">LR</div><div class="src-val">11.6</div></div>
         <div class="src-cell match"><div class="src-lbl">Aurora</div><div class="src-val">11.6</div></div>
       </div>
-      <div class="row"><div class="row-icon idle">○</div><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail">LR & Podio: $78,569.50</div></div></div>
+      <div class="row"><button class="row-icon idle" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail">LR & Podio: $78,569.50</div></div></div>
       <div class="compare">
         <div class="compare-hdr"><div class="ch-lbl">Layout Compare</div><button class="btn-tiny primary">Full</button></div>
         <div class="compare-grid">
@@ -640,9 +675,9 @@
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" id="m-stage-2" data-section="2">
       <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title">Roof &amp; Structure</div><div class="pill review">Review</div></div>
-      <div class="row"><div class="row-icon idle">○</div><div class="row-body"><div class="row-label">PE Letter</div><div class="row-detail">"Structure is adequate" detected</div></div></div>
+      <div class="row"><button class="row-icon idle" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">PE Letter</div><div class="row-detail">"Structure is adequate" detected</div></div></div>
       <div class="survey">
         <div class="survey-hdr"><div class="sh-lbl">Site Survey · 14 photos</div><button class="btn-tiny primary">Open</button></div>
         <div class="survey-grid">
@@ -656,9 +691,9 @@
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" id="m-stage-3" data-section="3">
       <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title">Production</div><div class="pill review">Out of Band</div></div>
-      <div class="row"><div class="row-icon idle">○</div><div class="row-body"><div class="row-label">Tilt</div><div class="row-detail">Plans 25° · Aurora 25° · Survey <span class="silver">22°</span></div></div></div>
+      <div class="row"><button class="row-icon idle" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">Tilt</div><div class="row-detail">Plans 25° · Aurora 25° · Survey <span class="silver">22°</span></div></div></div>
       <div style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)">
         <div style="display:flex;gap:14px;font-family:ui-monospace,Menlo,monospace;font-size:10px">
           <div><div style="color:var(--text4);font-size:8px;letter-spacing:.14em">SOLD</div><div style="font-weight:700;color:var(--text);font-size:13px">15,420</div></div>
@@ -670,7 +705,7 @@
       <div class="draft"><div class="draft-hdr">⚠ Draft · Not Sent</div><div class="draft-body">@sales Updated production is 14,180kwh and the sold production is 15,420kwh...</div><div class="draft-actions"><button class="btn-tiny">Edit</button><button class="btn-tiny primary">Confirm</button></div></div>
     </div>
 
-    <div class="sec">
+    <div class="sec" id="m-stage-4" data-section="4">
       <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title">Adders</div><div class="pill review">Review</div></div>
       <div class="dist-pair">
         <div class="dist-cell"><div class="dist-city">Springfield</div><div class="dist-mi">147</div><div class="dist-tier">Tier 2</div></div>
@@ -682,18 +717,18 @@
       <div class="adder"><span class="adder-tag planset">Planset</span><span class="adder-name">Sub Panel</span><span class="adder-price missing">Add</span></div>
     </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title">Mobile Home</div><div class="pill ok">Pass</div></div>
-      <div class="row"><div class="row-icon ok">✓</div><div class="row-body"><div class="row-label">Parcel</div><div class="row-detail"><b>Single Family Residential</b></div></div></div>
+    <div class="sec" id="m-stage-5" data-section="5">
+      <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title">Mobile Home</div><div class="pill review">Review</div></div>
+      <div class="row"><button class="row-icon checked" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">Parcel</div><div class="row-detail"><b>Single Family Residential</b></div></div></div>
       <div class="apn-block">
         <div class="apn-row"><div class="apn-lbl">APN</div><div class="apn-val">12-34-567-890</div><button class="btn-tiny">Copy</button></div>
         <a class="apn-link" href="#">↗ Vermilion County Parcel Search</a>
       </div>
     </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title">Final</div><div class="pill idle">Pending</div></div>
-      <div class="row"><div class="row-icon idle">○</div><div class="row-body"><div class="row-label">Screenshot Tool</div><div class="row-detail">Label equipment + trenching</div></div><div><button class="btn-tiny primary">Open</button></div></div>
+    <div class="sec" id="m-stage-6" data-section="6">
+      <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title">Final</div><div class="pill review">Review</div></div>
+      <div class="row"><button class="row-icon idle" type="button" aria-label="Mark check"></button><div class="row-body"><div class="row-label">Screenshot Tool</div><div class="row-detail">Label equipment + trenching</div></div><div><button class="btn-tiny primary">Open</button></div></div>
       <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">Site Survey</div><div class="file-status copied">✓</div></div>
       <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">Proposal</div><div class="file-status pending">→</div></div>
       <div class="file-row"><div class="file-icon">PDF</div><div class="file-name">Battery Ack</div><div class="file-status pending">→</div></div>
@@ -709,5 +744,42 @@
   </div>
 </div>
 
+<script>
+// click row-icon → toggle checked, then update section pill + stage nav
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.row-icon');
+  if(!btn) return;
+  btn.classList.toggle('checked');
+  btn.classList.toggle('idle');
+  refreshSection(btn.closest('[data-section]'));
+});
+
+function refreshSection(sec){
+  if(!sec) return;
+  const checks = sec.querySelectorAll('.row-icon');
+  if(!checks.length) return;
+  const total = checks.length;
+  const done  = sec.querySelectorAll('.row-icon.checked').length;
+  const pill  = sec.querySelector('.sec-hdr .pill');
+  if(pill){
+    pill.classList.remove('ok','review','idle');
+    if(done === total){ pill.classList.add('ok'); pill.textContent = 'Verified'; }
+    else if(done > 0){ pill.classList.add('review'); pill.textContent = done + ' / ' + total; }
+    else{ pill.classList.add('review'); pill.textContent = 'PM Review'; }
+  }
+  // sync matching stage nav links (desktop & mobile)
+  const stage = sec.dataset.section;
+  document.querySelectorAll('.stage-nav a').forEach(a => {
+    if(a.getAttribute('href') && a.getAttribute('href').endsWith('stage-' + stage)){
+      a.classList.remove('done','review');
+      if(done === total) a.classList.add('done');
+      else if(done > 0) a.classList.add('review');
+    }
+  });
+}
+
+// init: paint any pre-checked sections on load
+document.querySelectorAll('[data-section]').forEach(refreshSection);
+</script>
 </body>
 </html>
