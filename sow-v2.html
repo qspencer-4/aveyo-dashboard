@@ -822,19 +822,20 @@ async function loadAurora(){
 
 function renderAurora(a){
   // Cross-match Aurora cell
-  const sz = a.system_size_kw;
+  const sz = a.current_system_size_kw;
   const lr = PALMETTO ? PALMETTO.system_size_kw : null;
   const matches = (sz && lr && Math.abs(parseFloat(sz)-parseFloat(lr)) < 0.05);
   updateCrossMatchCell('Aurora·Sold', sz ? parseFloat(sz).toFixed(2)+' kW' : '—', matches, !!sz);
 
   // Equipment row
-  const panels = a.layout_arrays ? a.layout_arrays.reduce((s,r)=>s+(r.panel_count||0),0) : null;
+  const panels = (a.total_panels != null) ? a.total_panels
+                : (a.arrays ? a.arrays.reduce((s,r)=>s+(r.panel_count||0),0) : null);
   const lidar = a.lidar_source ? a.lidar_source : null;
   const inv = (a.inverters||[]).map(i => `${i.count||1}× ${i.manufacturer||''} ${i.model||''}`.trim()).join(', ') || '—';
   $('#prod-equipment').innerHTML = `Aurora panels: <b>${panels||'?'}</b> · Inverter: ${x(inv)} · Lidar: <b>${lidar ? lidar : '<span class="silver">not enabled</span>'}</b>`;
 
   // Tilt reconciliation — list each array's tilt
-  const arrays = a.layout_arrays || [];
+  const arrays = a.arrays || [];
   if(arrays.length){
     const tiltsTxt = arrays.map((arr,i) => `Array ${i+1}: <b>${arr.pitch||'?'}°</b>${arr.azimuth!=null?` @ ${Math.round(arr.azimuth)}°`:''}`).join(' · ');
     $('#prod-tilts').innerHTML = `${tiltsTxt}<br/><span class="silver">Compare against Site Survey Report photos · Aurora must match Site Survey</span>`;
@@ -843,7 +844,7 @@ function renderAurora(a){
   }
 
   // Production tolerance
-  const newKwh = a.production_kwh ? parseFloat(a.production_kwh) : null;
+  const newKwh = a.current_production_kwh ? parseFloat(a.current_production_kwh) : null;
   const soldKwh = PALMETTO ? PALMETTO.production_kwh : null;
   if(!newKwh || !soldKwh){
     $('#prod-tolerance').innerHTML = '<span class="silver">Need both Aurora and LightReach production to compare</span>';
@@ -1158,8 +1159,9 @@ async function loadPropertyReport(){
         </div>
       </div>
       ${mobileBanner}
-      <div style="margin-top:12px;display:flex;gap:8px">
-        ${d.ahj_search_url ? `<a class="btn-tiny primary" href="${x(d.ahj_search_url)}" target="_blank" rel="noopener">↗ AHJ Parcel Search</a>`:''}
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        ${d.portal_search_url ? `<a class="btn-tiny primary" href="${x(d.portal_search_url)}" target="_blank" rel="noopener">↗ Find County Property Search</a>`:''}
+        ${d.address_search_url ? `<a class="btn-tiny" href="${x(d.address_search_url)}" target="_blank" rel="noopener">↗ Google This Address</a>`:''}
       </div>
     `;
     const cp = document.getElementById('apn-copy');
