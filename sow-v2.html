@@ -424,6 +424,11 @@ function renderProjNav(d){
   if(d.folders && d.folders.approved) html += `<a class="proj-nav-link folder" href="${x(d.folders.approved)}" target="_blank">↗ Approved Folder</a>`;
   if(d.folders && d.folders.customer_docs) html += `<a class="proj-nav-link folder" href="${x(d.folders.customer_docs)}" target="_blank">↗ Customer Docs</a>`;
   if(d.folders && d.folders.site_survey) html += `<a class="proj-nav-link folder" href="${x(d.folders.site_survey)}" target="_blank">↗ Site Survey</a>`;
+  // External tool links — LightReach immediately, Aurora once it loads
+  if(d.finance_id){
+    html += `<a class="proj-nav-link folder" href="https://palmetto.finance/accounts/${x(d.finance_id)}" target="_blank" id="ext-lightreach">↗ LightReach Portal</a>`;
+  }
+  html += `<a class="proj-nav-link folder" href="#" target="_blank" id="ext-aurora" style="display:none">↗ Aurora · Sold Design</a>`;
   if(d.proj_nav && d.proj_nav.length){
     d.proj_nav.forEach(l => { html += `<a class="proj-nav-link" href="${x(l.url)}" target="_blank">${x(l.label)}</a>`; });
   } else if(d.podio_links) {
@@ -665,6 +670,10 @@ async function loadAurora(){
     if(d.status !== 'ok') throw new Error(d.message || 'Aurora failed');
     AURORA = d;
     renderAurora(d);
+    if(d.aurora_url){
+      const a = $('#ext-aurora');
+      if(a){ a.href = d.aurora_url; a.style.display = ''; }
+    }
   }catch(e){
     $('#prod-equipment').innerHTML = `<span class="silver">Aurora load failed: ${x(e.message)}</span>`;
     $('#prod-tilts').textContent = '';
