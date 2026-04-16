@@ -780,35 +780,8 @@ async function loadDistance(){
   }
 }
 
-// ────── PROJECT ADDERS (Podio + planset-detected) ──────
-let ADDERS_LOADED = false;
+// ────── PROJECT ADDERS (Podio) ──────
 let ADDERS_PODIO = [];
-const ADDER_LABELS = {
-  main_panel_upgrade:'Main Panel Upgrade',
-  sub_panel:'Sub Panel',
-  derate:'Derate',
-  trenching:'Trenching',
-  metal_roof:'Metal Roof',
-  tile_roof:'Tile Roof',
-  steep_roof:'Steep Roof',
-  structural_upgrade:'Structural Upgrade',
-  ground_mount:'Ground Mount',
-};
-function adderKeyMatchesPodioName(key, podioName){
-  const n = (podioName||'').toLowerCase();
-  const maps = {
-    main_panel_upgrade: ['mpu','main panel','service upgrade'],
-    sub_panel: ['sub panel','subpanel','sub-panel'],
-    derate: ['derate','de-rate'],
-    trenching: ['trench'],
-    metal_roof: ['metal roof','standing seam'],
-    tile_roof: ['tile'],
-    steep_roof: ['steep'],
-    structural_upgrade: ['structural'],
-    ground_mount: ['ground mount','ground-mount'],
-  };
-  return (maps[key]||[]).some(t => n.includes(t));
-}
 
 async function loadAdders(){
   try{
@@ -816,7 +789,6 @@ async function loadAdders(){
     const d = await r.json();
     if(d.status !== 'ok') throw new Error(d.message);
     ADDERS_PODIO = d.adders || [];
-    ADDERS_LOADED = true;
     renderAdders();
   }catch(e){
     $('#adders-detail').innerHTML = `<span class="silver">Adders load failed: ${x(e.message)}</span>`;
@@ -825,51 +797,27 @@ async function loadAdders(){
 
 function renderAdders(){
   const adders = ADDERS_PODIO;
-  $('#adders-detail').innerHTML = `<b>${adders.length}</b> active adders on this project. Planset-implied adders flagged below.`;
+  $('#adders-detail').innerHTML = `<b>${adders.length}</b> active adders on this project.`;
   const list = $('#adders-list');
-  const detected = (PLANSET && PLANSET.adders_detected) ? PLANSET.adders_detected : {};
 
-  // Merge: each Podio adder — tag if planset confirms it. Each planset-detected key not in Podio → suggestion row.
-  const podioRows = adders.map(a => {
-    const matchedKey = Object.keys(detected).find(k => adderKeyMatchesPodioName(k, a.name));
-    const planTag = matchedKey
-      ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--blue-edge);background:var(--blue-dim);color:var(--blue)">Planset ✓</span>`
-      : '';
+  const rows = adders.map(a => {
     const audTag = a.audience ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--border2);color:var(--text3)">${x(a.audience)}</span>` : '';
     const priceCell = a.missing_price
       ? `<span style="color:var(--silver);font-size:10px;font-family:ui-monospace,Menlo,monospace">⚠ NO PRICE</span>`
       : `<span style="color:var(--text3);font-size:10px;font-family:ui-monospace,Menlo,monospace">${x(a.sales_amount_text||'')}</span>`;
     return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px">
-      ${planTag}${audTag}
+      ${audTag}
       <a href="${x(a.podio_url)}" target="_blank" style="flex:1;color:var(--text);font-weight:500;letter-spacing:.02em;text-decoration:none">${x(a.name||'(no name)')}</a>
       ${priceCell}
     </div>`;
   });
 
-  // Planset-implied adders missing from Podio
-  const missingFromPodio = Object.keys(detected).filter(k =>
-    !adders.some(a => adderKeyMatchesPodioName(k, a.name))
-  );
-  const suggestionRows = missingFromPodio.map(k => {
-    const det = detected[k];
-    const lbl = ADDER_LABELS[k] || k;
-    const meta = det.feet ? ` · <b>${det.feet} ft</b>` : '';
-    const snip = det.snippet ? ` · <span style="color:var(--text4);font-size:10px">"${x(det.snippet)}"</span>` : '';
-    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px;background:rgba(201,120,80,.06)">
-      <span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--silver);color:var(--silver)">PLANSET · MISSING</span>
-      <div style="flex:1;color:var(--text)"><b>${x(lbl)}</b>${meta}${snip}</div>
-      <span style="color:var(--silver);font-size:10px">add to Podio</span>
-    </div>`;
-  });
-
-  list.innerHTML = [...podioRows, ...suggestionRows].join('');
+  list.innerHTML = rows.join('');
 
   const missing = adders.filter(a => a.missing_price);
-  const parts = [];
-  if(missing.length) parts.push(`<span class="silver"><b>${missing.length}</b> adder${missing.length>1?'s':''} need pricing: ${x(missing.map(m=>m.name).join(', '))}</span>`);
-  else if(adders.length) parts.push(`<span class="ok">All ${adders.length} Podio adders have prices ✓</span>`);
-  if(missingFromPodio.length) parts.push(`<span class="silver"><b>${missingFromPodio.length}</b> planset-implied adder${missingFromPodio.length>1?'s':''} not in Podio: ${x(missingFromPodio.map(k=>ADDER_LABELS[k]||k).join(', '))}</span>`);
-  $('#adders-missing').innerHTML = parts.join('<br/>') || '<span class="ok">No issues</span>';
+  if(missing.length) $('#adders-missing').innerHTML = `<span class="silver"><b>${missing.length}</b> adder${missing.length>1?'s':''} need pricing: ${x(missing.map(m=>m.name).join(', '))}</span>`;
+  else if(adders.length) $('#adders-missing').innerHTML = `<span class="ok">All ${adders.length} Podio adders have prices ✓</span>`;
+  else $('#adders-missing').innerHTML = '<span class="ok">No issues</span>';
 }
 
 // ────── AURORA (Sold milestone design) ──────
@@ -1152,7 +1100,6 @@ async function loadPlansetInfo(){
     const matches = lr && d.system_size_kw && Math.abs(parseFloat(d.system_size_kw) - parseFloat(lr)) < 0.05;
     updateCrossMatchCell('Planset', d.system_size_kw ? d.system_size_kw.toFixed(2)+' kW' : '?', matches, !!d.system_size_kw);
     renderPlansetEquipment();
-    if(ADDERS_LOADED) renderAdders();  // re-render if Podio adders already loaded
   }catch(e){
     updateCrossMatchCell('Planset', '—', false, false);
   }
