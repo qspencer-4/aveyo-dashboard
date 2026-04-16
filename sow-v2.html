@@ -884,10 +884,10 @@ function renderAuroraNoSold(d){
   const rows = designs.map(de => `
     <button type="button" class="btn-tiny" data-did="${x(de.id)}" style="display:block;margin:4px 0;text-align:left;width:100%">
       <b>${x(de.name||'(unnamed)')}</b>
-      <span class="silver"> · milestone: ${x(de.milestone||'—')}${de.system_size_kw?` · ${de.system_size_kw} kW`:''}</span>
+      <span class="silver"> · stage: ${x(de.stage||'—')}${de.system_size_kw?` · ${de.system_size_kw} kW`:''}${de.updated_at?` · updated ${x(de.updated_at.slice(0,10))}`:''}</span>
     </button>`).join('');
   $('#prod-equipment').innerHTML = `
-    <div style="margin-bottom:6px"><b style="color:#E88B8B">No Sold milestone design.</b> <span class="silver">Per process, the Sold milestone must be set in Aurora before SOW. Pick a design to override (will be remembered for this SOW):</span></div>
+    <div style="margin-bottom:6px"><b style="color:#E88B8B">No Sold design found.</b> <span class="silver">No design on this Aurora project has stage=sold. Per process, the Sold stage must be set in Aurora before SOW. Pick a design to override (will be remembered for this SOW):</span></div>
     ${rows || '<span class="silver">No designs found</span>'}
     <div style="margin-top:6px">${d.aurora_url?`<a href="${x(d.aurora_url)}" target="_blank" rel="noopener">Open project in Aurora ↗</a>`:''}</div>
   `;
