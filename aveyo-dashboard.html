@@ -553,6 +553,10 @@ body{background:#0a0a0a!important;color:#fff!important;font-family:'PPTelegraf',
 @keyframes bfPulse{0%,100%{opacity:.3}50%{opacity:.8}}
 @keyframes bfLineGrow{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
 @keyframes bfFlash{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
+@keyframes wnumPulseUp{0%{transform:scale(1);text-shadow:0 0 0 rgba(140,210,140,0)}30%{transform:scale(1.18);text-shadow:0 0 18px rgba(140,210,140,.85)}100%{transform:scale(1);text-shadow:0 0 0 rgba(140,210,140,0)}}
+@keyframes wnumPulseDown{0%{transform:scale(1);text-shadow:0 0 0 rgba(201,120,80,0)}30%{transform:scale(1.12);text-shadow:0 0 18px rgba(201,120,80,.85)}100%{transform:scale(1);text-shadow:0 0 0 rgba(201,120,80,0)}}
+.wnum-pulse-up{animation:wnumPulseUp .9s ease-out both}
+.wnum-pulse-down{animation:wnumPulseDown .9s ease-out both}
 .view.bf-entering{animation:bfSlideIn .32s cubic-bezier(.16,1,.3,1) both}
 .view.bf-leaving{animation:bfSlideOut .2s ease-in both}
 
@@ -1935,7 +1939,7 @@ function cDel(k){
   try{const c=loadCache();delete c[k];saveCache(c);}catch(e){}
 }
 
-// ── REALTIME SSE (Podio webhooks → server → this client) ──
+// ── REALTIME SSE (Podio webhooks → server precompute → this client) ──
 let PODIO_ES=null;
 function initPodioStream(){
   if(PODIO_ES||typeof EventSource==='undefined')return;
@@ -1944,24 +1948,39 @@ function initPodioStream(){
     PODIO_ES.onmessage=(e)=>{
       try{
         const evt=JSON.parse(e.data);
-        if(!evt||!evt.app_id)return;
-        const appId=String(evt.app_id);
-        // Invalidate widget counts for this app
-        WIDGETS.forEach(([,a,v],i)=>{
-          if(String(a)===appId){cDel(a+'_'+v);refreshWidget(i);}
-        });
-        // Refresh active list views if they belong to this app
-        if(typeof refreshIfActiveApp==='function')refreshIfActiveApp(appId);
+        if(!evt)return;
+
+        // Server-computed counts: patch DOM in place, no fetch.
+        if(evt.type==='widget_update' && evt.counts){
+          Object.keys(evt.counts).forEach(k=>{
+            const i=parseInt(k,10);
+            if(isNaN(i)||!WIDGETS[i])return;
+            const n=evt.counts[k];
+            const prev=document.getElementById('wnum_'+i);
+            const old=prev?parseInt(prev.textContent,10):null;
+            setWidgetNum(i,n);
+            if(old!==n)pulseWidget(i,n>old);
+          });
+          updateCacheLabel();
+          updateNavBadges&&updateNavBadges();
+          return;
+        }
+
+        // Raw item events: refresh active list views (detail/tickets)
+        if(evt.app_id && typeof refreshIfActiveApp==='function'){
+          refreshIfActiveApp(String(evt.app_id));
+        }
       }catch(err){console.warn('SSE parse',err);}
     };
     PODIO_ES.onerror=()=>{/* browser auto-reconnects */};
   }catch(err){console.warn('SSE init failed',err);}
 }
-async function refreshWidget(i){
-  if(DEMO_MODE)return;
-  const[,appId,viewId]=WIDGETS[i];
-  try{const{n}=await fetchCount(appId,viewId);setWidgetNum(i,n);updateCacheLabel();updateNavBadges&&updateNavBadges();}
-  catch(e){}
+function pulseWidget(i,increased){
+  const el=document.getElementById('wnum_'+i);if(!el)return;
+  el.classList.remove('wnum-pulse-up','wnum-pulse-down');
+  void el.offsetWidth;  // restart animation
+  el.classList.add(increased?'wnum-pulse-up':'wnum-pulse-down');
+  setTimeout(()=>el.classList.remove('wnum-pulse-up','wnum-pulse-down'),900);
 }
 function refreshIfActiveApp(appId){
   // If the Projects/Tickets tab is mounted and showing this app, force a reload
