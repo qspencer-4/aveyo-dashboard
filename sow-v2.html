@@ -198,7 +198,12 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
       <!-- STAGE 1: CROSS-MATCH -->
       <div class="sec" id="stage-1" data-section="1">
-        <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title">Cross-Match Verification</div><div class="pill review">PM Review</div></div>
+        <div class="sec-hdr">
+          <div class="sec-num">01</div>
+          <div class="sec-title">Cross-Match Verification</div>
+          <div class="pill review">PM Review</div>
+          <a class="btn-tiny" id="lr-portal-link" href="#" target="_blank" rel="noopener" style="display:none;margin-left:auto">LightReach Portal ↗</a>
+        </div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">System Size</div><div class="row-detail" id="cm-size">Loading LightReach data…</div></div></div>
         <div id="cm-size-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);padding:1px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Contract Price</div><div class="row-detail" id="cm-price">Loading…</div></div></div>
@@ -236,14 +241,18 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
       <div class="sec" id="stage-2" data-section="2">
         <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title">Roof &amp; Structure</div><div class="pill review">PM Review</div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Structural Upgrade</div><div class="row-detail" id="pe-letter-detail">Loading PE letter…</div></div><div><button class="btn-tiny" id="pe-recheck">Re-check</button></div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Roof Condition</div><div class="row-detail">Review site survey photos to the right · decide if install-ready</div></div><div><button class="btn-tiny" id="survey-load">Load Photos</button></div></div>
-        <div id="survey-grid" style="display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)"></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail">Copy the Site Survey Report PDF into the Approved folder (also handled in stage 6)</div></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report</div><div class="row-detail" id="survey-detail">Looking for Site Survey Report PDF…</div></div><div><button class="btn-tiny" id="survey-open" disabled>Open Report</button></div></div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Site Survey Report → Approved</div><div class="row-detail" id="survey-copy-detail">Copy the Site Survey Report PDF into the Approved folder (also handled in stage 6)</div></div><div><button class="btn-tiny" id="survey-copy" disabled>Copy to Approved</button></div></div>
       </div>
 
       <!-- STAGE 3: PRODUCTION -->
       <div class="sec" id="stage-3" data-section="3">
-        <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title">Production Tolerance</div><div class="pill review">PM Review</div></div>
+        <div class="sec-hdr">
+          <div class="sec-num">03</div>
+          <div class="sec-title">Production Tolerance</div>
+          <div class="pill review">PM Review</div>
+          <a class="btn-tiny" id="aurora-design-link" href="#" target="_blank" rel="noopener" style="display:none;margin-left:auto">Aurora Design ↗</a>
+        </div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment + Lidar</div><div class="row-detail" id="prod-equipment">Loading Aurora…</div></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Tilt Reconciliation</div><div class="row-detail" id="prod-tilts">Loading Aurora arrays…</div></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Production within −5% / +10%</div><div class="row-detail" id="prod-tolerance">Loading…</div></div></div>
@@ -291,8 +300,13 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
       <!-- STAGE 6: FINAL -->
       <div class="sec" id="stage-6" data-section="6">
-        <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title">Screenshots &amp; File Copies</div><div class="pill review">PM Review</div></div>
-        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Labeled Site Plan</div><div class="row-detail">Use the screenshot tool to label equipment + trenching</div></div></div>
+        <div class="sec-hdr">
+          <div class="sec-num">06</div>
+          <div class="sec-title">Screenshots &amp; File Copies</div>
+          <div class="pill review">PM Review</div>
+          <button class="btn-tiny primary" id="screenshot-open-s6" type="button" style="margin-left:auto">Screenshot Tool</button>
+        </div>
+        <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Labeled Site Plan</div><div class="row-detail">Use the screenshot tool to label equipment + trenching</div></div><div><button class="btn-tiny" id="screenshot-open-row" type="button">Open</button></div></div>
         <div id="files-block" style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)">
           <div style="font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px">Project Files · Click to Copy into Approved Folder</div>
           <div id="files-list"><div class="loading" style="padding:14px">Loading files…</div></div>
@@ -354,9 +368,16 @@ async function loadProject(){
     renderProjNav(d);
     loadComments(d.project_item_id);
     if(d.finance_id) loadPalmetto(d.finance_id);
+    // LightReach portal link (parsed from funding_raw)
+    const lrLink = $('#lr-portal-link');
+    if(lrLink && d.portal_url){
+      lrLink.href = d.portal_url;
+      lrLink.style.display = '';
+    }
     loadPELetter();
     loadFiles();
     loadPlansetInfo();
+    loadSiteSurveyDoc();
     loadAurora();
     loadDistance();
     loadAdders();
@@ -425,7 +446,10 @@ function renderCrossMatch(p){
   $('#cm-price').innerHTML = priceMsg;
 
   const inv = (p.inverters||[]).map(i => `${i.count}× ${i.manufacturer} ${i.model}`).join(', ') || 'None listed';
-  $('#cm-equipment').innerHTML = `Panels: <b>${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}</b><br/>Inverter: ${x(inv)}`;
+  const el = $('#cm-equipment');
+  el.removeAttribute('data-lr');
+  el.innerHTML = `<span style="color:var(--text4);font-family:ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:9px">LightReach:</span> <b>${p.total_panel_count} × ${x(p.panel_manufacturer)} ${x(p.panel_model)}</b> · Inverter: ${x(inv)}`;
+  if(PLANSET) renderPlansetEquipment();
 }
 
 function renderHeader(d){
@@ -756,39 +780,96 @@ async function loadDistance(){
   }
 }
 
-// ────── PROJECT ADDERS (Podio) ──────
+// ────── PROJECT ADDERS (Podio + planset-detected) ──────
+let ADDERS_LOADED = false;
+let ADDERS_PODIO = [];
+const ADDER_LABELS = {
+  main_panel_upgrade:'Main Panel Upgrade',
+  sub_panel:'Sub Panel',
+  derate:'Derate',
+  trenching:'Trenching',
+  metal_roof:'Metal Roof',
+  tile_roof:'Tile Roof',
+  steep_roof:'Steep Roof',
+  structural_upgrade:'Structural Upgrade',
+  ground_mount:'Ground Mount',
+};
+function adderKeyMatchesPodioName(key, podioName){
+  const n = (podioName||'').toLowerCase();
+  const maps = {
+    main_panel_upgrade: ['mpu','main panel','service upgrade'],
+    sub_panel: ['sub panel','subpanel','sub-panel'],
+    derate: ['derate','de-rate'],
+    trenching: ['trench'],
+    metal_roof: ['metal roof','standing seam'],
+    tile_roof: ['tile'],
+    steep_roof: ['steep'],
+    structural_upgrade: ['structural'],
+    ground_mount: ['ground mount','ground-mount'],
+  };
+  return (maps[key]||[]).some(t => n.includes(t));
+}
+
 async function loadAdders(){
   try{
     const r = await fetch(`${API}/sow/v2/adders/${SOW_ITEM_ID}`);
     const d = await r.json();
     if(d.status !== 'ok') throw new Error(d.message);
-    const adders = d.adders || [];
-    $('#adders-detail').innerHTML = `<b>${adders.length}</b> active adders on this project. Cross-check against the planset to make sure nothing is missed.`;
-
-    const list = $('#adders-list');
-    if(!adders.length){ list.innerHTML = ''; $('#adders-missing').textContent = 'No adders on project'; return; }
-
-    list.innerHTML = adders.map(a => {
-      const audTag = a.audience ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--blue-edge);background:var(--blue-dim);color:var(--blue)">${x(a.audience)}</span>` : '';
-      const priceCell = a.missing_price
-        ? `<span style="color:var(--silver);font-size:10px;font-family:ui-monospace,Menlo,monospace">⚠ NO PRICE</span>`
-        : `<span style="color:var(--text3);font-size:10px;font-family:ui-monospace,Menlo,monospace">${x(a.sales_amount_text||'')}</span>`;
-      return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px">
-        ${audTag}
-        <a href="${x(a.podio_url)}" target="_blank" style="flex:1;color:var(--text);font-weight:500;letter-spacing:.02em;text-decoration:none">${x(a.name||'(no name)')}</a>
-        ${priceCell}
-      </div>`;
-    }).join('');
-
-    const missing = adders.filter(a => a.missing_price);
-    if(missing.length){
-      $('#adders-missing').innerHTML = `<span class="silver"><b>${missing.length}</b> adder${missing.length>1?'s':''} need pricing: ${x(missing.map(m=>m.name).join(', '))}</span>`;
-    } else {
-      $('#adders-missing').innerHTML = `<span class="ok">All ${adders.length} adders have prices ✓</span>`;
-    }
+    ADDERS_PODIO = d.adders || [];
+    ADDERS_LOADED = true;
+    renderAdders();
   }catch(e){
     $('#adders-detail').innerHTML = `<span class="silver">Adders load failed: ${x(e.message)}</span>`;
   }
+}
+
+function renderAdders(){
+  const adders = ADDERS_PODIO;
+  $('#adders-detail').innerHTML = `<b>${adders.length}</b> active adders on this project. Planset-implied adders flagged below.`;
+  const list = $('#adders-list');
+  const detected = (PLANSET && PLANSET.adders_detected) ? PLANSET.adders_detected : {};
+
+  // Merge: each Podio adder — tag if planset confirms it. Each planset-detected key not in Podio → suggestion row.
+  const podioRows = adders.map(a => {
+    const matchedKey = Object.keys(detected).find(k => adderKeyMatchesPodioName(k, a.name));
+    const planTag = matchedKey
+      ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--blue-edge);background:var(--blue-dim);color:var(--blue)">Planset ✓</span>`
+      : '';
+    const audTag = a.audience ? `<span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--border2);color:var(--text3)">${x(a.audience)}</span>` : '';
+    const priceCell = a.missing_price
+      ? `<span style="color:var(--silver);font-size:10px;font-family:ui-monospace,Menlo,monospace">⚠ NO PRICE</span>`
+      : `<span style="color:var(--text3);font-size:10px;font-family:ui-monospace,Menlo,monospace">${x(a.sales_amount_text||'')}</span>`;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px">
+      ${planTag}${audTag}
+      <a href="${x(a.podio_url)}" target="_blank" style="flex:1;color:var(--text);font-weight:500;letter-spacing:.02em;text-decoration:none">${x(a.name||'(no name)')}</a>
+      ${priceCell}
+    </div>`;
+  });
+
+  // Planset-implied adders missing from Podio
+  const missingFromPodio = Object.keys(detected).filter(k =>
+    !adders.some(a => adderKeyMatchesPodioName(k, a.name))
+  );
+  const suggestionRows = missingFromPodio.map(k => {
+    const det = detected[k];
+    const lbl = ADDER_LABELS[k] || k;
+    const meta = det.feet ? ` · <b>${det.feet} ft</b>` : '';
+    const snip = det.snippet ? ` · <span style="color:var(--text4);font-size:10px">"${x(det.snippet)}"</span>` : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px;background:rgba(201,120,80,.06)">
+      <span style="font-size:8px;font-weight:700;padding:3px 7px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--silver);color:var(--silver)">PLANSET · MISSING</span>
+      <div style="flex:1;color:var(--text)"><b>${x(lbl)}</b>${meta}${snip}</div>
+      <span style="color:var(--silver);font-size:10px">add to Podio</span>
+    </div>`;
+  });
+
+  list.innerHTML = [...podioRows, ...suggestionRows].join('');
+
+  const missing = adders.filter(a => a.missing_price);
+  const parts = [];
+  if(missing.length) parts.push(`<span class="silver"><b>${missing.length}</b> adder${missing.length>1?'s':''} need pricing: ${x(missing.map(m=>m.name).join(', '))}</span>`);
+  else if(adders.length) parts.push(`<span class="ok">All ${adders.length} Podio adders have prices ✓</span>`);
+  if(missingFromPodio.length) parts.push(`<span class="silver"><b>${missingFromPodio.length}</b> planset-implied adder${missingFromPodio.length>1?'s':''} not in Podio: ${x(missingFromPodio.map(k=>ADDER_LABELS[k]||k).join(', '))}</span>`);
+  $('#adders-missing').innerHTML = parts.join('<br/>') || '<span class="ok">No issues</span>';
 }
 
 // ────── AURORA (Sold milestone design) ──────
@@ -847,6 +928,15 @@ async function loadAurora(opts){
     if(d.aurora_url){
       const a = $('#ext-aurora');
       if(a){ a.href = d.aurora_url; a.style.display = ''; }
+    }
+    // Stage 3 header button — link directly to the Sold design's CAD page
+    const designLink = $('#aurora-design-link');
+    if(designLink && d.project_id && d.design_id){
+      designLink.href = `https://v2.aurorasolar.com/projects/${d.project_id}/designs/${d.design_id}/cad`;
+      designLink.style.display = '';
+    } else if(designLink && d.aurora_url){
+      designLink.href = d.aurora_url;
+      designLink.style.display = '';
     }
   }catch(e){
     $('#prod-equipment').innerHTML = `<span class="silver">Aurora load failed: ${x(e.message)}</span>`;
@@ -994,34 +1084,58 @@ $('#co-draft-send').addEventListener('click', async () => {
   }
 });
 
-// ────── SITE SURVEY PHOTOS ──────
-async function loadSurvey(){
-  $('#survey-grid').style.display = 'block';
-  $('#survey-grid').innerHTML = '<div class="loading" style="padding:14px">Extracting site survey pages…</div>';
+// ────── SITE SURVEY REPORT (open PDF in new tab) ──────
+let SURVEY_DOC = null;
+async function loadSiteSurveyDoc(){
   try{
-    const r = await fetch(`${API}/sow-survey-review`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID) }),
-    });
+    const r = await fetch(`${API}/sow/v2/site-survey-doc/${SOW_ITEM_ID}`);
     const d = await r.json();
     if(d.status !== 'ok') throw new Error(d.message);
-    const pages = (d.pages || []).slice(0, 16);
-    if(!pages.length){ $('#survey-grid').innerHTML = '<div class="error">No survey pages</div>'; return; }
-    const html = `
-      <div style="font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px">${x(d.file_name)} · ${d.total_pages} pages · showing first ${pages.length}</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border2)">
-        ${pages.map(p => `<div style="background:var(--bg);position:relative">
-          <img src="data:image/png;base64,${p.thumb}" style="width:100%;display:block"/>
-          <div style="position:absolute;top:4px;left:4px;font-size:8px;color:var(--blue);background:rgba(0,0,0,.6);padding:2px 6px;letter-spacing:.1em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace">${p.type}</div>
-        </div>`).join('')}
-      </div>`;
-    $('#survey-grid').innerHTML = html;
+    SURVEY_DOC = d;
+    const openBtn = $('#survey-open');
+    const detail = $('#survey-detail');
+    const copyBtn = $('#survey-copy');
+    const copyDetail = $('#survey-copy-detail');
+    if(!d.found){
+      detail.innerHTML = `<span class="silver">No Site Survey Report found · upload one to the Site Survey folder</span>`;
+      if(openBtn){ openBtn.disabled = true; }
+      if(copyBtn){ copyBtn.disabled = true; }
+      return;
+    }
+    detail.innerHTML = `<b>${x(d.file.name)}</b> · <span class="silver">source: ${x(d.source)}${d.copied_to_approved?' · already in Approved':''}</span>`;
+    if(openBtn){
+      openBtn.disabled = false;
+      openBtn.onclick = () => window.open(d.file.view_url, '_blank', 'noopener');
+    }
+    if(copyBtn){
+      if(d.copied_to_approved || d.source === 'approved'){
+        copyBtn.disabled = true;
+        copyBtn.textContent = '✓ In Approved';
+        copyDetail.innerHTML = `<span class="ok">Site Survey Report is already in the Approved folder</span>`;
+      } else {
+        copyBtn.disabled = false;
+        copyBtn.onclick = async () => {
+          copyBtn.disabled = true; copyBtn.textContent = 'Copying…';
+          try{
+            const cr = await fetch(`${API}/sow/v2/copy-to-approved`, {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID), file_id: d.file.id }),
+            });
+            const cd = await cr.json();
+            if(cd.status !== 'ok') throw new Error(cd.message);
+            copyBtn.textContent = '✓ Copied';
+            copyDetail.innerHTML = `<span class="ok">Site Survey Report copied to Approved folder</span>`;
+          }catch(err){
+            copyBtn.disabled = false; copyBtn.textContent = 'Retry';
+            alert('Copy failed: ' + err.message);
+          }
+        };
+      }
+    }
   }catch(e){
-    $('#survey-grid').innerHTML = `<div class="error">${x(e.message)}</div>`;
+    $('#survey-detail').innerHTML = `<span class="silver">SSR lookup failed: ${x(e.message)}</span>`;
   }
 }
-$('#survey-load').addEventListener('click', loadSurvey);
 
 // ────── PLANSET ──────
 let PLANSET = null;
@@ -1037,9 +1151,32 @@ async function loadPlansetInfo(){
     const lr = PALMETTO ? PALMETTO.system_size_kw : null;
     const matches = lr && d.system_size_kw && Math.abs(parseFloat(d.system_size_kw) - parseFloat(lr)) < 0.05;
     updateCrossMatchCell('Planset', d.system_size_kw ? d.system_size_kw.toFixed(2)+' kW' : '?', matches, !!d.system_size_kw);
+    renderPlansetEquipment();
+    if(ADDERS_LOADED) renderAdders();  // re-render if Podio adders already loaded
   }catch(e){
     updateCrossMatchCell('Planset', '—', false, false);
   }
+}
+
+function renderPlansetEquipment(){
+  // Overlay planset-detected equipment under the LightReach equipment line.
+  const el = $('#cm-equipment');
+  if(!el || !PLANSET) return;
+  const pMfr = PLANSET.panel_manufacturer;
+  const pModel = PLANSET.panel_model;
+  const pCount = PLANSET.panel_count;
+  const inv = (PLANSET.inverters || []).map(i => {
+    const parts = [i.count ? `${i.count}×` : null, i.manufacturer, i.model].filter(Boolean);
+    return parts.join(' ');
+  }).join(', ') || '—';
+  const fileLink = PLANSET.file && PLANSET.file.view_url
+    ? ` · <a href="${x(PLANSET.file.view_url)}" target="_blank" style="color:var(--blue)">Open planset ↗</a>`
+    : '';
+  // LightReach line is already set by renderCrossMatch — append planset line below it.
+  const prior = el.getAttribute('data-lr') || el.innerHTML;
+  if(!el.getAttribute('data-lr')) el.setAttribute('data-lr', prior);
+  const plansetLine = `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border2);font-size:10px"><span style="color:var(--text4);font-family:ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase">Planset:</span> <b>${pCount||'?'} × ${x(pMfr||'?')} ${x(pModel||'')}</b> · Inverter: ${x(inv)}${fileLink}</div>`;
+  el.innerHTML = prior + plansetLine;
 }
 
 function updateCrossMatchCell(label, value, isMatch, populated){
@@ -1135,12 +1272,94 @@ function loadLayoutCompare(){
     })
     .catch(e => { document.getElementById('lc-body').innerHTML = `<div class="error">${x(e.message)}</div>`; });
 }
-document.querySelectorAll('.tool-card').forEach((card, i) => {
-  if(i === 0){
+// ────── TOOL-CARD WIRING ──────
+// Cards in order: Layout Compare, Site Survey, Screenshot Tool, Approved Folder (link, no JS)
+(function wireToolCards(){
+  const cards = document.querySelectorAll('.tool-card');
+  cards.forEach((card, i) => {
     const btn = card.querySelector('button');
-    if(btn) btn.addEventListener('click', openLayoutCompare);
+    if(!btn) return; // Approved Folder uses <a>, no JS needed
+    if(i === 0) btn.addEventListener('click', openLayoutCompare);
+    else if(i === 1) btn.addEventListener('click', () => {
+      if(SURVEY_DOC && SURVEY_DOC.found) window.open(SURVEY_DOC.file.view_url, '_blank', 'noopener');
+      else alert('No Site Survey Report found for this project.');
+    });
+    else if(i === 2) btn.addEventListener('click', openScreenshotTool);
+  });
+})();
+
+// ────── SCREENSHOT TOOL (auto-annotate planset site plan) ──────
+function openScreenshotTool(){
+  const overlay = document.createElement('div');
+  overlay.id = 'lc-overlay';
+  overlay.innerHTML = `
+    <div class="lc-frame">
+      <div class="lc-hdr">
+        <div class="lc-title">Screenshot Tool · Auto-Label Site Plan</div>
+        <button class="btn-tiny" id="ss-close">Close ✕</button>
+      </div>
+      <div class="lc-body" id="ss-body" style="padding:20px">
+        <div style="margin-bottom:14px;color:var(--text3);font-size:11px">Analyzes the planset site plan page, identifies equipment + trenching, and generates an annotated image. Takes 30–60s.</div>
+        <button class="btn-tiny primary" id="ss-run">Generate Annotated Site Plan</button>
+        <div id="ss-result" style="margin-top:16px"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#ss-close').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('#ss-run').addEventListener('click', runScreenshot);
+}
+
+async function runScreenshot(){
+  const btn = $('#ss-run');
+  const res = $('#ss-result');
+  btn.disabled = true; btn.textContent = 'Analyzing… 30–60s';
+  res.innerHTML = '<div class="loading" style="padding:20px">Finding site plan page and identifying equipment…</div>';
+  try{
+    const r = await fetch(`${API}/sow-siteplan-auto`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID) }),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Annotation failed');
+    res.innerHTML = `
+      <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text4);margin-bottom:10px">
+        Page ${d.page_found} · ${d.equipment_count} equipment · ${d.trenching_count} trenching label${d.trenching_count===1?'':'s'}
+      </div>
+      <img src="data:image/jpeg;base64,${d.preview_b64}" style="width:100%;display:block;border:1px solid var(--border2)" alt="Annotated site plan"/>
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn-tiny primary" id="ss-save">Save to Drive</button>
+        <button class="btn-tiny" id="ss-regen">Regenerate</button>
+        <span id="ss-save-status" style="font-size:10px;color:var(--text4)"></span>
+      </div>`;
+    btn.textContent = 'Done'; btn.disabled = false;
+    $('#ss-save').addEventListener('click', async () => {
+      const save = $('#ss-save');
+      const status = $('#ss-save-status');
+      save.disabled = true; save.textContent = 'Saving…';
+      try{
+        const sr = await fetch(`${API}/sow-siteplan-save`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ cache_key: d.cache_key, customer_fid: d.customer_fid, project_title: d.project_title }),
+        });
+        const sd = await sr.json();
+        if(sd.status !== 'ok') throw new Error(sd.message);
+        save.textContent = '✓ Saved';
+        status.innerHTML = `<a href="${x(sd.drive_link)}" target="_blank" style="color:var(--blue)">${x(sd.file_name)} ↗</a>`;
+      }catch(err){
+        save.disabled = false; save.textContent = 'Retry';
+        alert('Save failed: ' + err.message);
+      }
+    });
+    $('#ss-regen').addEventListener('click', runScreenshot);
+  }catch(e){
+    res.innerHTML = `<div class="error" style="padding:14px">Failed: ${x(e.message)}</div>`;
+    btn.disabled = false; btn.textContent = 'Retry';
   }
-});
+}
+$('#screenshot-open-s6') && $('#screenshot-open-s6').addEventListener('click', openScreenshotTool);
+$('#screenshot-open-row') && $('#screenshot-open-row').addEventListener('click', openScreenshotTool);
 
 // ────── PE LETTER ──────
 async function loadPELetter(){
