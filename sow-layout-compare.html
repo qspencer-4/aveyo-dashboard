@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Layout Compare</title>
+<link rel="icon" href="data:,"/>
+<style>
+:root{
+  --blue:#ADD8E6; --silver:#c8c7bf;
+  --bg0:#000; --bg:#141413; --bg2:#1c1c1a; --bg3:#262624;
+  --text:#f0efea; --text3:rgba(255,255,255,.35); --text4:rgba(255,255,255,.18);
+  --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg0);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+a{color:var(--blue);text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.btn{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:6px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;transition:all .15s}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{border-color:var(--blue);color:var(--blue)}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border2);background:var(--bg);height:46px}
+.topbar .title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;color:var(--text)}
+.topbar .sub{font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;color:var(--text3)}
+.split{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 46px)}
+.pane{display:flex;flex-direction:column;border-right:1px solid var(--border2);overflow:hidden}
+.pane:last-child{border-right:none}
+.pane-hdr{padding:10px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--bg)}
+.pane-hdr .lbl{color:var(--blue);letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+.pane-hdr .name{color:var(--text3);font-size:10px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pane-hdr .pg{color:var(--text);font-size:11px}
+.pane-hdr .auto{color:var(--text4);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.pane-hdr .pinned{color:var(--blue);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.pane-hdr .spacer{flex:1}
+.pane-body{flex:1;overflow:auto;background:var(--bg0);display:flex;align-items:flex-start;justify-content:center}
+.pane-body img{max-width:100%;display:block}
+.pane-body .loading,.pane-body .empty,.pane-body .err{padding:40px;color:var(--text3);font-size:12px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
+.pane-body .err{color:var(--silver)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="title" id="hdr-title">Layout Compare</div>
+  <div class="sub" id="hdr-sub">Proposal vs Planset</div>
+  <div style="flex:1"></div>
+  <button class="btn" id="btn-reload" title="Re-render both panes">Reload</button>
+  <a class="btn" id="btn-open-sow" href="#" target="_blank" rel="noopener" style="display:none">Back to SOW ↗</a>
+</div>
+<div class="split" id="split">
+  <div class="pane" id="pane-proposal">
+    <div class="pane-hdr">
+      <span class="lbl">Proposal</span>
+      <span class="name" id="n-proposal">—</span>
+      <span class="spacer"></span>
+      <button class="btn" data-side="proposal" data-dir="-1">◀</button>
+      <span class="pg" id="pg-proposal">—</span>
+      <button class="btn" data-side="proposal" data-dir="1">▶</button>
+      <span class="auto" id="auto-proposal"></span>
+      <button class="btn" data-reset="proposal">Reset</button>
+    </div>
+    <div class="pane-body" id="body-proposal"><div class="loading">Loading…</div></div>
+  </div>
+  <div class="pane" id="pane-planset">
+    <div class="pane-hdr">
+      <span class="lbl">Planset</span>
+      <span class="name" id="n-planset">—</span>
+      <span class="spacer"></span>
+      <button class="btn" data-side="planset" data-dir="-1">◀</button>
+      <span class="pg" id="pg-planset">—</span>
+      <button class="btn" data-side="planset" data-dir="1">▶</button>
+      <span class="auto" id="auto-planset"></span>
+      <button class="btn" data-reset="planset">Reset</button>
+    </div>
+    <div class="pane-body" id="body-planset"><div class="loading">Loading…</div></div>
+  </div>
+</div>
+<script>
+const API = 'https://aveyo.aiwhileyousleeping.com';
+const params = new URLSearchParams(location.search);
+const SOW_ITEM_ID = params.get('sow') || params.get('id');
+const PROP_KEY = iid => `lc_prop_page_${iid}`;
+const PLAN_KEY = iid => `lc_plan_page_${iid}`;
+const $ = s => document.querySelector(s);
+const x = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+if(!SOW_ITEM_ID){
+  document.body.innerHTML = '<div style="padding:40px;color:#c8c7bf;font-family:ui-monospace,Menlo,monospace">Missing ?sow=&lt;sow_item_id&gt; in URL.</div>';
+}
+
+function setBackLink(){
+  const a = $('#btn-open-sow');
+  if(a){ a.href = `sow-v2.html?sow=${SOW_ITEM_ID}`; a.style.display = ''; }
+}
+
+let LAST = null;
+async function load(){
+  setBackLink();
+  const prop = localStorage.getItem(PROP_KEY(SOW_ITEM_ID));
+  const plan = localStorage.getItem(PLAN_KEY(SOW_ITEM_ID));
+  const qs = new URLSearchParams();
+  if(prop) qs.set('proposal_page', prop);
+  if(plan) qs.set('planset_page', plan);
+  const url = `${API}/sow/v2/layout-compare/${SOW_ITEM_ID}${qs.toString()?`?${qs}`:''}`;
+  ['proposal','planset'].forEach(side => {
+    $(`#body-${side}`).innerHTML = '<div class="loading">Loading…</div>';
+    $(`#pg-${side}`).textContent = '—';
+    $(`#auto-${side}`).textContent = '';
+  });
+  try{
+    const r = await fetch(url);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'load failed');
+    LAST = d;
+    render('proposal', d.proposal);
+    render('planset', d.planset);
+  }catch(e){
+    ['proposal','planset'].forEach(side => {
+      $(`#body-${side}`).innerHTML = `<div class="err">Error: ${x(e.message)}</div>`;
+    });
+  }
+}
+
+function render(side, data){
+  const body = $(`#body-${side}`);
+  const nameEl = $(`#n-${side}`);
+  const pgEl = $(`#pg-${side}`);
+  const autoEl = $(`#auto-${side}`);
+  if(!data){
+    body.innerHTML = '<div class="empty">Not found</div>';
+    nameEl.textContent = '—'; pgEl.textContent = '—'; autoEl.textContent = '';
+    return;
+  }
+  if(data.error){
+    body.innerHTML = `<div class="err">Error: ${x(data.error)}</div>`;
+    nameEl.textContent = x(data.file_name||'—'); pgEl.textContent = '—'; autoEl.textContent = '';
+    return;
+  }
+  nameEl.textContent = data.file_name || '—';
+  nameEl.title = data.file_name || '';
+  pgEl.textContent = `pg ${data.page} / ${data.total_pages||'?'}`;
+  autoEl.className = data.auto_detected ? 'auto' : 'pinned';
+  autoEl.textContent = data.auto_detected ? 'auto' : 'pinned';
+  body.innerHTML = `<img src="data:image/jpeg;base64,${data.img_b64}" alt="${x(side)}"/>`;
+}
+
+document.querySelectorAll('button[data-side]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(!LAST) return;
+    const side = btn.dataset.side;
+    const cur = side === 'proposal' ? LAST.proposal : LAST.planset;
+    if(!cur || !cur.page) return;
+    const dir = parseInt(btn.dataset.dir,10) || 1;
+    const total = cur.total_pages || 99;
+    const next = Math.max(1, Math.min(total, cur.page + dir));
+    const key = side === 'proposal' ? PROP_KEY(SOW_ITEM_ID) : PLAN_KEY(SOW_ITEM_ID);
+    localStorage.setItem(key, String(next));
+    load();
+  });
+});
+document.querySelectorAll('button[data-reset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const side = btn.dataset.reset;
+    const key = side === 'proposal' ? PROP_KEY(SOW_ITEM_ID) : PLAN_KEY(SOW_ITEM_ID);
+    localStorage.removeItem(key);
+    load();
+  });
+});
+$('#btn-reload').addEventListener('click', load);
+
+if(SOW_ITEM_ID) load();
+</script>
+</body>
+</html>
