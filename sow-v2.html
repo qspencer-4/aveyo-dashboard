@@ -1059,6 +1059,9 @@ function updateCrossMatchCell(label, value, isMatch, populated){
 }
 
 // ────── LAYOUT COMPARE OVERLAY ──────
+const LAYOUT_PROP_PAGE_KEY = (iid) => `lc_prop_page_${iid}`;
+const LAYOUT_PLAN_PAGE_KEY = (iid) => `lc_plan_page_${iid}`;
+
 function openLayoutCompare(){
   const overlay = document.createElement('div');
   overlay.id = 'lc-overlay';
@@ -1074,20 +1077,61 @@ function openLayoutCompare(){
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
   overlay.querySelector('#lc-close').addEventListener('click', () => overlay.remove());
-  fetch(`${API}/sow/v2/layout-compare/${SOW_ITEM_ID}`)
+  loadLayoutCompare();
+}
+
+function loadLayoutCompare(){
+  const params = new URLSearchParams();
+  const propOverride = localStorage.getItem(LAYOUT_PROP_PAGE_KEY(SOW_ITEM_ID));
+  const planOverride = localStorage.getItem(LAYOUT_PLAN_PAGE_KEY(SOW_ITEM_ID));
+  if(propOverride) params.set('proposal_page', propOverride);
+  if(planOverride) params.set('planset_page', planOverride);
+  const qs = params.toString();
+  const url = `${API}/sow/v2/layout-compare/${SOW_ITEM_ID}${qs?`?${qs}`:''}`;
+  const body = document.getElementById('lc-body');
+  body.innerHTML = '<div class="loading" style="padding:80px">Rendering pages…</div>';
+  fetch(url)
     .then(r => r.json())
     .then(d => {
       if(d.status !== 'ok') throw new Error(d.message);
-      const body = document.getElementById('lc-body');
-      const pane = (label, side) => {
+      const pane = (label, side, side_key) => {
         if(!side) return `<div class="lc-pane"><div class="lc-pane-hdr">${label}</div><div class="lc-pane-empty">Not found</div></div>`;
         if(side.error) return `<div class="lc-pane"><div class="lc-pane-hdr">${label}</div><div class="lc-pane-empty">Error: ${x(side.error)}</div></div>`;
+        const total = side.total_pages || '?';
+        const auto = side.auto_detected ? '<span style="color:var(--text4)"> · auto</span>' : '<span style="color:var(--blue)"> · pinned</span>';
         return `<div class="lc-pane">
-          <div class="lc-pane-hdr">${label} · <span style="color:var(--text4)">${x(side.file_name)} · pg ${side.page}</span></div>
+          <div class="lc-pane-hdr">${label} · <span style="color:var(--text4)">${x(side.file_name)}</span></div>
+          <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:11px">
+            <button class="btn-tiny lc-prev" data-side="${side_key}">◀</button>
+            <span>pg <b>${side.page}</b> / ${total}${auto}</span>
+            <button class="btn-tiny lc-next" data-side="${side_key}">▶</button>
+            <button class="btn-tiny lc-reset" data-side="${side_key}" style="margin-left:auto">Reset</button>
+          </div>
           <img src="data:image/jpeg;base64,${side.img_b64}" alt="${label}"/>
         </div>`;
       };
-      body.innerHTML = pane('Proposal', d.proposal) + pane('Planset', d.planset);
+      body.innerHTML = pane('Proposal', d.proposal, 'proposal') + pane('Planset', d.planset, 'planset');
+      body.querySelectorAll('.lc-prev,.lc-next').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const side = btn.dataset.side;
+          const cur = side === 'proposal' ? d.proposal : d.planset;
+          if(!cur || !cur.page) return;
+          const dir = btn.classList.contains('lc-prev') ? -1 : 1;
+          const total = cur.total_pages || 99;
+          const next = Math.max(1, Math.min(total, cur.page + dir));
+          const key = side === 'proposal' ? LAYOUT_PROP_PAGE_KEY(SOW_ITEM_ID) : LAYOUT_PLAN_PAGE_KEY(SOW_ITEM_ID);
+          localStorage.setItem(key, String(next));
+          loadLayoutCompare();
+        });
+      });
+      body.querySelectorAll('.lc-reset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const side = btn.dataset.side;
+          const key = side === 'proposal' ? LAYOUT_PROP_PAGE_KEY(SOW_ITEM_ID) : LAYOUT_PLAN_PAGE_KEY(SOW_ITEM_ID);
+          localStorage.removeItem(key);
+          loadLayoutCompare();
+        });
+      });
     })
     .catch(e => { document.getElementById('lc-body').innerHTML = `<div class="error">${x(e.message)}</div>`; });
 }
