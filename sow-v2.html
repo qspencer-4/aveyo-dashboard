@@ -793,20 +793,56 @@ async function loadAdders(){
 
 // ────── AURORA (Sold milestone design) ──────
 let AURORA = null;
-async function loadAurora(){
+const AURORA_PROJECT_OVERRIDE_KEY = (iid) => `aurora_pid_${iid}`;
+const AURORA_DESIGN_OVERRIDE_KEY = (iid) => `aurora_did_${iid}`;
+
+async function loadAurora(opts){
+  opts = opts || {};
   if(!PROJECT || !PROJECT.name) return;
-  $('#prod-equipment').textContent = 'Loading Aurora (10–30s)…';
+  $('#prod-equipment').textContent = 'Loading Aurora…';
   $('#prod-tilts').textContent = 'Loading…';
   $('#prod-tolerance').textContent = 'Loading…';
+  const body = { customer_name: PROJECT.name };
+  if(PROJECT.address) body.address = PROJECT.address;
+  const cachedPid = localStorage.getItem(AURORA_PROJECT_OVERRIDE_KEY(SOW_ITEM_ID));
+  if(cachedPid && !opts.ignore_cached_pid) body.aurora_project_id = cachedPid;
+  const cachedDid = localStorage.getItem(AURORA_DESIGN_OVERRIDE_KEY(SOW_ITEM_ID));
+  if(cachedDid && !opts.ignore_cached_did) body.design_id = cachedDid;
+  if(opts.allow_non_sold) body.allow_non_sold = true;
+  if(opts.aurora_project_id){ body.aurora_project_id = opts.aurora_project_id; delete body.design_id; }
+  if(opts.design_id) body.design_id = opts.design_id;
   try{
     const r = await fetch(`${API}/aurora-production`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ customer_name: PROJECT.name }),
+      body: JSON.stringify(body),
     });
     const d = await r.json();
+
+    if(d.status === 'ambiguous'){
+      renderAuroraCandidates(d, 'Multiple Aurora projects matched. Pick the right one:');
+      return;
+    }
+    if(d.status === 'not_found'){
+      $('#prod-equipment').innerHTML = `<span class="silver">No Aurora project matched "${x(PROJECT.name)}"${PROJECT.address?` @ ${x(PROJECT.address)}`:''}.</span>`;
+      $('#prod-tilts').textContent = ''; $('#prod-tolerance').textContent = '';
+      updateCrossMatchCell('Aurora·Sold', '—', false, false);
+      return;
+    }
+    if(d.status === 'no_sold_milestone' || d.status === 'no_designs'){
+      renderAuroraNoSold(d);
+      return;
+    }
     if(d.status !== 'ok') throw new Error(d.message || 'Aurora failed');
+
     AURORA = d;
+    if(d.project_id) localStorage.setItem(AURORA_PROJECT_OVERRIDE_KEY(SOW_ITEM_ID), d.project_id);
+    if(d.design_pick_reason === 'explicit' && d.design_id){
+      localStorage.setItem(AURORA_DESIGN_OVERRIDE_KEY(SOW_ITEM_ID), d.design_id);
+    } else if(d.design_pick_reason === 'sold'){
+      // sold milestone is canonical — no need to pin a design override
+      localStorage.removeItem(AURORA_DESIGN_OVERRIDE_KEY(SOW_ITEM_ID));
+    }
     renderAurora(d);
     if(d.aurora_url){
       const a = $('#ext-aurora');
@@ -818,6 +854,50 @@ async function loadAurora(){
     $('#prod-tolerance').textContent = '';
     updateCrossMatchCell('Aurora·Sold', '—', false, false);
   }
+}
+
+function renderAuroraCandidates(d, header){
+  updateCrossMatchCell('Aurora·Sold', '—', false, false);
+  const cands = d.candidates || [];
+  const rows = cands.map(c => `
+    <button type="button" class="btn-tiny" data-pid="${x(c.id)}" style="display:block;margin:4px 0;text-align:left;width:100%">
+      <b>${x(c.name||'(unnamed)')}</b>
+      ${c.address?`<br/><span class="silver">${x(c.address)}</span>`:''}
+      <span class="silver"> · score ${c.score}</span>
+    </button>`).join('');
+  $('#prod-equipment').innerHTML = `
+    <div style="margin-bottom:6px"><span class="silver">${x(header||d.message||'Pick an Aurora project')}</span></div>
+    ${rows || '<span class="silver">No candidates returned</span>'}
+  `;
+  $('#prod-tilts').textContent = '';
+  $('#prod-tolerance').textContent = '';
+  $('#prod-equipment').querySelectorAll('button[data-pid]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      loadAurora({ aurora_project_id: btn.dataset.pid, ignore_cached_pid: true, ignore_cached_did: true });
+    });
+  });
+}
+
+function renderAuroraNoSold(d){
+  updateCrossMatchCell('Aurora·Sold', '—', false, false);
+  const designs = d.designs || [];
+  const rows = designs.map(de => `
+    <button type="button" class="btn-tiny" data-did="${x(de.id)}" style="display:block;margin:4px 0;text-align:left;width:100%">
+      <b>${x(de.name||'(unnamed)')}</b>
+      <span class="silver"> · milestone: ${x(de.milestone||'—')}${de.system_size_kw?` · ${de.system_size_kw} kW`:''}</span>
+    </button>`).join('');
+  $('#prod-equipment').innerHTML = `
+    <div style="margin-bottom:6px"><b style="color:#E88B8B">No Sold milestone design.</b> <span class="silver">Per process, the Sold milestone must be set in Aurora before SOW. Pick a design to override (will be remembered for this SOW):</span></div>
+    ${rows || '<span class="silver">No designs found</span>'}
+    <div style="margin-top:6px">${d.aurora_url?`<a href="${x(d.aurora_url)}" target="_blank" rel="noopener">Open project in Aurora ↗</a>`:''}</div>
+  `;
+  $('#prod-tilts').textContent = '';
+  $('#prod-tolerance').textContent = '';
+  $('#prod-equipment').querySelectorAll('button[data-did]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      loadAurora({ design_id: btn.dataset.did, allow_non_sold: true });
+    });
+  });
 }
 
 function renderAurora(a){
