@@ -1216,75 +1216,12 @@ function openLayoutCompare(){
   });
 })();
 
-// ────── SCREENSHOT TOOL (auto-annotate planset site plan) ──────
+// ────── SCREENSHOT TOOL (manual site-plan editor — opens in new tab) ──────
 function openScreenshotTool(){
-  const overlay = document.createElement('div');
-  overlay.id = 'lc-overlay';
-  overlay.innerHTML = `
-    <div class="lc-frame">
-      <div class="lc-hdr">
-        <div class="lc-title">Screenshot Tool · Auto-Label Site Plan</div>
-        <button class="btn-tiny" id="ss-close">Close ✕</button>
-      </div>
-      <div class="lc-body" id="ss-body" style="padding:20px">
-        <div style="margin-bottom:14px;color:var(--text3);font-size:11px">Analyzes the planset site plan page, identifies equipment + trenching, and generates an annotated image. Takes 30–60s.</div>
-        <button class="btn-tiny primary" id="ss-run">Generate Annotated Site Plan</button>
-        <div id="ss-result" style="margin-top:16px"></div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
-  overlay.querySelector('#ss-close').addEventListener('click', () => overlay.remove());
-  overlay.querySelector('#ss-run').addEventListener('click', runScreenshot);
-}
-
-async function runScreenshot(){
-  const btn = $('#ss-run');
-  const res = $('#ss-result');
-  btn.disabled = true; btn.textContent = 'Analyzing… 30–60s';
-  res.innerHTML = '<div class="loading" style="padding:20px">Finding site plan page and identifying equipment…</div>';
-  try{
-    const r = await fetch(`${API}/sow-siteplan-auto`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ sow_item_id: parseInt(SOW_ITEM_ID) }),
-    });
-    const d = await r.json();
-    if(d.status !== 'ok') throw new Error(d.message || 'Annotation failed');
-    res.innerHTML = `
-      <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text4);margin-bottom:10px">
-        Page ${d.page_found} · ${d.equipment_count} equipment · ${d.trenching_count} trenching label${d.trenching_count===1?'':'s'}
-      </div>
-      <img src="data:image/jpeg;base64,${d.preview_b64}" style="width:100%;display:block;border:1px solid var(--border2)" alt="Annotated site plan"/>
-      <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="btn-tiny primary" id="ss-save">Save to Drive</button>
-        <button class="btn-tiny" id="ss-regen">Regenerate</button>
-        <span id="ss-save-status" style="font-size:10px;color:var(--text4)"></span>
-      </div>`;
-    btn.textContent = 'Done'; btn.disabled = false;
-    $('#ss-save').addEventListener('click', async () => {
-      const save = $('#ss-save');
-      const status = $('#ss-save-status');
-      save.disabled = true; save.textContent = 'Saving…';
-      try{
-        const sr = await fetch(`${API}/sow-siteplan-save`, {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ cache_key: d.cache_key, customer_fid: d.customer_fid, project_title: d.project_title }),
-        });
-        const sd = await sr.json();
-        if(sd.status !== 'ok') throw new Error(sd.message);
-        save.textContent = '✓ Saved';
-        status.innerHTML = `<a href="${x(sd.drive_link)}" target="_blank" style="color:var(--blue)">${x(sd.file_name)} ↗</a>`;
-      }catch(err){
-        save.disabled = false; save.textContent = 'Retry';
-        alert('Save failed: ' + err.message);
-      }
-    });
-    $('#ss-regen').addEventListener('click', runScreenshot);
-  }catch(e){
-    res.innerHTML = `<div class="error" style="padding:14px">Failed: ${x(e.message)}</div>`;
-    btn.disabled = false; btn.textContent = 'Retry';
-  }
+  const title = (PROJECT && PROJECT.name) ? PROJECT.name : '';
+  const params = new URLSearchParams({ sow: SOW_ITEM_ID });
+  if(title) params.set('title', title);
+  window.open(`sow-screenshot.html?${params.toString()}`, '_blank', 'noopener');
 }
 $('#screenshot-open-s6') && $('#screenshot-open-s6').addEventListener('click', openScreenshotTool);
 $('#screenshot-open-row') && $('#screenshot-open-row').addEventListener('click', openScreenshotTool);
