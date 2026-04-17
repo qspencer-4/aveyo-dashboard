@@ -3595,7 +3595,7 @@ function cardHTML(item,composeType=null){
 }
 
 // ── DETAIL VIEW ──────────────────────────────────────────
-function openDetail(itemId){
+function openDetail(itemId, rightSection){
   const commsItems = COMMS_CACHE[COMMS_FILTER]||[];
   const reviewItems = REVIEW_TAB_ITEMS||[];
   const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId) || commsItems.find(i=>i.id===itemId) || reviewItems.find(i=>i.id===itemId);
@@ -3633,8 +3633,9 @@ function openDetail(itemId){
   if(splitBackEl) splitBackEl.textContent = backLabel;
 
   // Always reset to default tabs: Milestones left, Rep Update right
+  // (right side can be overridden by caller, e.g. queue click handlers)
   SPLIT_LEFT = 'milestones';
-  SPLIT_RIGHT = 'rep';
+  SPLIT_RIGHT = rightSection || 'rep';
 
   // Show loading splash with spinning Aveyo logo
   document.getElementById('detail-body').innerHTML = '<div class="loading" id="detail-loading" style="padding:6rem 1rem;text-align:center"><div style="width:80px;height:80px;margin:0 auto 1rem;border:none;background:none;animation:spin3d 2.5s ease-in-out infinite;transform-style:preserve-3d"><img src="'+AVEYO_LOGO_SRC+'" style="width:100%;height:100%;object-fit:contain;display:block"></div>Loading project...</div>';
@@ -7036,7 +7037,8 @@ document.getElementById('comms-list').addEventListener('click',function(e){
     PREV_VIEW='comms';
     const items = COMMS_CACHE[COMMS_FILTER]||[];
     CURRENT_LIST=[...items];
-    openDetail(parseInt(c.dataset.itemid));
+    const section = COMMS_FILTER==='61743343' ? 'customer' : 'rep';
+    openDetail(parseInt(c.dataset.itemid), section);
   }
 });
 
@@ -7052,7 +7054,7 @@ document.getElementById('review-list').addEventListener('click',function(e){
   if(c){
     PREV_VIEW='review';
     CURRENT_LIST=[...(REVIEW_TAB_ITEMS||[])];
-    openDetail(parseInt(c.dataset.itemid));
+    openDetail(parseInt(c.dataset.itemid), 'review');
   }
 });
 
