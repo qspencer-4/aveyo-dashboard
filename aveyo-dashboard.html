@@ -1748,6 +1748,8 @@ const COMMS_CHIPS = [
   ['61743344','Rep Updates'],
   ['61743343','Customer Updates'],
 ];
+let REVIEW_TAB_ITEMS = null;
+const REVIEW_VIEW_ID = '61743302';
 let TD_TICKET = null;
 let TD_PROJECT = null;
 let TD_TAB = 'activity';
@@ -2092,7 +2094,7 @@ function buildHomeDashboard(){
   </div>`;
 
   // Review needed
-  html += `<div class="hd-hero" onclick="openWidgetList(2)" style="cursor:pointer">
+  html += `<div class="hd-hero" onclick="openReviewTab()" style="cursor:pointer">
     <div class="hd-hero-num" style="color:${(cached[2]||0)>0?'#C9A96E':'rgba(255,255,255,.9)'}">${wNum(2)}</div>
     <div class="hd-hero-lbl">Review Needed (+7d)</div>
   </div>`;
@@ -2152,7 +2154,7 @@ function buildHomeDashboard(){
     <div class="hd-widget-grid" style="grid-template-columns:1fr">`;
 
   // Project Review Needed (wide, prominent)
-  html += `<div class="hd-widget hd-widget-accent" onclick="openWidgetList(2)">
+  html += `<div class="hd-widget hd-widget-accent" onclick="openReviewTab()">
     <div class="hd-widget-num" style="color:${(cached[2]||0)>0?'#C9A96E':'rgba(255,255,255,.9)'}" id="wnum_2">${wNum(2)}</div>
     <div class="hd-widget-lbl">Project Review Needed</div>
   </div>`;
@@ -2214,7 +2216,7 @@ function buildHomeDashboard(){
   html += `<div class="hd-col">
     <div class="hd-widget-sec-label" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.875rem">
       <span>Review Needed</span>
-      ${(cached[2]||0)>6?`<span style="color:#ADD8E6;cursor:pointer;font-size:8px;letter-spacing:.14em" onclick="openWidgetList(2)">See all ${wNum(2)}</span>`:''}
+      ${(cached[2]||0)>6?`<span style="color:#ADD8E6;cursor:pointer;font-size:8px;letter-spacing:.14em" onclick="openReviewTab()">See all ${wNum(2)}</span>`:''}
     </div>`;
 
   if(reviewNeeded.length){
@@ -2650,7 +2652,30 @@ function renderSOWResp(){
   }).join('') : '<div class="resp-empty">No items in this view.</div>';
 }
 function loadPreInstall(){document.getElementById('preinstall-list').innerHTML='<div class="resp-empty">Loading...</div>';}
-function loadReview(){document.getElementById('review-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+async function loadReview(){
+  if(REVIEW_TAB_ITEMS){ renderReviewTab(); return; }
+  document.getElementById('review-list').innerHTML='<div class="resp-empty">Loading...</div>';
+  try{
+    const raw = await fetchAllItems(29839792, parseInt(REVIEW_VIEW_ID));
+    REVIEW_TAB_ITEMS = raw.map(parseItem);
+    renderReviewTab();
+  }catch(e){
+    document.getElementById('review-list').innerHTML='<div class="resp-empty">Error: '+x(e.message)+'</div>';
+  }
+}
+
+function renderReviewTab(){
+  const items = REVIEW_TAB_ITEMS||[];
+  document.getElementById('review-list').innerHTML = items.length
+    ? items.map(item=>cardHTML(item,'review')).join('')
+    : '<div class="resp-empty">No projects need review right now.</div>';
+}
+
+function openReviewTab(){
+  showView('review');
+  setActiveNav('review');
+  loadReview();
+}
 function loadChangeOrders(){document.getElementById('change-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 function loadRoof(){document.getElementById('roof-list').innerHTML='<div class="resp-empty">Loading...</div>';}
 
@@ -3557,20 +3582,23 @@ function cardHTML(item,composeType=null){
     ${item.notes?`<div class="card-note-wrap" id="${uid}">
       <div class="card-note card-note-collapsed" id="${uid}_txt">${renderNotes(item.notes.substring(0,120))}${item.notes.length>120?`<span class="card-note-more" data-noteid="${uid}"> more</span>`:''}</div>
     </div>`:''}
-    <div class="card-actions-row">
-      <button class="card-action-btn rep" data-action="rep" data-itemid="${item.id}">Rep Update</button>
-      <button class="card-action-btn customer" data-action="customer" data-itemid="${item.id}">Customer Text</button>
-    </div>
-    <div class="card-actions-row" style="margin-top:4px">
-      <button class="card-action-btn" style="background:rgba(255,255,255,.04);color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.12)" data-action="review" data-itemid="${item.id}">Project Review</button>
-    </div>
+    ${(()=>{
+      const repBtn=`<button class="card-action-btn rep" data-action="rep" data-itemid="${item.id}">Rep Update</button>`;
+      const custBtn=`<button class="card-action-btn customer" data-action="customer" data-itemid="${item.id}">Customer Text</button>`;
+      const revBtn=`<button class="card-action-btn" style="background:rgba(255,255,255,.04);color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.12)" data-action="review" data-itemid="${item.id}">Project Review</button>`;
+      if(composeType==='rep')      return `<div class="card-actions-row">${repBtn}</div>`;
+      if(composeType==='customer') return `<div class="card-actions-row">${custBtn}</div>`;
+      if(composeType==='review')   return `<div class="card-actions-row">${revBtn}</div>`;
+      return `<div class="card-actions-row">${repBtn}${custBtn}</div><div class="card-actions-row" style="margin-top:4px">${revBtn}</div>`;
+    })()}
   </div>`;
 }
 
 // ── DETAIL VIEW ──────────────────────────────────────────
 function openDetail(itemId){
   const commsItems = COMMS_CACHE[COMMS_FILTER]||[];
-  const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId) || commsItems.find(i=>i.id===itemId);
+  const reviewItems = REVIEW_TAB_ITEMS||[];
+  const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId) || commsItems.find(i=>i.id===itemId) || reviewItems.find(i=>i.id===itemId);
   if(!item) return;
 
   // Save scroll position
@@ -3925,8 +3953,9 @@ function parseFinanceId(fundingRaw){
 
 // Which widget indexes trigger compose actions
 const COMPOSE_WIDGET = {
-  16: 'customer',  // Customer Update Needed
-  17: 'rep',       // Rep Update Needed
+  2: 'review',     // Project Review Needed
+  17: 'customer',  // Customer Update Needed
+  18: 'rep',       // Rep Update Needed
 };
 // Podio field IDs for writing
 const PODIO_FIELD = {rep: 267123636, customer: 270976084, review: 275751845};
@@ -7007,6 +7036,22 @@ document.getElementById('comms-list').addEventListener('click',function(e){
     PREV_VIEW='comms';
     const items = COMMS_CACHE[COMMS_FILTER]||[];
     CURRENT_LIST=[...items];
+    openDetail(parseInt(c.dataset.itemid));
+  }
+});
+
+// Review tab: card body + action button clicks (delegated)
+document.getElementById('review-list').addEventListener('click',function(e){
+  const btn = e.target.closest('[data-action]');
+  if(btn){
+    e.stopPropagation();
+    openCompose(parseInt(btn.dataset.itemid), btn.dataset.action);
+    return;
+  }
+  const c = e.target.closest('[data-itemid]');
+  if(c){
+    PREV_VIEW='review';
+    CURRENT_LIST=[...(REVIEW_TAB_ITEMS||[])];
     openDetail(parseInt(c.dataset.itemid));
   }
 });
