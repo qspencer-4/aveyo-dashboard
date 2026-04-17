@@ -1742,6 +1742,12 @@ let TICKETS_ITEMS = [];
 let TICKETS_FILTER = 'all';
 let SOW_RESP_CACHE = {};
 let SOW_RESP_FILTER = '61743309';
+let COMMS_CACHE = {};
+let COMMS_FILTER = '61743344';
+const COMMS_CHIPS = [
+  ['61743344','Rep Updates'],
+  ['61743343','Customer Updates'],
+];
 let TD_TICKET = null;
 let TD_PROJECT = null;
 let TD_TAB = 'activity';
@@ -2158,13 +2164,13 @@ function buildHomeDashboard(){
   </div>`;
 
   // Rep Update Needed
-  html += `<div class="hd-widget" onclick="openWidgetList(18)">
+  html += `<div class="hd-widget" onclick="openCommsTab('rep')">
     <div class="hd-widget-num" style="color:${wColor(18)}" id="wnum_18">${wNum(18)}</div>
     <div class="hd-widget-lbl">Rep Update Needed</div>
   </div>`;
 
   // Customer Update Needed
-  html += `<div class="hd-widget" onclick="openWidgetList(17)">
+  html += `<div class="hd-widget" onclick="openCommsTab('customer')">
     <div class="hd-widget-num" style="color:${wColor(17)}" id="wnum_17">${wNum(17)}</div>
     <div class="hd-widget-lbl">Customer Update Needed</div>
   </div>`;
@@ -2465,7 +2471,43 @@ function renderTickets(){
     '</div>';
   }).join('') : '<div class="resp-empty">No open tickets.</div>';
 }
-function loadCommsTab(){document.getElementById('comms-list').innerHTML='<div class="resp-empty">Loading...</div>';}
+async function loadCommsTab(){
+  const viewId = COMMS_FILTER;
+  if(COMMS_CACHE[viewId]){ renderCommsTab(); return; }
+  document.getElementById('comms-filters').style.display='none';
+  document.getElementById('comms-loading').style.display='flex';
+  document.getElementById('comms-list').innerHTML='';
+  try{
+    const raw = await fetchAllItems(29839792, parseInt(viewId));
+    COMMS_CACHE[viewId] = raw.map(parseItem);
+    renderCommsTab();
+  }catch(e){
+    document.getElementById('comms-list').innerHTML='<div class="resp-empty">Error: '+x(e.message)+'</div>';
+  }
+  document.getElementById('comms-loading').style.display='none';
+  document.getElementById('comms-filters').style.display='';
+}
+
+function renderCommsTab(){
+  const items = COMMS_CACHE[COMMS_FILTER]||[];
+  document.getElementById('comms-filters').innerHTML = COMMS_CHIPS.map(([id,label])=>{
+    const cached = COMMS_CACHE[id];
+    const count = cached ? ' '+cached.length : '';
+    const cls = id===COMMS_FILTER ? 'resp-chip active' : 'resp-chip';
+    return '<span class="'+cls+'" data-commsfilter="'+id+'">'+label+count+'</span>';
+  }).join('');
+  const composeType = COMMS_FILTER==='61743344' ? 'rep' : 'customer';
+  document.getElementById('comms-list').innerHTML = items.length
+    ? items.map(item=>cardHTML(item,composeType)).join('')
+    : '<div class="resp-empty">No projects need updates in this view.</div>';
+}
+
+function openCommsTab(type){
+  COMMS_FILTER = type==='customer' ? '61743343' : '61743344';
+  showView('comms');
+  setActiveNav('comms');
+  loadCommsTab();
+}
 async function loadSOWResp(){
   const viewId = SOW_RESP_FILTER;
   if(SOW_RESP_CACHE[viewId]){ renderSOWResp(); return; }
@@ -3527,7 +3569,8 @@ function cardHTML(item,composeType=null){
 
 // ── DETAIL VIEW ──────────────────────────────────────────
 function openDetail(itemId){
-  const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId);
+  const commsItems = COMMS_CACHE[COMMS_FILTER]||[];
+  const item = ALL_ITEMS.find(i=>i.id===itemId) || WLIST_ITEMS.find(i=>i.id===itemId) || commsItems.find(i=>i.id===itemId);
   if(!item) return;
 
   // Save scroll position
@@ -3553,7 +3596,7 @@ function openDetail(itemId){
   // Back button label — show where user came from
   const backLabels={
     home:'Dashboard', projects:'Projects', wlist:WLIST_LABEL||'List',
-    action:'Action', sow:'SOW', kb:'Knowledge'
+    action:'Action', sow:'SOW', kb:'Knowledge', comms:'Communications'
   };
   const backLabel = backLabels[PREV_VIEW]||'Back';
   const backEl = document.getElementById('detail-back-label');
@@ -6940,6 +6983,32 @@ function openThumbZoom(src){
 document.addEventListener('click',function(e){
   const img = e.target.closest('img[data-zoom]');
   if(img) openThumbZoom(img.src);
+});
+
+// Comms tab: filter chip clicks
+document.getElementById('comms-filters').addEventListener('click',function(e){
+  const chip = e.target.closest('[data-commsfilter]');
+  if(chip){
+    COMMS_FILTER = chip.dataset.commsfilter;
+    loadCommsTab();
+  }
+});
+
+// Comms tab: card body + action button clicks (delegated)
+document.getElementById('comms-list').addEventListener('click',function(e){
+  const btn = e.target.closest('[data-action]');
+  if(btn){
+    e.stopPropagation();
+    openCompose(parseInt(btn.dataset.itemid), btn.dataset.action);
+    return;
+  }
+  const c = e.target.closest('[data-itemid]');
+  if(c){
+    PREV_VIEW='comms';
+    const items = COMMS_CACHE[COMMS_FILTER]||[];
+    CURRENT_LIST=[...items];
+    openDetail(parseInt(c.dataset.itemid));
+  }
 });
 
 // SOW Responsibility tab: filter chip clicks + row clicks
