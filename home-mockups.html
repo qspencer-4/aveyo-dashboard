@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home Tab — Aesthetic Mockups</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#0a0a0a;color:#fff;font-family:Inter,system-ui,sans-serif;min-height:100vh}
+  .picker{position:sticky;top:0;z-index:100;background:#050505;border-bottom:1px solid rgba(255,255,255,.08);padding:12px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .picker h1{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-right:20px}
+  .picker button{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;font-family:inherit;transition:all .15s}
+  .picker button:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+  .picker button.active{background:#fff;color:#000;border-color:#fff}
+  .picker .note{margin-left:auto;font-size:11px;color:rgba(255,255,255,.35)}
+  .stage{padding:0}
+  .variant{display:none;min-height:calc(100vh - 50px)}
+  .variant.active{display:block}
+
+  /* ════════ VARIANT: CURRENT (Battlefront) ════════ */
+  .v-current{background:#000;padding:24px 36px;font-family:'Courier New',monospace}
+  .v-current .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:24px;border:1px solid rgba(255,255,255,.06)}
+  .v-current .hero{padding:24px 20px;background:rgba(255,255,255,.02);text-align:center;cursor:pointer}
+  .v-current .hero-num{font-size:42px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+  .v-current .hero-lbl{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:8px}
+  .v-current .sec-lbl{font-size:8px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:14px}
+  .v-current .pipe-row{display:flex;gap:1px;margin-bottom:28px}
+  .v-current .pipe-block{flex:1;padding:14px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .v-current .pipe-num{font-size:28px;font-weight:700;color:#fff;line-height:1}
+  .v-current .pipe-bar{height:1px;background:rgba(255,255,255,.08);margin:8px 0;overflow:hidden}
+  .v-current .pipe-bar-fill{height:100%;background:rgba(255,255,255,.3)}
+  .v-current .pipe-name{font-size:7px;font-weight:700;letter-spacing:.18em;color:rgba(255,255,255,.35)}
+  .v-current .pipe-pct{font-size:10px;color:rgba(255,255,255,.25);margin-top:2px}
+  .v-current .main-row{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:32px}
+  .v-current .alert-block{padding:24px;border:1px solid rgba(192,192,192,.3);background:rgba(192,192,192,.06);position:relative;margin-bottom:24px}
+  .v-current .alert-block::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(192,192,192,.5)}
+  .v-current .alert-lbl{font-size:8px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#C0C0C0;margin-bottom:8px}
+  .v-current .alert-num{font-size:52px;font-weight:700;color:#C0C0C0;line-height:1}
+  .v-current .alert-sub{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(192,192,192,.5);margin-top:8px}
+  .v-current .wsec-lbl{font-size:7px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .v-current .wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-bottom:24px}
+  .v-current .w{padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);position:relative}
+  .v-current .w::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.06)}
+  .v-current .w-num{font-size:30px;font-weight:700;color:#fff;line-height:1}
+  .v-current .w-lbl{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:5px}
+  .v-current .review-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .v-current .review-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;flex:1}
+  .v-current .review-meta{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:2px}
+  .v-current .review-days{font-size:16px;font-weight:700;color:#C0C0C0}
+
+  /* ════════ VARIANT: LINEAR ════════ */
+  .v-linear{background:#08090a;color:#e6e6e6;padding:28px 40px;font-family:'Inter',sans-serif}
+  .v-linear .hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px}
+  .v-linear .hdr h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .v-linear .hdr .sub{font-size:13px;color:#8a8f98}
+  .v-linear .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+  .v-linear .kpi{background:#101113;border:1px solid #1c1d20;border-radius:8px;padding:16px 18px;cursor:pointer;transition:border-color .15s}
+  .v-linear .kpi:hover{border-color:#2a2b2f}
+  .v-linear .kpi-lbl{font-size:12px;color:#8a8f98;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .v-linear .kpi-dot{width:6px;height:6px;border-radius:50%}
+  .v-linear .dot-blue{background:#5e6ad2}
+  .v-linear .dot-amber{background:#f2c94c}
+  .v-linear .dot-red{background:#eb5757}
+  .v-linear .dot-green{background:#4cb782}
+  .v-linear .kpi-num{font-size:28px;font-weight:600;letter-spacing:-.02em;color:#fff}
+  .v-linear .kpi-delta{font-size:12px;color:#4cb782;margin-top:2px}
+  .v-linear .pipe{background:#101113;border:1px solid #1c1d20;border-radius:8px;padding:20px;margin-bottom:28px}
+  .v-linear .pipe-hdr{display:flex;justify-content:space-between;font-size:13px;color:#8a8f98;margin-bottom:14px}
+  .v-linear .pipe-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#1c1d20;margin-bottom:12px}
+  .v-linear .pipe-seg{height:100%}
+  .v-linear .pipe-legend{display:flex;gap:20px;font-size:12px;flex-wrap:wrap}
+  .v-linear .pipe-legend-item{display:flex;align-items:center;gap:6px;color:#8a8f98}
+  .v-linear .pipe-legend-num{color:#fff;font-weight:600}
+  .v-linear .main{display:grid;grid-template-columns:1fr 1fr 320px;gap:20px}
+  .v-linear .card{background:#101113;border:1px solid #1c1d20;border-radius:8px;overflow:hidden}
+  .v-linear .card-hdr{padding:14px 18px;border-bottom:1px solid #1c1d20;display:flex;justify-content:space-between;align-items:center}
+  .v-linear .card-ttl{font-size:13px;font-weight:600;color:#fff}
+  .v-linear .card-cta{font-size:12px;color:#8a8f98;cursor:pointer}
+  .v-linear .card-cta:hover{color:#fff}
+  .v-linear .row{display:flex;align-items:center;padding:10px 18px;border-bottom:1px solid #141517;cursor:pointer;gap:12px;font-size:13px}
+  .v-linear .row:hover{background:#131417}
+  .v-linear .row:last-child{border:none}
+  .v-linear .row-num{font-variant-numeric:tabular-nums;color:#fff;font-weight:500;min-width:32px}
+  .v-linear .row-lbl{flex:1;color:#c8c9ce}
+  .v-linear .row-badge{font-size:11px;padding:2px 8px;border-radius:4px;background:#1c1d20;color:#8a8f98}
+  .v-linear .row-badge.high{background:rgba(235,87,87,.15);color:#eb5757}
+  .v-linear .row-badge.med{background:rgba(242,201,76,.15);color:#f2c94c}
+  .v-linear .review-row{padding:10px 18px;border-bottom:1px solid #141517;cursor:pointer}
+  .v-linear .review-row:hover{background:#131417}
+  .v-linear .review-row:last-child{border:none}
+  .v-linear .review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+  .v-linear .review-name{font-size:13px;font-weight:500;color:#fff}
+  .v-linear .review-days{font-size:12px;font-weight:500;color:#eb5757}
+  .v-linear .review-meta{font-size:12px;color:#8a8f98}
+
+  /* ════════ VARIANT: STRIPE ════════ */
+  .v-stripe{background:#f6f9fc;color:#1a1f36;padding:24px 36px;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+  .v-stripe .hdr{margin-bottom:20px}
+  .v-stripe .hdr h2{font-size:22px;font-weight:700;letter-spacing:-.02em;color:#1a1f36}
+  .v-stripe .hdr .sub{font-size:14px;color:#697386;margin-top:4px}
+  .v-stripe .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .v-stripe .kpi{background:#fff;border-radius:8px;padding:20px 22px;box-shadow:0 1px 3px rgba(50,50,93,.05),0 1px 2px rgba(0,0,0,.03);cursor:pointer;transition:box-shadow .15s}
+  .v-stripe .kpi:hover{box-shadow:0 4px 12px rgba(50,50,93,.08)}
+  .v-stripe .kpi-lbl{font-size:13px;color:#697386;font-weight:500;margin-bottom:6px}
+  .v-stripe .kpi-num{font-size:28px;font-weight:600;color:#1a1f36;letter-spacing:-.02em;line-height:1.1}
+  .v-stripe .kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#3c9467;margin-top:6px;font-weight:500}
+  .v-stripe .kpi-delta.neg{color:#c53030}
+  .v-stripe .main{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .v-stripe .card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(50,50,93,.05),0 1px 2px rgba(0,0,0,.03);overflow:hidden}
+  .v-stripe .card-hdr{padding:16px 22px;border-bottom:1px solid #e3e8ee;display:flex;justify-content:space-between;align-items:center}
+  .v-stripe .card-ttl{font-size:15px;font-weight:600;color:#1a1f36}
+  .v-stripe .card-cta{font-size:13px;color:#635bff;cursor:pointer;font-weight:500}
+  .v-stripe .pipe-card{grid-column:span 2;background:#fff;border-radius:8px;padding:22px;box-shadow:0 1px 3px rgba(50,50,93,.05);margin-bottom:16px}
+  .v-stripe .pipe-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .v-stripe .pipe-ttl{font-size:15px;font-weight:600}
+  .v-stripe .pipe-total{font-size:13px;color:#697386}
+  .v-stripe .pipe-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#e3e8ee;margin-bottom:14px}
+  .v-stripe .pipe-seg{height:100%}
+  .v-stripe .pipe-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .v-stripe .pipe-leg-item{padding:8px 0}
+  .v-stripe .pipe-leg-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+  .v-stripe .pipe-leg-dot{width:8px;height:8px;border-radius:2px}
+  .v-stripe .pipe-leg-name{font-size:12px;color:#697386}
+  .v-stripe .pipe-leg-num{font-size:20px;font-weight:600}
+  .v-stripe .tbl{width:100%;border-collapse:collapse}
+  .v-stripe .tbl th{text-align:left;padding:10px 22px;font-size:11px;font-weight:600;color:#697386;text-transform:uppercase;letter-spacing:.04em;background:#f7fafc;border-bottom:1px solid #e3e8ee}
+  .v-stripe .tbl td{padding:12px 22px;font-size:13px;color:#1a1f36;border-bottom:1px solid #f0f3f7}
+  .v-stripe .tbl tr:last-child td{border-bottom:none}
+  .v-stripe .tbl tr:hover{background:#f7fafc;cursor:pointer}
+  .v-stripe .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#eceefd;color:#635bff}
+  .v-stripe .badge.red{background:#fde6e6;color:#c53030}
+  .v-stripe .badge.amber{background:#fdf2db;color:#b7791f}
+  .v-stripe .badge.green{background:#d6f5e3;color:#257045}
+  .v-stripe .w-row{display:flex;justify-content:space-between;align-items:center;padding:12px 22px;border-bottom:1px solid #f0f3f7;cursor:pointer}
+  .v-stripe .w-row:hover{background:#f7fafc}
+  .v-stripe .w-row:last-child{border:none}
+  .v-stripe .w-lbl{font-size:13px;color:#425466}
+  .v-stripe .w-num{font-size:15px;font-weight:600;color:#1a1f36}
+
+  /* ════════ VARIANT: POSTHOG ════════ */
+  .v-posthog{background:#1d1f27;color:#eeefe9;padding:24px 32px;font-family:'Inter',sans-serif;min-height:100vh}
+  .v-posthog .hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px}
+  .v-posthog .hdr h2{font-size:24px;font-weight:700;letter-spacing:-.02em;color:#fff}
+  .v-posthog .hdr .sub{font-size:13px;color:#9ca3b0}
+  .v-posthog .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  .v-posthog .kpi{background:#232429;border:1px solid #2d2f36;border-radius:6px;padding:16px 18px;cursor:pointer;position:relative;overflow:hidden}
+  .v-posthog .kpi:hover{border-color:#f54e00}
+  .v-posthog .kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:#f54e00}
+  .v-posthog .kpi.blue::before{background:#1d4aff}
+  .v-posthog .kpi.yellow::before{background:#f7a501}
+  .v-posthog .kpi.teal::before{background:#00a990}
+  .v-posthog .kpi-lbl{font-size:12px;color:#9ca3b0;margin-bottom:6px;font-weight:500}
+  .v-posthog .kpi-num{font-size:32px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+  .v-posthog .kpi-spark{margin-top:6px;height:20px;display:flex;align-items:end;gap:2px}
+  .v-posthog .kpi-spark span{flex:1;background:rgba(245,78,0,.3);border-radius:1px}
+  .v-posthog .main-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+  .v-posthog .card{background:#232429;border:1px solid #2d2f36;border-radius:6px;overflow:hidden}
+  .v-posthog .card-hdr{padding:12px 16px;border-bottom:1px solid #2d2f36;display:flex;justify-content:space-between;align-items:center}
+  .v-posthog .card-ttl{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+  .v-posthog .tag{font-size:10px;padding:2px 6px;border-radius:3px;background:#f54e00;color:#000;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .v-posthog .pipe-bars{padding:18px}
+  .v-posthog .pipe-bar-row{display:grid;grid-template-columns:100px 1fr 60px;gap:12px;align-items:center;margin-bottom:12px;font-size:13px}
+  .v-posthog .pipe-bar-row:last-child{margin-bottom:0}
+  .v-posthog .pipe-name{color:#9ca3b0}
+  .v-posthog .pipe-track{height:20px;background:#1a1b1f;border-radius:3px;overflow:hidden}
+  .v-posthog .pipe-fill{height:100%;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:700;color:#000}
+  .v-posthog .pipe-count{text-align:right;font-weight:600;color:#fff}
+  .v-posthog .wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .v-posthog .w{background:#232429;border:1px solid #2d2f36;border-radius:6px;padding:14px 16px;cursor:pointer}
+  .v-posthog .w:hover{border-color:#f54e00}
+  .v-posthog .w-lbl{font-size:11px;color:#9ca3b0;margin-bottom:4px}
+  .v-posthog .w-num{font-size:22px;font-weight:700;color:#fff}
+  .v-posthog .review{padding:0}
+  .v-posthog .review-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #2d2f36;cursor:pointer}
+  .v-posthog .review-row:last-child{border:none}
+  .v-posthog .review-row:hover{background:#2a2c33}
+  .v-posthog .review-body{flex:1;min-width:0}
+  .v-posthog .review-name{font-size:13px;color:#fff;font-weight:500}
+  .v-posthog .review-meta{font-size:11px;color:#9ca3b0;margin-top:1px}
+  .v-posthog .review-pill{font-size:11px;font-weight:700;padding:3px 8px;border-radius:3px;background:#f54e00;color:#000}
+
+  /* ════════ VARIANT: TREMOR / SHADCN ════════ */
+  .v-tremor{background:#fafafa;color:#09090b;padding:28px 40px;font-family:'Inter',sans-serif;min-height:100vh}
+  .v-tremor .hdr{margin-bottom:24px}
+  .v-tremor .hdr h2{font-size:24px;font-weight:700;letter-spacing:-.025em;color:#09090b}
+  .v-tremor .hdr .sub{font-size:14px;color:#71717a;margin-top:4px}
+  .v-tremor .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  .v-tremor .kpi{background:#fff;border:1px solid #e4e4e7;border-radius:12px;padding:20px 22px;cursor:pointer;transition:all .15s}
+  .v-tremor .kpi:hover{border-color:#d4d4d8;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+  .v-tremor .kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .v-tremor .kpi-lbl{font-size:13px;font-weight:500;color:#71717a}
+  .v-tremor .kpi-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:#f4f4f5;color:#52525b}
+  .v-tremor .kpi-badge.red{background:#fef2f2;color:#dc2626}
+  .v-tremor .kpi-badge.green{background:#f0fdf4;color:#16a34a}
+  .v-tremor .kpi-num{font-size:30px;font-weight:700;color:#09090b;letter-spacing:-.025em;line-height:1}
+  .v-tremor .kpi-foot{font-size:12px;color:#71717a;margin-top:8px}
+  .v-tremor .main{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+  .v-tremor .card{background:#fff;border:1px solid #e4e4e7;border-radius:12px;padding:22px}
+  .v-tremor .card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .v-tremor .card-ttl{font-size:15px;font-weight:600;color:#09090b}
+  .v-tremor .card-sub{font-size:13px;color:#71717a}
+  .v-tremor .pipe-row{display:flex;flex-direction:column;gap:12px}
+  .v-tremor .pipe-item{display:grid;grid-template-columns:120px 1fr 80px;gap:16px;align-items:center}
+  .v-tremor .pipe-name{font-size:13px;color:#52525b;font-weight:500}
+  .v-tremor .pipe-track{height:8px;background:#f4f4f5;border-radius:4px;overflow:hidden}
+  .v-tremor .pipe-fill{height:100%;border-radius:4px}
+  .v-tremor .pipe-count{text-align:right;font-size:14px;font-weight:600;color:#09090b}
+  .v-tremor .pipe-pct{color:#71717a;font-weight:400;font-size:12px;margin-left:4px}
+  .v-tremor .wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+  .v-tremor .w{padding:14px 16px;background:#fafafa;border:1px solid #e4e4e7;border-radius:8px;cursor:pointer;transition:all .15s}
+  .v-tremor .w:hover{background:#f4f4f5}
+  .v-tremor .w-lbl{font-size:12px;color:#71717a;margin-bottom:4px}
+  .v-tremor .w-num{font-size:20px;font-weight:700;color:#09090b}
+  .v-tremor .review-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f4f4f5;cursor:pointer}
+  .v-tremor .review-row:last-child{border:none}
+  .v-tremor .review-body{flex:1;min-width:0}
+  .v-tremor .review-name{font-size:14px;font-weight:500;color:#09090b}
+  .v-tremor .review-meta{font-size:12px;color:#71717a;margin-top:2px}
+  .v-tremor .review-days{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:#fef2f2;color:#dc2626}
+  .v-tremor .review-days.amber{background:#fef3c7;color:#b45309}
+
+  /* ════════ VARIANT: VERCEL ════════ */
+  .v-vercel{background:#000;color:#fff;padding:28px 40px;font-family:'Geist','Inter',sans-serif;min-height:100vh}
+  .v-vercel .hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #1a1a1a}
+  .v-vercel .hdr h2{font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .v-vercel .hdr .sub{font-size:13px;color:#a1a1a1}
+  .v-vercel .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1a1a1a;border:1px solid #1a1a1a;border-radius:8px;overflow:hidden;margin-bottom:24px}
+  .v-vercel .kpi{background:#0a0a0a;padding:22px 24px;cursor:pointer}
+  .v-vercel .kpi:hover{background:#111}
+  .v-vercel .kpi-lbl{font-size:12px;color:#a1a1a1;display:flex;align-items:center;gap:6px;margin-bottom:10px}
+  .v-vercel .kpi-dot{width:6px;height:6px;border-radius:50%;box-shadow:0 0 8px currentColor}
+  .v-vercel .kpi-dot.green{background:#46d369;color:#46d369}
+  .v-vercel .kpi-dot.red{background:#ff4747;color:#ff4747}
+  .v-vercel .kpi-dot.amber{background:#f5a623;color:#f5a623}
+  .v-vercel .kpi-dot.blue{background:#0076ff;color:#0076ff}
+  .v-vercel .kpi-num{font-size:32px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .v-vercel .kpi-foot{font-size:12px;color:#6f6f6f;margin-top:6px;font-variant-numeric:tabular-nums}
+  .v-vercel .pipe{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:20px;margin-bottom:20px}
+  .v-vercel .pipe-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .v-vercel .pipe-ttl{font-size:14px;font-weight:500}
+  .v-vercel .pipe-sub{font-size:12px;color:#6f6f6f}
+  .v-vercel .pipe-bar{height:6px;border-radius:3px;display:flex;overflow:hidden;background:#1a1a1a;margin-bottom:14px}
+  .v-vercel .pipe-seg{height:100%}
+  .v-vercel .pipe-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .v-vercel .pipe-item{display:flex;flex-direction:column;gap:4px}
+  .v-vercel .pipe-item-top{display:flex;align-items:center;gap:6px}
+  .v-vercel .pipe-item-dot{width:8px;height:8px;border-radius:2px}
+  .v-vercel .pipe-item-name{font-size:12px;color:#a1a1a1}
+  .v-vercel .pipe-item-num{font-size:18px;font-weight:500;color:#fff}
+  .v-vercel .main{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px}
+  .v-vercel .card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;overflow:hidden}
+  .v-vercel .card-hdr{padding:14px 18px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center}
+  .v-vercel .card-ttl{font-size:13px;font-weight:500}
+  .v-vercel .card-cta{font-size:12px;color:#a1a1a1;cursor:pointer}
+  .v-vercel .card-cta:hover{color:#fff}
+  .v-vercel .row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #141414;cursor:pointer;font-size:13px}
+  .v-vercel .row:hover{background:#111}
+  .v-vercel .row:last-child{border:none}
+  .v-vercel .row-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .v-vercel .row-lbl{flex:1;color:#e5e5e5}
+  .v-vercel .row-num{color:#fff;font-weight:500;font-variant-numeric:tabular-nums}
+  .v-vercel .review-row{padding:12px 18px;border-bottom:1px solid #141414;cursor:pointer}
+  .v-vercel .review-row:last-child{border:none}
+  .v-vercel .review-row:hover{background:#111}
+  .v-vercel .review-top{display:flex;justify-content:space-between;margin-bottom:3px}
+  .v-vercel .review-name{font-size:13px;font-weight:500}
+  .v-vercel .review-days{font-size:12px;color:#ff4747;font-variant-numeric:tabular-nums}
+  .v-vercel .review-meta{font-size:11px;color:#6f6f6f}
+
+  /* ════════ VARIANT: RAYCAST ════════ */
+  .v-raycast{background:linear-gradient(180deg,#1a1a1f 0%,#0d0d12 100%);color:#e8e8e8;padding:28px 40px;font-family:'Inter',sans-serif;min-height:100vh}
+  .v-raycast .hdr{margin-bottom:28px}
+  .v-raycast .hdr h2{font-size:26px;font-weight:700;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,#c8c8d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .v-raycast .hdr .sub{font-size:13px;color:#8c8c99;margin-top:4px}
+  .v-raycast .top-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .v-raycast .kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(10px);border-radius:10px;padding:18px 20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+  .v-raycast .kpi:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);transform:translateY(-1px)}
+  .v-raycast .kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+  .v-raycast .ic-blue{background:linear-gradient(135deg,#4a5fff,#8a3fff);color:#fff}
+  .v-raycast .ic-red{background:linear-gradient(135deg,#ff3f5e,#ff8a3f);color:#fff}
+  .v-raycast .ic-green{background:linear-gradient(135deg,#3fd67a,#3fb5d6);color:#fff}
+  .v-raycast .ic-amber{background:linear-gradient(135deg,#ffbf3f,#ff8a3f);color:#fff}
+  .v-raycast .kpi-num{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+  .v-raycast .kpi-lbl{font-size:12px;color:#8c8c99;margin-top:4px}
+  .v-raycast .pipe{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:20px;margin-bottom:18px}
+  .v-raycast .pipe-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .v-raycast .pipe-ttl{font-size:14px;font-weight:600;color:#fff}
+  .v-raycast .pipe-ct{font-size:12px;color:#8c8c99}
+  .v-raycast .pipe-bar{height:6px;border-radius:3px;display:flex;overflow:hidden;background:rgba(255,255,255,.06);margin-bottom:16px}
+  .v-raycast .pipe-seg{height:100%;border-radius:3px}
+  .v-raycast .pipe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .v-raycast .pipe-item{padding:10px 12px;border-radius:6px;background:rgba(255,255,255,.02)}
+  .v-raycast .pipe-item-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .v-raycast .pipe-item-dot{width:8px;height:8px;border-radius:2px}
+  .v-raycast .pipe-item-name{font-size:11px;color:#8c8c99;font-weight:500}
+  .v-raycast .pipe-item-num{font-size:18px;font-weight:700;color:#fff}
+  .v-raycast .main{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px}
+  .v-raycast .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+  .v-raycast .card-hdr{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
+  .v-raycast .card-ttl{font-size:13px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+  .v-raycast .kbd{font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.06);color:#8c8c99;font-family:monospace}
+  .v-raycast .row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;font-size:13px}
+  .v-raycast .row:hover{background:rgba(255,255,255,.04)}
+  .v-raycast .row:last-child{border:none}
+  .v-raycast .row-icon{width:24px;height:24px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .v-raycast .row-lbl{flex:1;color:#e8e8e8}
+  .v-raycast .row-num{color:#fff;font-weight:600}
+  .v-raycast .review-row{padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+  .v-raycast .review-row:last-child{border:none}
+  .v-raycast .review-row:hover{background:rgba(255,255,255,.04)}
+  .v-raycast .review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+  .v-raycast .review-name{font-size:13px;font-weight:500;color:#fff}
+  .v-raycast .review-days{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:linear-gradient(135deg,#ff3f5e,#ff8a3f);color:#fff}
+  .v-raycast .review-meta{font-size:11px;color:#8c8c99}
+</style>
+</head>
+<body>
+
+<div class="picker">
+  <h1>Home Tab Mockups</h1>
+  <button data-v="current" class="active">Current (Battlefront)</button>
+  <button data-v="linear">Linear</button>
+  <button data-v="stripe">Stripe</button>
+  <button data-v="posthog">PostHog</button>
+  <button data-v="tremor">Tremor / shadcn</button>
+  <button data-v="vercel">Vercel</button>
+  <button data-v="raycast">Raycast</button>
+  <span class="note">Same mock data across all variants</span>
+</div>
+
+<div class="stage">
+
+<!-- ═══════════════════════════════════════════════ CURRENT -->
+<div class="variant v-current active" data-v="current">
+  <div class="top-row">
+    <div class="hero"><div class="hero-num">142</div><div class="hero-lbl">Active Projects</div></div>
+    <div class="hero"><div class="hero-num" style="color:#C0C0C0">12</div><div class="hero-lbl">Review Needed (+7d)</div></div>
+    <div class="hero"><div class="hero-num">47</div><div class="hero-lbl">In Scope of Work</div></div>
+    <div class="hero"><div class="hero-num" style="color:#C0C0C0">8</div><div class="hero-lbl">Open Support Tickets</div></div>
+  </div>
+  <div class="sec-lbl">Pipeline Overview</div>
+  <div class="pipe-row">
+    <div class="pipe-block"><div class="pipe-num">28</div><div class="pipe-bar"><div class="pipe-bar-fill" style="width:20%"></div></div><div class="pipe-name">PRE-APPROVALS</div><div class="pipe-pct">20%</div></div>
+    <div class="pipe-block"><div class="pipe-num">41</div><div class="pipe-bar"><div class="pipe-bar-fill" style="width:29%"></div></div><div class="pipe-name">APPROVALS</div><div class="pipe-pct">29%</div></div>
+    <div class="pipe-block"><div class="pipe-num">58</div><div class="pipe-bar"><div class="pipe-bar-fill" style="width:41%"></div></div><div class="pipe-name">CONSTRUCTION</div><div class="pipe-pct">41%</div></div>
+    <div class="pipe-block"><div class="pipe-num">15</div><div class="pipe-bar"><div class="pipe-bar-fill" style="width:10%"></div></div><div class="pipe-name">FINAL STAGE</div><div class="pipe-pct">10%</div></div>
+  </div>
+  <div class="main-row">
+    <div>
+      <div class="alert-block"><div class="alert-lbl">Support Tickets</div><div class="alert-num">8</div><div class="alert-sub">Open tickets requiring attention</div></div>
+      <div class="wsec-lbl">Communications</div>
+      <div class="wgrid" style="grid-template-columns:1fr">
+        <div class="w"><div class="w-num" style="color:#C0C0C0">12</div><div class="w-lbl">Project Review Needed</div></div>
+        <div class="w"><div class="w-num">6</div><div class="w-lbl">Pipeline Review Not Set</div></div>
+        <div class="w"><div class="w-num">9</div><div class="w-lbl">Rep Update Needed</div></div>
+        <div class="w"><div class="w-num">4</div><div class="w-lbl">Customer Update Needed</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="wsec-lbl">Scope of Work</div>
+      <div class="wgrid">
+        <div class="w"><div class="w-num">47</div><div class="w-lbl">Total in SOW</div></div>
+        <div class="w"><div class="w-num">12</div><div class="w-lbl">Ready for SOW</div></div>
+        <div class="w"><div class="w-num" style="color:#C0C0C0">3</div><div class="w-lbl">SOW Rejections</div></div>
+        <div class="w"><div class="w-num">5</div><div class="w-lbl">Ready to Send Rep SOW</div></div>
+        <div class="w"><div class="w-num">18</div><div class="w-lbl">No Redlines</div></div>
+        <div class="w"><div class="w-num">7</div><div class="w-lbl">Rep SOW Pending</div></div>
+      </div>
+      <div class="wsec-lbl">Field Work</div>
+      <div class="wgrid">
+        <div class="w"><div class="w-num">11</div><div class="w-lbl">Ready for Pre-Install</div></div>
+        <div class="w"><div class="w-num" style="color:#C0C0C0">3</div><div class="w-lbl">Issues w/ Pre-Install</div></div>
+        <div class="w"><div class="w-num">5</div><div class="w-lbl">Design Change Orders</div></div>
+        <div class="w"><div class="w-num">4</div><div class="w-lbl">Roof Review Needed</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="wsec-lbl">Review Needed</div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Johnson - 4512 Oak</div><div class="review-meta">SOLR-2341 — Scope of Work</div></div><div class="review-days">24d</div></div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Martinez - 8823 Elm</div><div class="review-meta">SOLR-2298 — Design</div></div><div class="review-days">18d</div></div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Thompson - 221 Pine</div><div class="review-meta">SOLR-2412 — NTP</div></div><div class="review-days">15d</div></div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Williams - 67 Cedar</div><div class="review-meta">SOLR-2376 — Permit</div></div><div class="review-days">12d</div></div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Brown - 1199 Birch</div><div class="review-meta">SOLR-2401 — Install</div></div><div class="review-days">9d</div></div>
+      <div class="review-row"><div style="flex:1"><div class="review-name">Davis - 554 Maple</div><div class="review-meta">SOLR-2388 — Site Survey</div></div><div class="review-days">8d</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ LINEAR -->
+<div class="variant v-linear" data-v="linear">
+  <div class="hdr"><h2>Home</h2><div class="sub">142 active projects · Updated 2m ago</div></div>
+  <div class="top-row">
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot dot-blue"></span>Active projects</div><div class="kpi-num">142</div><div class="kpi-delta">+6 this week</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot dot-red"></span>Review needed</div><div class="kpi-num">12</div><div class="kpi-delta" style="color:#eb5757">+3 vs last week</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot dot-amber"></span>In Scope of Work</div><div class="kpi-num">47</div><div class="kpi-delta" style="color:#8a8f98">No change</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot dot-red"></span>Open tickets</div><div class="kpi-num">8</div><div class="kpi-delta" style="color:#eb5757">2 high priority</div></div>
+  </div>
+  <div class="pipe">
+    <div class="pipe-hdr"><span>Pipeline</span><span>142 projects</span></div>
+    <div class="pipe-bar">
+      <div class="pipe-seg" style="width:20%;background:#5e6ad2"></div>
+      <div class="pipe-seg" style="width:29%;background:#4cb782"></div>
+      <div class="pipe-seg" style="width:41%;background:#f2c94c"></div>
+      <div class="pipe-seg" style="width:10%;background:#8a8f98"></div>
+    </div>
+    <div class="pipe-legend">
+      <div class="pipe-legend-item"><span class="kpi-dot" style="background:#5e6ad2"></span>Pre-Approvals <span class="pipe-legend-num">28</span></div>
+      <div class="pipe-legend-item"><span class="kpi-dot" style="background:#4cb782"></span>Approvals <span class="pipe-legend-num">41</span></div>
+      <div class="pipe-legend-item"><span class="kpi-dot" style="background:#f2c94c"></span>Construction <span class="pipe-legend-num">58</span></div>
+      <div class="pipe-legend-item"><span class="kpi-dot" style="background:#8a8f98"></span>Final Stage <span class="pipe-legend-num">15</span></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Scope of Work</div><div class="card-cta">View all →</div></div>
+      <div class="row"><div class="row-num">47</div><div class="row-lbl">Total in SOW</div></div>
+      <div class="row"><div class="row-num">12</div><div class="row-lbl">Ready for SOW</div><span class="row-badge">queued</span></div>
+      <div class="row"><div class="row-num">3</div><div class="row-lbl">SOW Rejections</div><span class="row-badge high">attention</span></div>
+      <div class="row"><div class="row-num">5</div><div class="row-lbl">Ready to Send Rep SOW</div></div>
+      <div class="row"><div class="row-num">7</div><div class="row-lbl">Rep SOW Pending</div><span class="row-badge med">waiting</span></div>
+      <div class="row"><div class="row-num">14</div><div class="row-lbl">Customer SOW Sent</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Field &amp; Comms</div><div class="card-cta">View all →</div></div>
+      <div class="row"><div class="row-num">11</div><div class="row-lbl">Ready for Pre-Install</div></div>
+      <div class="row"><div class="row-num">3</div><div class="row-lbl">Issues w/ Pre-Install</div><span class="row-badge high">blocked</span></div>
+      <div class="row"><div class="row-num">5</div><div class="row-lbl">Design Change Orders</div></div>
+      <div class="row"><div class="row-num">4</div><div class="row-lbl">Roof Review Needed</div></div>
+      <div class="row"><div class="row-num">9</div><div class="row-lbl">Rep Update Needed</div><span class="row-badge med">today</span></div>
+      <div class="row"><div class="row-num">4</div><div class="row-lbl">Customer Update Needed</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Review Needed</div><div class="card-cta">12</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Johnson - 4512 Oak</div><div class="review-days">24d</div></div><div class="review-meta">SOLR-2341 · Scope of Work</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Martinez - 8823 Elm</div><div class="review-days">18d</div></div><div class="review-meta">SOLR-2298 · Design</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Thompson - 221 Pine</div><div class="review-days">15d</div></div><div class="review-meta">SOLR-2412 · NTP</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Williams - 67 Cedar</div><div class="review-days" style="color:#f2c94c">12d</div></div><div class="review-meta">SOLR-2376 · Permit</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Brown - 1199 Birch</div><div class="review-days" style="color:#f2c94c">9d</div></div><div class="review-meta">SOLR-2401 · Install</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Davis - 554 Maple</div><div class="review-days" style="color:#f2c94c">8d</div></div><div class="review-meta">SOLR-2388 · Site Survey</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ STRIPE -->
+<div class="variant v-stripe" data-v="stripe">
+  <div class="hdr"><h2>Home</h2><div class="sub">Overview of all active projects · April 17, 2026</div></div>
+  <div class="top-row">
+    <div class="kpi"><div class="kpi-lbl">Active projects</div><div class="kpi-num">142</div><div class="kpi-delta">↑ 4.4% this week</div></div>
+    <div class="kpi"><div class="kpi-lbl">Review needed (7+ days)</div><div class="kpi-num">12</div><div class="kpi-delta neg">↑ 3 vs last week</div></div>
+    <div class="kpi"><div class="kpi-lbl">In Scope of Work</div><div class="kpi-num">47</div><div class="kpi-delta">No change</div></div>
+    <div class="kpi"><div class="kpi-lbl">Open support tickets</div><div class="kpi-num">8</div><div class="kpi-delta neg">2 high priority</div></div>
+  </div>
+  <div class="pipe-card">
+    <div class="pipe-hdr"><div class="pipe-ttl">Pipeline overview</div><div class="pipe-total">142 projects</div></div>
+    <div class="pipe-bar">
+      <div class="pipe-seg" style="width:20%;background:#7a73ff"></div>
+      <div class="pipe-seg" style="width:29%;background:#33c9ac"></div>
+      <div class="pipe-seg" style="width:41%;background:#f5a623"></div>
+      <div class="pipe-seg" style="width:10%;background:#9ea8c2"></div>
+    </div>
+    <div class="pipe-legend">
+      <div class="pipe-leg-item"><div class="pipe-leg-top"><div class="pipe-leg-dot" style="background:#7a73ff"></div><div class="pipe-leg-name">Pre-Approvals</div></div><div class="pipe-leg-num">28</div></div>
+      <div class="pipe-leg-item"><div class="pipe-leg-top"><div class="pipe-leg-dot" style="background:#33c9ac"></div><div class="pipe-leg-name">Approvals</div></div><div class="pipe-leg-num">41</div></div>
+      <div class="pipe-leg-item"><div class="pipe-leg-top"><div class="pipe-leg-dot" style="background:#f5a623"></div><div class="pipe-leg-name">Construction</div></div><div class="pipe-leg-num">58</div></div>
+      <div class="pipe-leg-item"><div class="pipe-leg-top"><div class="pipe-leg-dot" style="background:#9ea8c2"></div><div class="pipe-leg-name">Final Stage</div></div><div class="pipe-leg-num">15</div></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Review needed</div><div class="card-cta">See all →</div></div>
+      <table class="tbl">
+        <thead><tr><th>Project</th><th>Stage</th><th>Days</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Johnson</strong><br><span style="color:#697386;font-size:12px">SOLR-2341 · 4512 Oak</span></td><td><span class="badge">Scope of Work</span></td><td><span class="badge red">24d</span></td></tr>
+          <tr><td><strong>Martinez</strong><br><span style="color:#697386;font-size:12px">SOLR-2298 · 8823 Elm</span></td><td><span class="badge">Design</span></td><td><span class="badge red">18d</span></td></tr>
+          <tr><td><strong>Thompson</strong><br><span style="color:#697386;font-size:12px">SOLR-2412 · 221 Pine</span></td><td><span class="badge">NTP</span></td><td><span class="badge red">15d</span></td></tr>
+          <tr><td><strong>Williams</strong><br><span style="color:#697386;font-size:12px">SOLR-2376 · 67 Cedar</span></td><td><span class="badge">Permit</span></td><td><span class="badge amber">12d</span></td></tr>
+          <tr><td><strong>Brown</strong><br><span style="color:#697386;font-size:12px">SOLR-2401 · 1199 Birch</span></td><td><span class="badge">Install</span></td><td><span class="badge amber">9d</span></td></tr>
+          <tr><td><strong>Davis</strong><br><span style="color:#697386;font-size:12px">SOLR-2388 · 554 Maple</span></td><td><span class="badge">Site Survey</span></td><td><span class="badge amber">8d</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Scope of Work</div><div class="card-cta">See all →</div></div>
+      <div class="w-row"><div class="w-lbl">Total in SOW</div><div class="w-num">47</div></div>
+      <div class="w-row"><div class="w-lbl">Ready for SOW</div><div class="w-num">12</div></div>
+      <div class="w-row"><div class="w-lbl">SOW Rejections</div><div class="w-num" style="color:#c53030">3</div></div>
+      <div class="w-row"><div class="w-lbl">Ready to Send Rep SOW</div><div class="w-num">5</div></div>
+      <div class="w-row"><div class="w-lbl">Rep SOW Pending</div><div class="w-num">7</div></div>
+      <div class="w-row"><div class="w-lbl">No Redlines</div><div class="w-num">18</div></div>
+      <div class="w-row"><div class="w-lbl">Customer SOW Sent</div><div class="w-num">14</div></div>
+      <div class="w-row"><div class="w-lbl">Roof Review Needed (SOW)</div><div class="w-num">6</div></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Communications</div><div class="card-cta">Open inbox →</div></div>
+      <div class="w-row"><div class="w-lbl">Project Review Needed</div><div class="w-num" style="color:#c53030">12</div></div>
+      <div class="w-row"><div class="w-lbl">Pipeline Review Not Set</div><div class="w-num">6</div></div>
+      <div class="w-row"><div class="w-lbl">Rep Update Needed</div><div class="w-num">9</div></div>
+      <div class="w-row"><div class="w-lbl">Customer Update Needed</div><div class="w-num">4</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Field Work</div><div class="card-cta">See all →</div></div>
+      <div class="w-row"><div class="w-lbl">Ready for Pre-Install</div><div class="w-num">11</div></div>
+      <div class="w-row"><div class="w-lbl">Issues w/ Pre-Install</div><div class="w-num" style="color:#c53030">3</div></div>
+      <div class="w-row"><div class="w-lbl">Design Change Orders</div><div class="w-num">5</div></div>
+      <div class="w-row"><div class="w-lbl">Roof Review Needed</div><div class="w-num">4</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ POSTHOG -->
+<div class="variant v-posthog" data-v="posthog">
+  <div class="hdr"><h2>Home</h2><div class="sub">All active projects · auto-refresh 30s</div></div>
+  <div class="top-row">
+    <div class="kpi blue"><div class="kpi-lbl">Active Projects</div><div class="kpi-num">142</div><div class="kpi-spark"><span style="height:40%"></span><span style="height:55%"></span><span style="height:50%"></span><span style="height:70%"></span><span style="height:65%"></span><span style="height:80%"></span><span style="height:90%"></span><span style="height:100%"></span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Review Needed</div><div class="kpi-num">12</div><div class="kpi-spark"><span style="height:30%"></span><span style="height:45%"></span><span style="height:40%"></span><span style="height:60%"></span><span style="height:55%"></span><span style="height:75%"></span><span style="height:80%"></span><span style="height:100%"></span></div></div>
+    <div class="kpi yellow"><div class="kpi-lbl">In Scope of Work</div><div class="kpi-num">47</div><div class="kpi-spark"><span style="height:60%;background:rgba(247,165,1,.4)"></span><span style="height:55%;background:rgba(247,165,1,.4)"></span><span style="height:70%;background:rgba(247,165,1,.4)"></span><span style="height:65%;background:rgba(247,165,1,.4)"></span><span style="height:80%;background:rgba(247,165,1,.4)"></span><span style="height:75%;background:rgba(247,165,1,.4)"></span><span style="height:85%;background:rgba(247,165,1,.4)"></span><span style="height:80%;background:rgba(247,165,1,.4)"></span></div></div>
+    <div class="kpi teal"><div class="kpi-lbl">Open Tickets</div><div class="kpi-num">8</div><div class="kpi-spark"><span style="height:80%;background:rgba(0,169,144,.4)"></span><span style="height:60%;background:rgba(0,169,144,.4)"></span><span style="height:45%;background:rgba(0,169,144,.4)"></span><span style="height:30%;background:rgba(0,169,144,.4)"></span><span style="height:40%;background:rgba(0,169,144,.4)"></span><span style="height:35%;background:rgba(0,169,144,.4)"></span><span style="height:25%;background:rgba(0,169,144,.4)"></span><span style="height:30%;background:rgba(0,169,144,.4)"></span></div></div>
+  </div>
+  <div class="main-row">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Pipeline by Stage <span class="tag">live</span></div></div>
+      <div class="pipe-bars">
+        <div class="pipe-bar-row"><div class="pipe-name">Pre-Approvals</div><div class="pipe-track"><div class="pipe-fill" style="width:48%;background:#1d4aff">28</div></div><div class="pipe-count">20%</div></div>
+        <div class="pipe-bar-row"><div class="pipe-name">Approvals</div><div class="pipe-track"><div class="pipe-fill" style="width:71%;background:#00a990">41</div></div><div class="pipe-count">29%</div></div>
+        <div class="pipe-bar-row"><div class="pipe-name">Construction</div><div class="pipe-track"><div class="pipe-fill" style="width:100%;background:#f54e00">58</div></div><div class="pipe-count">41%</div></div>
+        <div class="pipe-bar-row"><div class="pipe-name">Final Stage</div><div class="pipe-track"><div class="pipe-fill" style="width:26%;background:#f7a501">15</div></div><div class="pipe-count">10%</div></div>
+      </div>
+    </div>
+    <div class="card review">
+      <div class="card-hdr"><div class="card-ttl">Review Needed</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Johnson - 4512 Oak</div><div class="review-meta">SOLR-2341 · Scope of Work</div></div><div class="review-pill">24d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Martinez - 8823 Elm</div><div class="review-meta">SOLR-2298 · Design</div></div><div class="review-pill">18d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Thompson - 221 Pine</div><div class="review-meta">SOLR-2412 · NTP</div></div><div class="review-pill">15d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Williams - 67 Cedar</div><div class="review-meta">SOLR-2376 · Permit</div></div><div class="review-pill" style="background:#f7a501">12d</div></div>
+    </div>
+  </div>
+  <div class="wgrid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="w"><div class="w-lbl">Total in SOW</div><div class="w-num">47</div></div>
+    <div class="w"><div class="w-lbl">Ready for SOW</div><div class="w-num">12</div></div>
+    <div class="w"><div class="w-lbl">SOW Rejections</div><div class="w-num" style="color:#f54e00">3</div></div>
+    <div class="w"><div class="w-lbl">Ready to Send Rep</div><div class="w-num">5</div></div>
+    <div class="w"><div class="w-lbl">Rep SOW Pending</div><div class="w-num">7</div></div>
+    <div class="w"><div class="w-lbl">No Redlines</div><div class="w-num">18</div></div>
+    <div class="w"><div class="w-lbl">Customer SOW Sent</div><div class="w-num">14</div></div>
+    <div class="w"><div class="w-lbl">Ready Pre-Install</div><div class="w-num">11</div></div>
+    <div class="w"><div class="w-lbl">Issues Pre-Install</div><div class="w-num" style="color:#f54e00">3</div></div>
+    <div class="w"><div class="w-lbl">Design COs</div><div class="w-num">5</div></div>
+    <div class="w"><div class="w-lbl">Roof Review</div><div class="w-num">4</div></div>
+    <div class="w"><div class="w-lbl">Rep Update</div><div class="w-num">9</div></div>
+    <div class="w"><div class="w-lbl">Customer Update</div><div class="w-num">4</div></div>
+    <div class="w"><div class="w-lbl">Pipeline Not Set</div><div class="w-num">6</div></div>
+    <div class="w"><div class="w-lbl">Project Review</div><div class="w-num" style="color:#f54e00">12</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ TREMOR / SHADCN -->
+<div class="variant v-tremor" data-v="tremor">
+  <div class="hdr"><h2>Home</h2><div class="sub">Overview of all active projects</div></div>
+  <div class="top-row">
+    <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Active projects</div><span class="kpi-badge green">+6 wk</span></div><div class="kpi-num">142</div><div class="kpi-foot">Across all stages</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Review needed</div><span class="kpi-badge red">+3 wk</span></div><div class="kpi-num">12</div><div class="kpi-foot">Over 7 days since review</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">In Scope of Work</div><span class="kpi-badge">no change</span></div><div class="kpi-num">47</div><div class="kpi-foot">Across 4 sub-stages</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Open tickets</div><span class="kpi-badge red">2 high</span></div><div class="kpi-num">8</div><div class="kpi-foot">Awaiting response</div></div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Pipeline breakdown</div><div class="card-sub">142 total</div></div>
+      <div class="pipe-row">
+        <div class="pipe-item"><div class="pipe-name">Pre-Approvals</div><div class="pipe-track"><div class="pipe-fill" style="width:20%;background:#6366f1"></div></div><div class="pipe-count">28 <span class="pipe-pct">20%</span></div></div>
+        <div class="pipe-item"><div class="pipe-name">Approvals</div><div class="pipe-track"><div class="pipe-fill" style="width:29%;background:#10b981"></div></div><div class="pipe-count">41 <span class="pipe-pct">29%</span></div></div>
+        <div class="pipe-item"><div class="pipe-name">Construction</div><div class="pipe-track"><div class="pipe-fill" style="width:41%;background:#f59e0b"></div></div><div class="pipe-count">58 <span class="pipe-pct">41%</span></div></div>
+        <div class="pipe-item"><div class="pipe-name">Final Stage</div><div class="pipe-track"><div class="pipe-fill" style="width:10%;background:#8b5cf6"></div></div><div class="pipe-count">15 <span class="pipe-pct">10%</span></div></div>
+      </div>
+      <div style="margin-top:22px;padding-top:18px;border-top:1px solid #e4e4e7">
+        <div class="card-ttl" style="font-size:14px;margin-bottom:8px">Scope of Work</div>
+        <div class="wgrid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="w"><div class="w-lbl">Total</div><div class="w-num">47</div></div>
+          <div class="w"><div class="w-lbl">Ready</div><div class="w-num">12</div></div>
+          <div class="w"><div class="w-lbl">Rejections</div><div class="w-num" style="color:#dc2626">3</div></div>
+          <div class="w"><div class="w-lbl">Rep pending</div><div class="w-num">7</div></div>
+          <div class="w"><div class="w-lbl">To send rep</div><div class="w-num">5</div></div>
+          <div class="w"><div class="w-lbl">No redlines</div><div class="w-num">18</div></div>
+          <div class="w"><div class="w-lbl">Cust sent</div><div class="w-num">14</div></div>
+          <div class="w"><div class="w-lbl">Roof review</div><div class="w-num">6</div></div>
+        </div>
+        <div class="card-ttl" style="font-size:14px;margin:18px 0 8px">Field &amp; Comms</div>
+        <div class="wgrid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="w"><div class="w-lbl">Ready Pre-Install</div><div class="w-num">11</div></div>
+          <div class="w"><div class="w-lbl">Issues Pre-Install</div><div class="w-num" style="color:#dc2626">3</div></div>
+          <div class="w"><div class="w-lbl">Change Orders</div><div class="w-num">5</div></div>
+          <div class="w"><div class="w-lbl">Roof Review</div><div class="w-num">4</div></div>
+          <div class="w"><div class="w-lbl">Rep Update</div><div class="w-num">9</div></div>
+          <div class="w"><div class="w-lbl">Customer Update</div><div class="w-num">4</div></div>
+          <div class="w"><div class="w-lbl">Pipeline Not Set</div><div class="w-num">6</div></div>
+          <div class="w"><div class="w-lbl">Proj Review</div><div class="w-num" style="color:#dc2626">12</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Review needed</div><div class="card-sub">12 total</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Johnson - 4512 Oak</div><div class="review-meta">SOLR-2341 · Scope of Work</div></div><div class="review-days">24d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Martinez - 8823 Elm</div><div class="review-meta">SOLR-2298 · Design</div></div><div class="review-days">18d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Thompson - 221 Pine</div><div class="review-meta">SOLR-2412 · NTP</div></div><div class="review-days">15d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Williams - 67 Cedar</div><div class="review-meta">SOLR-2376 · Permit</div></div><div class="review-days amber">12d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Brown - 1199 Birch</div><div class="review-meta">SOLR-2401 · Install</div></div><div class="review-days amber">9d</div></div>
+      <div class="review-row"><div class="review-body"><div class="review-name">Davis - 554 Maple</div><div class="review-meta">SOLR-2388 · Site Survey</div></div><div class="review-days amber">8d</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ VERCEL -->
+<div class="variant v-vercel" data-v="vercel">
+  <div class="hdr"><h2>Home</h2><div class="sub">142 projects · Last sync 2m ago</div></div>
+  <div class="top-row">
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot green"></span>Active projects</div><div class="kpi-num">142</div><div class="kpi-foot">+6 this week</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot red"></span>Review needed</div><div class="kpi-num">12</div><div class="kpi-foot">+3 vs last week</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot amber"></span>In Scope of Work</div><div class="kpi-num">47</div><div class="kpi-foot">No change</div></div>
+    <div class="kpi"><div class="kpi-lbl"><span class="kpi-dot red"></span>Open tickets</div><div class="kpi-num">8</div><div class="kpi-foot">2 high priority</div></div>
+  </div>
+  <div class="pipe">
+    <div class="pipe-top"><div class="pipe-ttl">Pipeline</div><div class="pipe-sub">142 projects</div></div>
+    <div class="pipe-bar">
+      <div class="pipe-seg" style="width:20%;background:#0076ff"></div>
+      <div class="pipe-seg" style="width:29%;background:#46d369"></div>
+      <div class="pipe-seg" style="width:41%;background:#f5a623"></div>
+      <div class="pipe-seg" style="width:10%;background:#6f6f6f"></div>
+    </div>
+    <div class="pipe-legend">
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:#0076ff"></div><div class="pipe-item-name">Pre-Approvals</div></div><div class="pipe-item-num">28</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:#46d369"></div><div class="pipe-item-name">Approvals</div></div><div class="pipe-item-num">41</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:#f5a623"></div><div class="pipe-item-name">Construction</div></div><div class="pipe-item-num">58</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:#6f6f6f"></div><div class="pipe-item-name">Final Stage</div></div><div class="pipe-item-num">15</div></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Scope of Work</div><div class="card-cta">View all</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Total in SOW</div><div class="row-num">47</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Ready for SOW</div><div class="row-num">12</div></div>
+      <div class="row"><div class="row-dot" style="background:#ff4747"></div><div class="row-lbl">SOW Rejections</div><div class="row-num">3</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Ready to Send Rep SOW</div><div class="row-num">5</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Rep SOW Pending</div><div class="row-num">7</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">No Redlines</div><div class="row-num">18</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Customer SOW Sent</div><div class="row-num">14</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Roof Review (SOW)</div><div class="row-num">6</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Field &amp; Comms</div><div class="card-cta">View all</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Ready for Pre-Install</div><div class="row-num">11</div></div>
+      <div class="row"><div class="row-dot" style="background:#ff4747"></div><div class="row-lbl">Issues w/ Pre-Install</div><div class="row-num">3</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Design Change Orders</div><div class="row-num">5</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Roof Review Needed</div><div class="row-num">4</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Rep Update Needed</div><div class="row-num">9</div></div>
+      <div class="row"><div class="row-dot" style="background:#46d369"></div><div class="row-lbl">Customer Update</div><div class="row-num">4</div></div>
+      <div class="row"><div class="row-dot" style="background:#f5a623"></div><div class="row-lbl">Pipeline Review Not Set</div><div class="row-num">6</div></div>
+      <div class="row"><div class="row-dot" style="background:#ff4747"></div><div class="row-lbl">Project Review Needed</div><div class="row-num">12</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Review needed</div><div class="card-cta">12</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Johnson - 4512 Oak</div><div class="review-days">24d</div></div><div class="review-meta">SOLR-2341 · Scope of Work</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Martinez - 8823 Elm</div><div class="review-days">18d</div></div><div class="review-meta">SOLR-2298 · Design</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Thompson - 221 Pine</div><div class="review-days">15d</div></div><div class="review-meta">SOLR-2412 · NTP</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Williams - 67 Cedar</div><div class="review-days" style="color:#f5a623">12d</div></div><div class="review-meta">SOLR-2376 · Permit</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Brown - 1199 Birch</div><div class="review-days" style="color:#f5a623">9d</div></div><div class="review-meta">SOLR-2401 · Install</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Davis - 554 Maple</div><div class="review-days" style="color:#f5a623">8d</div></div><div class="review-meta">SOLR-2388 · Site Survey</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ RAYCAST -->
+<div class="variant v-raycast" data-v="raycast">
+  <div class="hdr"><h2>Good morning — 142 active projects</h2><div class="sub">Thursday, April 17 · <span class="kbd" style="padding:1px 6px;background:rgba(255,255,255,.06);border-radius:3px">⌘K</span> to search</div></div>
+  <div class="top-row">
+    <div class="kpi"><div class="kpi-icon ic-blue">◈</div><div class="kpi-num">142</div><div class="kpi-lbl">Active Projects</div></div>
+    <div class="kpi"><div class="kpi-icon ic-red">⚠</div><div class="kpi-num">12</div><div class="kpi-lbl">Review Needed</div></div>
+    <div class="kpi"><div class="kpi-icon ic-amber">≡</div><div class="kpi-num">47</div><div class="kpi-lbl">In Scope of Work</div></div>
+    <div class="kpi"><div class="kpi-icon ic-red">●</div><div class="kpi-num">8</div><div class="kpi-lbl">Open Tickets</div></div>
+  </div>
+  <div class="pipe">
+    <div class="pipe-hdr"><div class="pipe-ttl">Pipeline</div><div class="pipe-ct">142 projects across 4 stages</div></div>
+    <div class="pipe-bar">
+      <div class="pipe-seg" style="width:20%;background:linear-gradient(90deg,#4a5fff,#8a3fff)"></div>
+      <div class="pipe-seg" style="width:29%;background:linear-gradient(90deg,#3fd67a,#3fb5d6)"></div>
+      <div class="pipe-seg" style="width:41%;background:linear-gradient(90deg,#ffbf3f,#ff8a3f)"></div>
+      <div class="pipe-seg" style="width:10%;background:linear-gradient(90deg,#8c8c99,#c8c8d0)"></div>
+    </div>
+    <div class="pipe-grid">
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:linear-gradient(135deg,#4a5fff,#8a3fff)"></div><div class="pipe-item-name">Pre-Approvals</div></div><div class="pipe-item-num">28</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:linear-gradient(135deg,#3fd67a,#3fb5d6)"></div><div class="pipe-item-name">Approvals</div></div><div class="pipe-item-num">41</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)"></div><div class="pipe-item-name">Construction</div></div><div class="pipe-item-num">58</div></div>
+      <div class="pipe-item"><div class="pipe-item-top"><div class="pipe-item-dot" style="background:linear-gradient(135deg,#8c8c99,#c8c8d0)"></div><div class="pipe-item-name">Final Stage</div></div><div class="pipe-item-num">15</div></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Scope of Work <span class="kbd">S</span></div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#4a5fff,#8a3fff)">47</div><div class="row-lbl">Total in SOW</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#3fd67a,#3fb5d6)">12</div><div class="row-lbl">Ready for SOW</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ff3f5e,#ff8a3f)">3</div><div class="row-lbl">SOW Rejections</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#3fd67a,#3fb5d6)">5</div><div class="row-lbl">Ready to Send Rep SOW</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">7</div><div class="row-lbl">Rep SOW Pending</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#3fd67a,#3fb5d6)">14</div><div class="row-lbl">Customer SOW Sent</div><div class="row-num">→</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Field &amp; Comms <span class="kbd">F</span></div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#3fd67a,#3fb5d6)">11</div><div class="row-lbl">Ready for Pre-Install</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ff3f5e,#ff8a3f)">3</div><div class="row-lbl">Issues w/ Pre-Install</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">5</div><div class="row-lbl">Design Change Orders</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">4</div><div class="row-lbl">Roof Review Needed</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">9</div><div class="row-lbl">Rep Update Needed</div><div class="row-num">→</div></div>
+      <div class="row"><div class="row-icon" style="background:linear-gradient(135deg,#ff3f5e,#ff8a3f)">12</div><div class="row-lbl">Project Review Needed</div><div class="row-num">→</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl">Review Needed <span class="kbd">R</span></div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Johnson - 4512 Oak</div><div class="review-days">24d</div></div><div class="review-meta">SOLR-2341 · Scope of Work</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Martinez - 8823 Elm</div><div class="review-days">18d</div></div><div class="review-meta">SOLR-2298 · Design</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Thompson - 221 Pine</div><div class="review-days">15d</div></div><div class="review-meta">SOLR-2412 · NTP</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Williams - 67 Cedar</div><div class="review-days" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">12d</div></div><div class="review-meta">SOLR-2376 · Permit</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Brown - 1199 Birch</div><div class="review-days" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">9d</div></div><div class="review-meta">SOLR-2401 · Install</div></div>
+      <div class="review-row"><div class="review-top"><div class="review-name">Davis - 554 Maple</div><div class="review-days" style="background:linear-gradient(135deg,#ffbf3f,#ff8a3f)">8d</div></div><div class="review-meta">SOLR-2388 · Site Survey</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  const btns = document.querySelectorAll('.picker button');
+  const vars = document.querySelectorAll('.variant');
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.remove('active'));
+    vars.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelector('.variant[data-v="'+b.dataset.v+'"]').classList.add('active');
+  }));
+</script>
+</body>
+</html>
