@@ -4304,6 +4304,17 @@ document.addEventListener('click',function(e){
   }
 });
 
+// Ctrl/Cmd+B shortcut — bold selection in any textarea
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey && (e.key==='b'||e.key==='B')){
+    const ta = e.target;
+    if(ta && ta.tagName==='TEXTAREA'){
+      e.preventDefault();
+      applyBold(ta);
+    }
+  }
+});
+
 // ── INLINE COMPOSE IN DETAIL ─────────────────────────────
 // Toggle expand
 document.addEventListener('click',function(e){
