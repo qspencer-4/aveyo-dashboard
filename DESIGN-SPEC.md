@@ -159,13 +159,15 @@ On mobile (< 768px), the split view collapses:
 - Section spacing: 0.75rem
 - Inline item gap: 6-8px
 
-## Status Color System (Battlefront 2015, unchanged)
-- Active/accent: #ADD8E6
-- Warning: #C9A96E
-- Critical: #C97850
-- Complete/done: rgba(255,255,255,.35)
-- Muted: rgba(255,255,255,.3)
-- Background: #000 / #0a0a0a
+## Status Color System (Battlefront 2015 — closed palette, 4 colors only)
+**Hard rule:** the entire dashboard uses exactly these four colors. No other hex values are permitted. Differentiate state via opacity / weight / border, not new hues.
+
+- **Black** — `#000` primary bg, `#0a0a0a` alt bg
+- **White** — `#fff` primary text; `rgba(255,255,255,.X)` for all muted / complete / border tiers (`.06`, `.08`, `.25`, `.3`, `.35`, `.5`, `.55`)
+- **Silver** — `#C0C0C0` — the single accent for warning / critical / attention / review-overdue / "needs action". Warn and crit collapse to the same silver.
+- **Light blue** — `#ADD8E6` — brand accent, active states, hover, links, key highlights
+
+Deprecated (do NOT use): `#C9A96E`, `#C97850`, or any reference-mockup palette color (Linear blue/amber/red/green, etc.).
 
 ## Data Flow
 All tabs read from the same `item` object (already loaded from Projects).
