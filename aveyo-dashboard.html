@@ -1749,6 +1749,7 @@ const COMMS_CHIPS = [
   ['61743343','Customer Updates'],
 ];
 let REVIEW_TAB_ITEMS = null;
+let REVIEW_TAB_FILTER = '7';
 const REVIEW_VIEW_ID = '61743302';
 let TD_TICKET = null;
 let TD_PROJECT = null;
@@ -2666,10 +2667,37 @@ async function loadReview(){
 
 function renderReviewTab(){
   const items = REVIEW_TAB_ITEMS||[];
-  document.getElementById('review-list').innerHTML = items.length
-    ? items.map(item=>cardHTML(item,'review')).join('')
-    : '<div class="resp-empty">No projects need review right now.</div>';
+  const filterRow = document.getElementById('review-filters');
+  if(filterRow){
+    const dayCounts = {};
+    items.forEach(i=>{
+      if(i.daysSince !== null){
+        dayCounts[i.daysSince] = (dayCounts[i.daysSince]||0)+1;
+      }
+    });
+    const days = Object.keys(dayCounts).map(Number).sort((a,b)=>a-b);
+    let html = `<button class="rchip ${REVIEW_TAB_FILTER==='all'?'active':''}" data-rtfilter="all">All (${items.length})</button>`;
+    days.forEach(d=>{
+      const cnt = Object.keys(dayCounts).filter(k=>parseInt(k)>=d).reduce((s,k)=>s+dayCounts[k],0);
+      html += `<button class="rchip ${REVIEW_TAB_FILTER===String(d)?'active':''}" data-rtfilter="${d}">${d}+ days (${cnt})</button>`;
+    });
+    filterRow.innerHTML = html;
+    filterRow.style.display = items.length ? 'flex' : 'none';
+  }
+  const filtered = REVIEW_TAB_FILTER==='all'
+    ? items
+    : items.filter(i=>i.daysSince!==null && i.daysSince>=parseInt(REVIEW_TAB_FILTER));
+  document.getElementById('review-list').innerHTML = filtered.length
+    ? filtered.map(item=>cardHTML(item,'review')).join('')
+    : '<div class="resp-empty">No projects match this filter.</div>';
 }
+
+document.getElementById('review-filters').addEventListener('click',function(e){
+  const chip=e.target.closest('[data-rtfilter]');
+  if(!chip)return;
+  REVIEW_TAB_FILTER=chip.dataset.rtfilter;
+  renderReviewTab();
+});
 
 function openReviewTab(){
   showView('review');
