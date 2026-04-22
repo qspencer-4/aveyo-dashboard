@@ -66,6 +66,23 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .btn-tiny:hover{border-color:var(--blue-edge);color:var(--blue)}
 .btn-tiny.primary{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-edge)}
 
+.v-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--border)}
+.v-row:first-child{border-top:none;padding-top:0}
+.v-vd{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:ui-monospace,Menlo,monospace;border:1px solid}
+.v-vd.pass{background:var(--blue-dim);color:var(--blue);border-color:var(--blue)}
+.v-vd.fail{background:var(--silver);color:var(--bg0);border-color:var(--silver)}
+.v-vd.warn{background:transparent;color:var(--silver);border-color:var(--silver);border-style:dashed}
+.v-vd.na{background:transparent;color:var(--text4);border-color:var(--border2)}
+.v-body{flex:1;min-width:0}
+.v-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.v-row[data-verdict="na"] .v-label{color:var(--text3)}
+.v-msg{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.5}
+.v-msg.fail,.v-msg.warn{color:var(--silver)}
+.v-evidence{margin-top:8px;padding:10px;background:var(--bg2);border:1px solid var(--border);font-size:10px;color:var(--text3);font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+.v-evidence-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.v-evidence-grid .k{color:var(--text4);letter-spacing:.12em;text-transform:uppercase;font-weight:700;font-size:9px}
+.v-evidence-grid .v{color:var(--text2);font-family:ui-monospace,Menlo,monospace;font-size:10px}
+
 .tool-rail{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px;margin-bottom:14px}
 .tool-card{background:var(--bg2);border:1px solid var(--border2);padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
 .tool-icon{width:44px;height:44px;background:var(--bg0);border:1px solid var(--blue-edge);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -256,6 +273,14 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Equipment + Lidar</div><div class="row-detail" id="prod-equipment">Loading Aurora…</div></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Tilt Reconciliation</div><div class="row-detail" id="prod-tilts">Loading Aurora arrays…</div></div></div>
         <div class="row"><button class="row-icon" type="button"></button><div class="row-body"><div class="row-label">Production within −5% / +10%</div><div class="row-detail" id="prod-tolerance">Loading…</div></div></div>
+        <div id="verify-block" style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:ui-monospace,Menlo,monospace">Design Verification · Machine Checks</div>
+            <div class="pill" id="verify-summary" style="display:none">—</div>
+            <button class="btn-tiny" id="verify-refresh" style="margin-left:auto;display:none">↻ Re-verify</button>
+          </div>
+          <div id="verify-list"><div style="padding:10px;font-size:10px;color:var(--text4);letter-spacing:.1em;text-transform:uppercase">Waiting for Aurora…</div></div>
+        </div>
         <div id="prod-band" style="padding:16px 18px;border-top:1px solid var(--border);background:var(--bg);display:none">
           <div style="display:flex;gap:24px;font-family:ui-monospace,Menlo,monospace;margin-bottom:24px">
             <div><div style="font-size:8px;color:var(--text4);letter-spacing:.14em">SOLD (LR)</div><div id="band-sold" style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px">—</div></div>
@@ -873,6 +898,7 @@ async function loadAurora(opts){
       localStorage.removeItem(AURORA_DESIGN_OVERRIDE_KEY(SOW_ITEM_ID));
     }
     renderAurora(d);
+    runVerify();
     if(d.aurora_url){
       const a = $('#ext-aurora');
       if(a){ a.href = d.aurora_url; a.style.display = ''; }
@@ -893,6 +919,72 @@ async function loadAurora(opts){
     updateCrossMatchCell('Aurora·Sold', '—', false, false);
   }
 }
+
+async function runVerify(){
+  const did = AURORA && AURORA.design_id;
+  const list = $('#verify-list');
+  const pill = $('#verify-summary');
+  const btn  = $('#verify-refresh');
+  if(!did){ list.innerHTML = '<div style="padding:10px;font-size:10px;color:var(--text4);letter-spacing:.1em;text-transform:uppercase">No design to verify.</div>'; return; }
+  list.innerHTML = '<div style="padding:10px;font-size:10px;color:var(--text4);letter-spacing:.1em;text-transform:uppercase">Running checks…</div>';
+  try{
+    const r = await fetch(`${API}/aurora-verify`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({design_id: did}),
+    });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || 'Verify failed');
+    renderVerify(d);
+    if(pill) pill.style.display = '';
+    if(btn)  btn.style.display = '';
+  }catch(e){
+    list.innerHTML = `<div style="padding:10px;font-size:10px;color:var(--silver)">Verify failed: ${x(e.message)}</div>`;
+  }
+}
+
+function renderVerify(d){
+  const pill = $('#verify-summary');
+  const icons = {pass:'✓',fail:'✗',warn:'!',na:'○'};
+  if(pill){
+    pill.className = 'pill ' + (d.all_pass ? 'ok' : 'review');
+    pill.textContent = d.all_pass ? 'All pass' : `${d.blocking_count||0} blocking · ${d.warn_count||0} warn`;
+  }
+  const html = (d.checks||[]).map(c => {
+    const ev = c.evidence || {};
+    let evHtml = '';
+    if(c.id === 'tilts_set' && ev.face_tilts){
+      const rows = Object.entries(ev.face_tilts).map(([fid,t]) =>
+        `<div class="k">Face ${x(fid)}</div><div class="v">${t==null?'—':Number(t).toFixed(2)+'°'}</div>`
+      ).join('');
+      if(rows) evHtml = `<div class="v-evidence"><div class="v-evidence-grid">${rows}</div></div>`;
+    } else if(c.id === 'all_panels_strung' && ev.modules_unstrung > 0){
+      const ids = (ev.unstrung_ids||[]).map(i => x(String(i))).join(', ') || '—';
+      evHtml = `<div class="v-evidence"><div class="v-evidence-grid"><div class="k">Unstrung</div><div class="v">${ev.modules_unstrung} of ${ev.modules_total}</div><div class="k">Panel IDs</div><div class="v">${ids}</div></div></div>`;
+    } else if(c.id === 'setbacks_configured' && ev.setbacks_m){
+      const rows = Object.entries(ev.setbacks_m).map(([k,v]) =>
+        `<div class="k">${x(k)}</div><div class="v">${v==null?'—':(v*39.3701).toFixed(1)+' in'}</div>`
+      ).join('');
+      evHtml = `<div class="v-evidence"><div class="v-evidence-grid">${rows}</div></div>`;
+    } else if(c.id === 'simulation' && (c.verdict==='fail' || c.verdict==='warn')){
+      evHtml = `<div class="v-evidence"><div class="v-evidence-grid"><div class="k">all_valid</div><div class="v">${ev.all_valid}</div><div class="k">Irradiance map</div><div class="v">${x(ev.irradiance_map_status||'—')}</div><div class="k">Panels sim</div><div class="v">${x(ev.irradiance_panels_status||'—')}</div></div></div>`;
+    }
+    const msgClass = c.verdict === 'fail' ? ' fail' : (c.verdict === 'warn' ? ' warn' : '');
+    const msgHtml = c.message ? `<div class="v-msg${msgClass}">${x(c.message)}</div>` : '';
+    return `<div class="v-row" data-verdict="${c.verdict}">
+      <span class="v-vd ${c.verdict}">${icons[c.verdict]||'?'}</span>
+      <div class="v-body">
+        <div class="v-label">${x(c.label)}</div>
+        ${msgHtml}
+        ${evHtml}
+      </div>
+    </div>`;
+  }).join('');
+  $('#verify-list').innerHTML = html || '<div style="padding:10px;color:var(--text4);font-size:10px">No checks returned.</div>';
+}
+
+document.addEventListener('click', e => {
+  if(e.target && e.target.id === 'verify-refresh') runVerify();
+});
 
 function renderAuroraCandidates(d, header){
   updateCrossMatchCell('Aurora·Sold', '—', false, false);
