@@ -1812,15 +1812,17 @@ document.getElementById('btn-connect').addEventListener('click',doSignIn);
 document.getElementById('btn-demo').addEventListener('click',enterDemoMode);
 document.getElementById('btn-logout').addEventListener('click',doLogout);
 document.getElementById('btn-refresh').addEventListener('click',doRefresh);
-document.getElementById('nav-home').addEventListener('click',()=>{setActiveNav('home');showView('home');loadHome();});
-document.getElementById('nav-tickets').addEventListener('click',()=>{setActiveNav('tickets');showView('tickets');loadTickets();});
-document.getElementById('nav-comms').addEventListener('click',()=>{setActiveNav('comms');showView('comms');loadCommsTab();});
-document.getElementById('nav-sow').addEventListener('click',()=>{setActiveNav('sow');showView('sowresp');loadSOWResp();});
-document.getElementById('nav-preinstall').addEventListener('click',()=>{setActiveNav('preinstall');showView('preinstall');loadPreInstall();});
-document.getElementById('nav-review').addEventListener('click',()=>{setActiveNav('review');showView('review');loadReview();});
-document.getElementById('nav-change').addEventListener('click',()=>{setActiveNav('change');showView('change');loadChangeOrders();});
-document.getElementById('nav-roof').addEventListener('click',()=>{setActiveNav('roof');showView('roof');loadRoof();});
-document.getElementById('nav-kb').addEventListener('click',()=>{setActiveNav('kb');showView('kb');loadKB();});
+function rememberNav(id){try{localStorage.setItem('aveyo_lastnav',id);}catch(e){}}
+function getLastNav(){try{return localStorage.getItem('aveyo_lastnav')||'home';}catch(e){return 'home';}}
+document.getElementById('nav-home').addEventListener('click',()=>{rememberNav('home');setActiveNav('home');showView('home');loadHome();});
+document.getElementById('nav-tickets').addEventListener('click',()=>{rememberNav('tickets');setActiveNav('tickets');showView('tickets');loadTickets();});
+document.getElementById('nav-comms').addEventListener('click',()=>{rememberNav('comms');setActiveNav('comms');showView('comms');loadCommsTab();});
+document.getElementById('nav-sow').addEventListener('click',()=>{rememberNav('sow');setActiveNav('sow');showView('sowresp');loadSOWResp();});
+document.getElementById('nav-preinstall').addEventListener('click',()=>{rememberNav('preinstall');setActiveNav('preinstall');showView('preinstall');loadPreInstall();});
+document.getElementById('nav-review').addEventListener('click',()=>{rememberNav('review');setActiveNav('review');showView('review');loadReview();});
+document.getElementById('nav-change').addEventListener('click',()=>{rememberNav('change');setActiveNav('change');showView('change');loadChangeOrders();});
+document.getElementById('nav-roof').addEventListener('click',()=>{rememberNav('roof');setActiveNav('roof');showView('roof');loadRoof();});
+document.getElementById('nav-kb').addEventListener('click',()=>{rememberNav('kb');setActiveNav('kb');showView('kb');loadKB();});
 document.getElementById('wlist-back').addEventListener('click',()=>{showView(['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home');setActiveNav(['home','tickets','comms','sow','preinstall','review','change','roof','kb'].includes(PREV_VIEW)?PREV_VIEW:'home');});
 document.getElementById('detail-back').addEventListener('click',()=>{
   hideSplitView();
@@ -6866,7 +6868,9 @@ document.getElementById('auth-user').value=PODIO.user;
 document.getElementById('auth-pass').value=PODIO.pass;
 if(TOKEN){
   document.getElementById('bnav').style.display='flex';
-  setActiveNav('home');loadHome();
+  const lastNav=getLastNav();
+  const navBtn=document.getElementById('nav-'+lastNav);
+  if(navBtn){navBtn.click();}else{setActiveNav('home');loadHome();}
   fetchProjectsSilent();
   initPodioStream();
 }else{
