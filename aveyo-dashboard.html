@@ -4607,10 +4607,14 @@ async function inlineGenerate(itemId, type){
     if(sendBtn) sendBtn.disabled=!ta.value.trim();
     return;
   }
+  const t0=Date.now();
+  console.log('[inlineGenerate] start',{itemId,type,url:VPS+(type==='review'?'/generate-review':'/generate-message')});
   try{
     const endpoint=type==='review'?'/generate-review':'/generate-message';
     const res=await fetch(VPS+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:itemId,type})});
+    console.log('[inlineGenerate] response',{status:res.status,ok:res.ok,ms:Date.now()-t0});
     const data=await res.json();
+    console.log('[inlineGenerate] body',{status:data.status,chars:(data.message||'').length,stage:data.stage});
     if(data.status!=='ok') throw new Error(data.message||'Failed');
     ta.value=data.message||'';
     ta.placeholder='';
@@ -4619,7 +4623,8 @@ async function inlineGenerate(itemId, type){
     const sendBtn=document.querySelector('[data-icsend="'+type+'"][data-itemid="'+itemId+'"]');
     if(sendBtn) sendBtn.disabled=!ta.value.trim();
   }catch(e){
-    status.textContent=' '+e.message;
+    console.error('[inlineGenerate] failed',{ms:Date.now()-t0,err:e});
+    status.textContent=' '+(e&&e.message?e.message:'Failed');
     ta.placeholder='Generation failed. Type manually.';
   }
 }
@@ -6913,7 +6918,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if(!refreshing){ refreshing=true; window.location.reload(); }
   });
-  navigator.serviceWorker.register('./sw.js?v=145').then(reg => {
+  navigator.serviceWorker.register('./sw.js?v=146').then(reg => {
     // Check for update immediately on every page load
     reg.update();
     reg.addEventListener('updatefound', () => {
