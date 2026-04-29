@@ -6931,13 +6931,27 @@ if('serviceWorker' in navigator){
   <div style="font-family:'PPTelegraf',sans-serif;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:2rem" id="bf-splash-label">Aveyo Solar</div>
   <div style="width:0px;height:1px;background:rgba(255,255,255,.2);margin-top:.875rem;transition:width .8s ease .3s" id="bf-splash-line"></div>
 </div>
+<script>
+// Skip the 4.5s Three.js splash for already-signed-in users. The splash
+// is meant for fresh entries (first visit, signed out, etc.); reloads
+// of an authenticated session should feel instant.
+(function(){
+  let hasToken=false;
+  try{ hasToken=!!localStorage.getItem('aveyo_tok'); }catch(e){}
+  if(hasToken){
+    const s=document.getElementById('bf-splash');
+    if(s) s.parentNode.removeChild(s);
+  }
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
+  const splash = document.getElementById('bf-splash');
+  if(!splash) return; // skipped for signed-in users above
   const canvas = document.getElementById('bf-splash-canvas');
   const label  = document.getElementById('bf-splash-label');
   const line   = document.getElementById('bf-splash-line');
-  const splash = document.getElementById('bf-splash');
 
   // Expand line
   setTimeout(()=>{ line.style.width='120px'; }, 100);
