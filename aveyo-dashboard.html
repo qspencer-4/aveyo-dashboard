@@ -3511,6 +3511,74 @@ function parseItem(raw){
     comments:fv(raw,FIELD.comments),workOrders:fv(raw,FIELD.workOrders),
     contractor:fv(raw,FIELD.contractor),repTickets:fv(raw,FIELD.tickets),repInfo:fv(raw,FIELD.repInfo),customerPhone:fv(raw,FIELD.customerPhone),milestones:fv(raw,FIELD.milestones),fundingMilestones:fv(raw,FIELD.fundingMilestones),raw};
 }
+
+// ── STORE: whole-app sync layer ─────────────────────────────
+// Single source of truth for items the UI shows. Any view that displays
+// item N can subscribe via STORE.subscribe(N, fn). Any change — Podio→app
+// (SSE) or app→Podio (write) — flows through STORE.set, which fans out to
+// every subscriber and keeps the legacy ALL_ITEMS / WLIST_ITEMS / REVIEW_TAB_ITEMS
+// arrays in lockstep so existing render paths reflect the new state.
+const STORE=(()=>{
+  const items=new Map();
+  const subs=new Map();
+  function get(id){return items.get(id)||null;}
+  function set(id,item){
+    if(!id||!item)return;
+    items.set(id,item);
+    propagateLegacy(id,item);
+    const fns=subs.get(id);if(fns)fns.forEach(fn=>{try{fn(item);}catch(e){console.warn('STORE sub',e);}});
+  }
+  function subscribe(id,fn){
+    if(!subs.has(id))subs.set(id,new Set());
+    subs.get(id).add(fn);
+    return()=>subs.get(id)&&subs.get(id).delete(fn);
+  }
+  async function refresh(id){
+    if(!TOKEN||!id)return null;
+    try{
+      const res=await fetch('https://api.podio.com/item/'+id,{headers:{Authorization:'OAuth2 '+TOKEN}});
+      if(!res.ok)return null;
+      const raw=await res.json();
+      const parsed=parseItem(raw);
+      set(id,parsed);
+      return parsed;
+    }catch(e){console.warn('STORE.refresh',e);return null;}
+  }
+  // Unified write: optimistic UI patch, Podio PUT, rollback on failure.
+  // Uses /item/{id}/value/{fieldId} — the per-field endpoint that's known
+  // to work across Podio field types in this dashboard.
+  async function write(id,fieldId,podioValue,optimisticPatch){
+    const before=items.get(id);
+    if(optimisticPatch&&before)set(id,Object.assign({},before,optimisticPatch));
+    try{
+      const res=await fetch('https://api.podio.com/item/'+id+'/value/'+fieldId,{
+        method:'PUT',
+        headers:{Authorization:'OAuth2 '+TOKEN,'Content-Type':'application/json'},
+        body:JSON.stringify({value:podioValue})
+      });
+      if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error_description||'HTTP '+res.status);}
+      refresh(id);
+      return{ok:true};
+    }catch(e){
+      if(before)set(id,before);
+      return{ok:false,error:e.message};
+    }
+  }
+  function propagateLegacy(id,item){
+    [typeof ALL_ITEMS!=='undefined'?ALL_ITEMS:null,
+     typeof WLIST_ITEMS!=='undefined'?WLIST_ITEMS:null,
+     typeof REVIEW_TAB_ITEMS!=='undefined'?REVIEW_TAB_ITEMS:null].forEach(arr=>{
+      if(!Array.isArray(arr))return;
+      const idx=arr.findIndex(i=>i&&i.id===id);
+      if(idx>=0)arr[idx]=item;
+    });
+    if(typeof CURRENT_ITEM_ID!=='undefined'&&CURRENT_ITEM_ID===id&&typeof showDetail==='function'){
+      try{showDetail(item,true);}catch(e){}
+    }
+  }
+  return{get,set,subscribe,refresh,write};
+})();
+
 function parseMilestones(raw){
   if(!raw)return[];
   const rows=[];
