@@ -3213,27 +3213,42 @@ async function openWidgetList(wi){
 }
 
 // ── PROJECTS TAB ─────────────────────────────────────────
-async function fetchProjectsSilent(){
+// Debounce: the filter endpoint is rate-limited (~1000/hour). Many code
+// paths trigger fetchProjectsSilent (boot, visibility, polling, refresh,
+// cache-warm). Coalesce them so we hit Podio at most once per 60s, and
+// never run two pulls in parallel.
+let _PROJECTS_LAST_FETCH=0;
+let _PROJECTS_INFLIGHT=null;
+const PROJECTS_MIN_INTERVAL_MS=60000;
+async function fetchProjectsSilent(force=false){
   if(DEMO_MODE || !TOKEN) return false;
-  try{
-    let all=[],offset=0,total=null;
-    while(true){
-      const d=await podioPost(`https://api.podio.com/item/app/${PODIO.appId}/filter/${PODIO.viewId}/`,{limit:100,offset,sort_by:'last_edit_on',sort_desc:true});
-      if(d.filtered!==undefined&&total===null)total=d.filtered;
-      else if(d.total!==undefined&&total===null)total=d.total;
-      all=all.concat(d.items||[]);
-      if((d.items||[]).length<100||(total!==null&&all.length>=total))break;
-      offset+=100;
-    }
-    ALL_ITEMS=all.map(parseItem);
-    const active=document.querySelector('.view.active');
-    if(active && active.id==='view-projects'){
-      renderProjStats();renderChips();renderCards();
-    }
-    updateActionBadge();
-    renderActionWidget();
-    return true;
-  }catch(e){ return false; }
+  if(_PROJECTS_INFLIGHT) return _PROJECTS_INFLIGHT;
+  const since=Date.now()-_PROJECTS_LAST_FETCH;
+  if(!force && since<PROJECTS_MIN_INTERVAL_MS) return false;
+  _PROJECTS_INFLIGHT=(async()=>{
+    try{
+      let all=[],offset=0,total=null;
+      while(true){
+        const d=await podioPost(`https://api.podio.com/item/app/${PODIO.appId}/filter/${PODIO.viewId}/`,{limit:100,offset,sort_by:'last_edit_on',sort_desc:true});
+        if(d.filtered!==undefined&&total===null)total=d.filtered;
+        else if(d.total!==undefined&&total===null)total=d.total;
+        all=all.concat(d.items||[]);
+        if((d.items||[]).length<100||(total!==null&&all.length>=total))break;
+        offset+=100;
+      }
+      ALL_ITEMS=all.map(parseItem);
+      _PROJECTS_LAST_FETCH=Date.now();
+      const active=document.querySelector('.view.active');
+      if(active && active.id==='view-projects'){
+        renderProjStats();renderChips();renderCards();
+      }
+      updateActionBadge();
+      renderActionWidget();
+      return true;
+    }catch(e){ return false; }
+    finally{ _PROJECTS_INFLIGHT=null; }
+  })();
+  return _PROJECTS_INFLIGHT;
 }
 
 async function loadProjects(){
@@ -3563,8 +3578,16 @@ const STORE=(()=>{
     subs.get(id).add(fn);
     return()=>subs.get(id)&&subs.get(id).delete(fn);
   }
+  // Per-item throttle: a burst of webhooks for the same item (e.g. a user
+  // typing comments) shouldn't trigger one fetch per event. 5s is short
+  // enough to feel live, long enough to coalesce typical bursts.
+  const _refreshLast=new Map();
+  const REFRESH_MIN_INTERVAL_MS=5000;
   async function refresh(id){
     if(!TOKEN||!id)return null;
+    const last=_refreshLast.get(id)||0;
+    if(Date.now()-last<REFRESH_MIN_INTERVAL_MS)return items.get(id)||null;
+    _refreshLast.set(id,Date.now());
     try{
       const res=await fetch('https://api.podio.com/item/'+id,{headers:{Authorization:'OAuth2 '+TOKEN}});
       if(!res.ok)return null;
@@ -6843,47 +6866,12 @@ function hideSplitView(){
 
 
 // ── AUTO-REFRESH POLLING ──────────────────────────────────
-let POLL_INTERVAL = null;
-const POLL_EVERY_MS = 90000; // 90 seconds
-
-function startPolling(){
-  stopPolling();
-  POLL_INTERVAL = setInterval(async ()=>{
-    if(document.visibilityState !== 'visible') return;
-    if(DEMO_MODE || !TOKEN) return;
-    const active = document.querySelector('.view.active');
-    if(!active) return;
-    const id = active.id;
-    if(id === 'view-projects' || id === 'view-home'){
-      // Silent background refresh of projects cache
-      fetchProjectsSilent();
-    } else if(id === 'view-detail'){
-      // Refresh current project detail silently
-      const itemId = CURRENT_ITEM?.id;
-      if(!itemId) return;
-      try{
-        const token = await ensureToken();
-        if(!token) return;
-        const res = await fetch('https://api.podio.com/item/'+itemId, {
-          headers:{'Authorization':'OAuth2 '+token}
-        });
-        if(res.ok){
-          const raw = await res.json();
-          const updated = parseItem(raw);
-          CURRENT_ITEM = updated;
-          // Update ALL_ITEMS entry
-          const idx = ALL_ITEMS.findIndex(i=>i.id===itemId);
-          if(idx>=0) ALL_ITEMS[idx]=updated;
-          buildDetail(updated);
-        }
-      }catch(e){}
-    }
-  }, POLL_EVERY_MS);
-}
-
-function stopPolling(){
-  if(POLL_INTERVAL){ clearInterval(POLL_INTERVAL); POLL_INTERVAL=null; }
-}
+// SSE (initPodioStream + STORE.refresh) is the live channel now, so the
+// 90s polling interval is redundant and was a major source of rate-limit
+// pressure. Keep startPolling/stopPolling as no-ops so existing call sites
+// don't need to change; revisit only if SSE proves unreliable in prod.
+function startPolling(){}
+function stopPolling(){}
 
 // ── INIT ─────────────────────────────────────────────────
 TOKEN=loadToken();
