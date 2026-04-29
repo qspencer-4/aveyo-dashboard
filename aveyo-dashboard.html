@@ -6891,6 +6891,10 @@ document.getElementById('auth-user').value=PODIO.user;
 document.getElementById('auth-pass').value=PODIO.pass;
 if(TOKEN){
   document.getElementById('bnav').style.display='flex';
+  // Browser refresh on an already-signed-in session = same UX as the
+  // in-app Refresh button. Only fresh sign-ins get the 3D logo spin.
+  startQuickRefresh();
+  setTimeout(endQuickRefresh,1200);
   const lastNav=getLastNav();
   const navBtn=document.getElementById('nav-'+lastNav);
   if(navBtn){navBtn.click();}else{setActiveNav('home');loadHome();}
