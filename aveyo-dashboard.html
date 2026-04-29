@@ -4609,9 +4609,12 @@ async function inlineGenerate(itemId, type){
   }
   const t0=Date.now();
   console.log('[inlineGenerate] start',{itemId,type,url:VPS+(type==='review'?'/generate-review':'/generate-message')});
+  const ctrl=new AbortController();
+  const timeoutId=setTimeout(()=>ctrl.abort(),60000);
   try{
     const endpoint=type==='review'?'/generate-review':'/generate-message';
-    const res=await fetch(VPS+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:itemId,type})});
+    const res=await fetch(VPS+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:itemId,type}),signal:ctrl.signal});
+    clearTimeout(timeoutId);
     console.log('[inlineGenerate] response',{status:res.status,ok:res.ok,ms:Date.now()-t0});
     const data=await res.json();
     console.log('[inlineGenerate] body',{status:data.status,chars:(data.message||'').length,stage:data.stage});
@@ -4623,8 +4626,10 @@ async function inlineGenerate(itemId, type){
     const sendBtn=document.querySelector('[data-icsend="'+type+'"][data-itemid="'+itemId+'"]');
     if(sendBtn) sendBtn.disabled=!ta.value.trim();
   }catch(e){
-    console.error('[inlineGenerate] failed',{ms:Date.now()-t0,err:e});
-    status.textContent=' '+(e&&e.message?e.message:'Failed');
+    clearTimeout(timeoutId);
+    const msg=e&&e.name==='AbortError'?'Timed out after 60s':(e&&e.message?e.message:'Failed');
+    console.error('[inlineGenerate] failed',{ms:Date.now()-t0,err:e,msg});
+    status.textContent=' '+msg;
     ta.placeholder='Generation failed. Type manually.';
   }
 }
