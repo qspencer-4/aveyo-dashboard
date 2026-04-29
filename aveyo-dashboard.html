@@ -563,13 +563,14 @@ body{background:#0a0a0a!important;color:#fff!important;font-family:'PPTelegraf',
 .top-progress.active{display:block}
 .top-progress::before{content:'';position:absolute;top:0;left:-40%;width:40%;height:100%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:topProgressSweep .9s cubic-bezier(.4,.0,.2,1) infinite}
 @keyframes topProgressSweep{0%{left:-40%}100%{left:100%}}
-body.refresh-quick .loading,
-body.refresh-quick #wl-loading,
-body.refresh-quick #detail-loading{display:none!important}
-/* Kill the 3D logo spin during a quick refresh — inline-styled spinners
-   need an !important animation override to lose to the top-progress bar. */
-body.refresh-quick .spinner,
-body.refresh-quick [style*="spin3d"]{animation:none!important;visibility:hidden!important}
+/* Quick-refresh suppresses heavy view-level spinners only. Modals (compose,
+   SOW, ticket detail) live outside .view and keep their spinners — otherwise
+   "Generating with AI..." looks stuck because the spinner was being killed
+   even though the request was still in flight. */
+body.refresh-quick .view .loading,
+body.refresh-quick #wl-loading{display:none!important}
+body.refresh-quick .view .spinner,
+body.refresh-quick .view [style*="spin3d"]{animation:none!important;visibility:hidden!important}
 
 /* ── HEADER ── */
 .hdr{
