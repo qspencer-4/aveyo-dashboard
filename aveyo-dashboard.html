@@ -3550,22 +3550,26 @@ const STORE=(()=>{
     }catch(e){console.warn('STORE.refresh',e);return null;}
   }
   // Unified write: optimistic UI patch, Podio PUT, rollback on failure.
-  // Uses /item/{id}/value/{fieldId} — the per-field endpoint that's known
-  // to work across Podio field types in this dashboard.
-  async function write(id,fieldId,podioValue,optimisticPatch){
+  // Uses the whole-item endpoint /item/{id} with {fields:[{field_id,values:[...]}]}
+  // because that shape works across every Podio field type (date, text,
+  // category, app-ref). The per-field endpoint rejects some shapes (e.g.
+  // date with {value:{start:...}}). Caller passes the values array directly.
+  async function write(id,fieldId,values,optimisticPatch){
     const before=items.get(id);
     if(optimisticPatch&&before)set(id,Object.assign({},before,optimisticPatch));
     try{
-      const res=await fetch('https://api.podio.com/item/'+id+'/value/'+fieldId,{
+      const valuesArr=Array.isArray(values)?values:[values];
+      const res=await fetch('https://api.podio.com/item/'+id,{
         method:'PUT',
         headers:{Authorization:'OAuth2 '+TOKEN,'Content-Type':'application/json'},
-        body:JSON.stringify({value:podioValue})
+        body:JSON.stringify({fields:[{field_id:fieldId,values:valuesArr}]})
       });
-      if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error_description||'HTTP '+res.status);}
+      if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error_description||err.error||'HTTP '+res.status);}
       refresh(id);
       return{ok:true};
     }catch(e){
       if(before)set(id,before);
+      console.warn('STORE.write failed',id,fieldId,e);
       return{ok:false,error:e.message};
     }
   }
@@ -4662,19 +4666,21 @@ async function saveReviewDate(itemId){
   const result = await STORE.write(
     itemId,
     FIELD.lastReview,
-    {start: dateVal + ' 00:00:00'},
+    [{start: dateVal + ' 00:00:00'}],
     {lastReview: dateVal, daysSince: 0}
   );
   if(result.ok){
+    saved.textContent='Saved';
+    saved.style.color='';
     saved.style.display='inline';
     btn.textContent='Save';
     setTimeout(()=>{saved.style.display='none';},2500);
   }else{
     btn.textContent='Save';
-    saved.textContent='Failed';
+    saved.textContent='Failed: '+(result.error||'unknown');
     saved.style.color='var(--red-dark)';
     saved.style.display='inline';
-    setTimeout(()=>{saved.style.display='none';saved.textContent='Saved';saved.style.color='';},2500);
+    setTimeout(()=>{saved.style.display='none';saved.textContent='Saved';saved.style.color='';},5000);
   }
   btn.disabled=false;
 }
