@@ -563,7 +563,13 @@ body{background:#0a0a0a!important;color:#fff!important;font-family:'PPTelegraf',
 .top-progress.active{display:block}
 .top-progress::before{content:'';position:absolute;top:0;left:-40%;width:40%;height:100%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:topProgressSweep .9s cubic-bezier(.4,.0,.2,1) infinite}
 @keyframes topProgressSweep{0%{left:-40%}100%{left:100%}}
-body.refresh-quick .loading{display:none!important}
+body.refresh-quick .loading,
+body.refresh-quick #wl-loading,
+body.refresh-quick #detail-loading{display:none!important}
+/* Kill the 3D logo spin during a quick refresh — inline-styled spinners
+   need an !important animation override to lose to the top-progress bar. */
+body.refresh-quick .spinner,
+body.refresh-quick [style*="spin3d"]{animation:none!important;visibility:hidden!important}
 
 /* ── HEADER ── */
 .hdr{
@@ -6882,7 +6888,9 @@ if(TOKEN){
   // Browser refresh on an already-signed-in session = same UX as the
   // in-app Refresh button. Only fresh sign-ins get the 3D logo spin.
   startQuickRefresh();
-  setTimeout(endQuickRefresh,1200);
+  // Hold quick-refresh until the boot-triggered fetch resolves (so the
+  // 3D spinner doesn't reappear mid-load), with a 6s safety cap.
+  setTimeout(endQuickRefresh,6000);
   const lastNav=getLastNav();
   const navBtn=document.getElementById('nav-'+lastNav);
   if(navBtn){navBtn.click();}else{setActiveNav('home');loadHome();}
