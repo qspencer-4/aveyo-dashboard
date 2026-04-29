@@ -1975,8 +1975,13 @@ function initPodioStream(){
           return;
         }
 
-        // Raw item events: refresh active list views (detail/tickets)
-        if(evt.app_id && typeof refreshIfActiveApp==='function'){
+        // Raw item events: surgical refresh via STORE — fans out to every
+        // view of this item (detail pane, list cards, KPIs) without nuking
+        // the whole tab's state. Falls back to app-wide reload only when
+        // the event has no item_id (rare).
+        if(evt.item_id && typeof STORE!=='undefined'){
+          STORE.refresh(parseInt(evt.item_id,10));
+        }else if(evt.app_id && typeof refreshIfActiveApp==='function'){
           refreshIfActiveApp(String(evt.app_id));
         }
       }catch(err){console.warn('SSE parse',err);}
