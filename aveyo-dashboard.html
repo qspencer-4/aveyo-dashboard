@@ -3577,8 +3577,8 @@ const STORE=(()=>{
       const idx=arr.findIndex(i=>i&&i.id===id);
       if(idx>=0)arr[idx]=item;
     });
-    if(typeof CURRENT_ITEM_ID!=='undefined'&&CURRENT_ITEM_ID===id&&typeof showDetail==='function'){
-      try{showDetail(item,true);}catch(e){}
+    if(typeof CURRENT_ITEM_ID!=='undefined'&&CURRENT_ITEM_ID===id&&typeof buildDetail==='function'){
+      try{buildDetail(item);}catch(e){}
     }
   }
   return{get,set,subscribe,refresh,write};
@@ -4659,31 +4659,18 @@ async function saveReviewDate(itemId){
 
   btn.disabled=true;
   btn.textContent='...';
-  try{
-    // Podio date fields require PUT to /item/{id} with fields array
-    const res = await fetch(
-      'https://api.podio.com/item/' + itemId,
-      {
-        method: 'PUT',
-        headers: {'Authorization': 'OAuth2 ' + TOKEN, 'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          fields: [{
-            field_id: FIELD.lastReview,
-            values: [{start: dateVal + ' 00:00:00'}]
-          }]
-        })
-      }
-    );
-    if(!res.ok){ const err=await res.json().catch(()=>({})); console.log('Podio error:', err); throw new Error(err.error_description||'HTTP '+res.status); }
+  const result = await STORE.write(
+    itemId,
+    FIELD.lastReview,
+    {start: dateVal + ' 00:00:00'},
+    {lastReview: dateVal, daysSince: 0}
+  );
+  if(result.ok){
     saved.style.display='inline';
     btn.textContent='Save';
-    // Update local item so card reflects new date
-    const item = ALL_ITEMS.find(i=>i.id===itemId)||WLIST_ITEMS.find(i=>i.id===itemId);
-    if(item) item.lastReview = dateVal;
     setTimeout(()=>{saved.style.display='none';},2500);
-  }catch(e){
+  }else{
     btn.textContent='Save';
-    btn.disabled=false;
     saved.textContent='Failed';
     saved.style.color='var(--red-dark)';
     saved.style.display='inline';
@@ -6856,7 +6843,7 @@ function startPolling(){
           // Update ALL_ITEMS entry
           const idx = ALL_ITEMS.findIndex(i=>i.id===itemId);
           if(idx>=0) ALL_ITEMS[idx]=updated;
-          showDetail(updated, true); // silent = don't scroll
+          buildDetail(updated);
         }
       }catch(e){}
     }
